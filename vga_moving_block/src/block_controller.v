@@ -17,16 +17,29 @@ module block_controller(
 	
 	parameter RED   = 12'b1111_0000_0000;
 	parameter BLACK = 12'b0000_0000_0000;
+	parameter GREY = 12'b_1100_1100_1100;
+	parameter LIGHT_BLUE = 12'b_1001_1101_1111;
+	parameter PINK = 12'b_1111_1110_1110;
+	parameter DARK_GREY = 12'b_1100_1100_1100;
+	parameter MEDIUM_GREY = 12'b_1001_1001_1001;
+	parameter BACKGROUND = 12'b_0000_1000_1010;
 	
 	/*when outputting the rgb value in an always block like this, make sure to include the if(~bright) statement, as this ensures the monitor 
 	will output some data to every pixel and not just the images you are trying to display*/
 	always@ (*) begin
     	if(~bright )	//force black if not inside the display area
 			rgb = 12'b0000_0000_0000;
-		else if (light_gray_fill) 
-			rgb = RED; 
+		if (light_gray_fill || light_blue_fill || pink_fill)
+		  begin
+		      if (light_gray_fill) 
+			     rgb = GREY;  
+		      if (light_blue_fill)
+		           rgb = LIGHT_BLUE;
+		      if (pink_fill)
+		           rgb = PINK;
+		  end
 		else	
-			rgb=background;
+			rgb=BACKGROUND;
 	end
 		//the +-5 for the positions give the dimension of the block (i.e. it will be 10x10 pixels)
 	assign block_fill=vCount>=(ypos-5) && vCount<=(ypos+5) && hCount>=(xpos-5) && hCount<=(xpos+5);
@@ -38,6 +51,19 @@ module block_controller(
 		|| (hCount>=(144+273)&&hCount<=(144+273+16)&&vCount>=(35+288)&&vCount<=(35+288+20)) // left leg
 		|| (hCount>=(144+351)&&hCount<=(144+351+16)&&vCount>=(35+288)&&vCount<=(35+288+20)); // right leg
 	
+	assign light_blue_fill = 
+	    (hCount>=(144+273)&&hCount<=(144+273+94)&&vCount>=(35+202)&&vCount<=(35+202+34)) // bottom window 
+		|| (hCount>=(144+281)&&hCount<=(144+281+78)&&vCount>=(35+195)&&vCount<=(35+195+7)) // second strip
+		|| (hCount>=(144+289)&&hCount<=(144+289+62)&&vCount>=(35+187)&&vCount<=(35+187+8)) // third strip
+		|| (hCount>=(144+297)&&hCount<=(144+297+46)&&vCount>=(35+182)&&vCount<=(35+182+5)); // top window
+	
+	// move to other always block for inputs 	
+	assign pink_fill = 
+	    (hCount>=(144+227)&&hCount<=(144+227+10)&&vCount>=(35+193)&&vCount<=(35+193+105)) // left outer shield 
+		|| (hCount>=(144+237)&&hCount<=(144+237+11)&&vCount>=(35+188)&&vCount<=(35+188+115)) // left inner shield
+		|| (hCount>=(144+402)&&hCount<=(144+402+10)&&vCount>=(35+193)&&vCount<=(35+193+105)) // right outer shield
+		|| (hCount>=(144+392)&&hCount<=(144+392+11)&&vCount>=(35+188)&&vCount<=(35+188+115)); // right inner shield
+		
 	always@(posedge clk, posedge rst) 
 	begin
 		if(rst)

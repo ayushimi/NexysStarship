@@ -66,16 +66,17 @@ set ACTIVE_STEP init_design
 set rc [catch {
   create_msg_db init_design.pb
   set_param chipscope.maxJobs 1
+  set_param xicom.use_bs_reader 1
   create_project -in_memory -part xc7a100tcsg324-1
   set_property board_part digilentinc.com:nexys4:part0:1.1 [current_project]
   set_property design_mode GateLvl [current_fileset]
   set_param project.singleFileAddWarning.threshold 0
-  set_property webtalk.parent_dir C:/Xilinx_Projects/vga_moving_block/vga_moving_block.cache/wt [current_project]
-  set_property parent.project_path C:/Xilinx_Projects/vga_moving_block/vga_moving_block.xpr [current_project]
-  set_property ip_output_repo C:/Xilinx_Projects/vga_moving_block/vga_moving_block.cache/ip [current_project]
+  set_property webtalk.parent_dir C:/ee354_final_project/NexysStarship/vga_moving_block/vga_moving_block.cache/wt [current_project]
+  set_property parent.project_path C:/ee354_final_project/NexysStarship/vga_moving_block/vga_moving_block.xpr [current_project]
+  set_property ip_output_repo C:/ee354_final_project/NexysStarship/vga_moving_block/vga_moving_block.cache/ip [current_project]
   set_property ip_cache_permissions {read write} [current_project]
-  add_files -quiet C:/Xilinx_Projects/vga_moving_block/vga_moving_block.runs/synth_1/vga_top.dcp
-  read_xdc C:/Xilinx_Projects/vga_moving_block/src/nexys4.xdc
+  add_files -quiet C:/ee354_final_project/NexysStarship/vga_moving_block/vga_moving_block.runs/synth_1/vga_top.dcp
+  read_xdc C:/ee354_final_project/NexysStarship/vga_moving_block/src/nexys4.xdc
   link_design -top vga_top -part xc7a100tcsg324-1
   close_msg_db -file init_design.pb
 } RESULT]

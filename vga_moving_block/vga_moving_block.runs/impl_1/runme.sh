@@ -24,7 +24,7 @@ else
 fi
 export LD_LIBRARY_PATH
 
-HD_PWD='C:/Xilinx_Projects/vga_moving_block/vga_moving_block.runs/impl_1'
+HD_PWD='C:/ee354_final_project/NexysStarship/vga_moving_block/vga_moving_block.runs/impl_1'
 cd "$HD_PWD"
 
 HD_LOG=runme.log
