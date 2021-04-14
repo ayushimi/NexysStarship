@@ -28,10 +28,10 @@ module block_controller(
 	parameter GREY = 12'b1100_1100_1100;
 	parameter LIGHT_BLUE = 12'b1001_1101_1111;
 	parameter PINK = 12'b1111_1000_1000;
-	parameter DARK_GREY = 12'b1100_1100_1100;
+	parameter DARK_GREY = 12'b0110_0110_0110;
 	parameter MEDIUM_GREY = 12'b1001_1001_1001;
 	parameter BACKGROUND = 12'b0000_1000_1010; // sky blue
-	parameter BACKGROUND2 = 12'b0000_0001_0101; // dark blue
+	parameter BACKGROUND2 = 12'b0000_0001_0100; // dark blue
 	parameter TAN = 12'b1110_1011_1000; // EB8 	
 
 	
@@ -105,9 +105,9 @@ module block_controller(
 	
 	assign medium_gray_fill =
 		(hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+192)&&vCount<=(35+192+2)) // top cannon base
-		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+165)&&vCount<=(35+165+5)) // top cannon strip
+		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+165)&&vCount<=(35+165+4)) // top cannon strip
 		|| (hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+288)&&vCount<=(35+288+2)) // bottom cannon base
-		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+312)&&vCount<=(35+312+5)); // bottom cannon strip
+		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+312)&&vCount<=(35+312+4)); // bottom cannon strip
 	
 	// lights
 	assign pink_fill =
@@ -126,9 +126,9 @@ module block_controller(
 		|| (hCount>=(144+310)&&hCount<=(144+310+5)&&vCount>=(35+236)&&vCount<=(35+236+3)) // left mouth 
 		|| (hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+238)&&vCount<=(35+238+3)) // mid mouth
 		|| (hCount>=(144+325)&&hCount<=(144+325+5)&&vCount>=(35+236)&&vCount<=(35+236+3)) // right mouth  
-		|| (hCount>=(144+314)&&hCount<=(144+314+3)&&vCount>=(35+211)&&vCount<=(35+211+3)) // left hair strand  
-		|| (hCount>=(144+319)&&hCount<=(144+319+3)&&vCount>=(35+208)&&vCount<=(35+208+6)) // mid hair strand  
-		|| (hCount>=(144+324)&&hCount<=(144+324+2)&&vCount>=(35+211)&&vCount<=(35+211+3)); // right hair strand  
+		|| (hCount>=(144+314)&&hCount<=(144+314+3)&&vCount>=(35+211)&&vCount<=(35+211+2)) // left hair strand  
+		|| (hCount>=(144+319)&&hCount<=(144+319+3)&&vCount>=(35+208)&&vCount<=(35+208+5)) // mid hair strand  
+		|| (hCount>=(144+324)&&hCount<=(144+324+2)&&vCount>=(35+211)&&vCount<=(35+211+2)); // right hair strand  
 	
 	assign spaceship_display_fill = light_gray_fill || light_blue_fill || left_shield_fill || right_shield_fill || black_fill || head_fill || dark_gray_fill || medium_gray_fill;
 		
