@@ -59,10 +59,10 @@ module block_controller(
 					rgb = PINK;
 				else if (light_gray_fill)
 					rgb = GREY;
-				else if (dark_gray_fill)
-					rgb = DARK_GREY;
 				else if (medium_gray_fill)
 					rgb = MEDIUM_GREY;
+				else if (dark_gray_fill)
+					rgb = DARK_GREY;
 		  end
 		else	
 			rgb=BACKGROUND2;
