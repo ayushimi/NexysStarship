@@ -11,31 +11,36 @@ module block_controller(
    );
 	wire block_fill;
 	wire light_gray_fill;
+	wire light_blue_fill;
+	wire left_shield_fill;
+	wire right_shield_fill;
+	
 	
 	//these two values dictate the center of the block, incrementing and decrementing them leads the block to move in certain directions
 	reg [9:0] xpos, ypos;
 	
 	parameter RED   = 12'b1111_0000_0000;
 	parameter BLACK = 12'b0000_0000_0000;
-	parameter GREY = 12'b_1100_1100_1100;
-	parameter LIGHT_BLUE = 12'b_1001_1101_1111;
-	parameter PINK = 12'b_1111_1110_1110;
-	parameter DARK_GREY = 12'b_1100_1100_1100;
-	parameter MEDIUM_GREY = 12'b_1001_1001_1001;
-	parameter BACKGROUND = 12'b_0000_1000_1010;
+	parameter GREY = 12'b1100_1100_1100;
+	parameter LIGHT_BLUE = 12'b1001_1101_1111;
+	parameter PINK = 12'b1111_1110_1110;
+	parameter DARK_GREY = 12'b1100_1100_1100;
+	parameter MEDIUM_GREY = 12'b1001_1001_1001;
+	parameter BACKGROUND = 12'b0000_1000_1010;
+	parameter BACKGROUND2 = 12'b1111_1111_1111;
 	
 	/*when outputting the rgb value in an always block like this, make sure to include the if(~bright) statement, as this ensures the monitor 
 	will output some data to every pixel and not just the images you are trying to display*/
 	always@ (*) begin
     	if(~bright )	//force black if not inside the display area
 			rgb = 12'b0000_0000_0000;
-		if (light_gray_fill || light_blue_fill || pink_fill)
+		else if (light_gray_fill || light_blue_fill || left_shield_fill || right_shield_fill)
 		  begin
 		      if (light_gray_fill) 
-			     rgb = GREY;  
+			       rgb = GREY;  
 		      if (light_blue_fill)
 		           rgb = LIGHT_BLUE;
-		      if (pink_fill)
+		      if (left_shield_fill || right_shield_fill)
 		           rgb = PINK;
 		  end
 		else	
@@ -57,13 +62,14 @@ module block_controller(
 		|| (hCount>=(144+289)&&hCount<=(144+289+62)&&vCount>=(35+187)&&vCount<=(35+187+8)) // third strip
 		|| (hCount>=(144+297)&&hCount<=(144+297+46)&&vCount>=(35+182)&&vCount<=(35+182+5)); // top window
 	
-	// move to other always block for inputs 	
-	assign pink_fill = 
-	    (hCount>=(144+227)&&hCount<=(144+227+10)&&vCount>=(35+193)&&vCount<=(35+193+105)) // left outer shield 
-		|| (hCount>=(144+237)&&hCount<=(144+237+11)&&vCount>=(35+188)&&vCount<=(35+188+115)) // left inner shield
-		|| (hCount>=(144+402)&&hCount<=(144+402+10)&&vCount>=(35+193)&&vCount<=(35+193+105)) // right outer shield
+	// move to other always block for inputs 		
+	assign left_shield_fill =
+		(hCount>=(144+227)&&hCount<=(144+227+10)&&vCount>=(35+193)&&vCount<=(35+193+105)) // left outer shield 
+		|| (hCount>=(144+237)&&hCount<=(144+237+11)&&vCount>=(35+188)&&vCount<=(35+188+115));// left inner shield
+	
+	assign right_shield_fill = 
+		(hCount>=(144+402)&&hCount<=(144+402+10)&&vCount>=(35+193)&&vCount<=(35+193+105)) // right outer shield
 		|| (hCount>=(144+392)&&hCount<=(144+392+11)&&vCount>=(35+188)&&vCount<=(35+188+115)); // right inner shield
-		
 	always@(posedge clk, posedge rst) 
 	begin
 		if(rst)
