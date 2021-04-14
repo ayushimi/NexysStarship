@@ -40,7 +40,7 @@ module block_controller(
 	always@ (*) begin
     	if(~bright )	//force black if not inside the display area
 			rgb = 12'b0000_0000_0000;
-		else if (light_gray_fill || light_blue_fill || left_shield_fill || right_shield_fill)
+		else if (spaceship_display_fill)
 		  begin
 		      // facial features
 			  // head
@@ -96,6 +96,7 @@ module block_controller(
 		(hCount>=(144+402)&&hCount<=(144+402+10)&&vCount>=(35+205)&&vCount<=(35+205+105)) // right outer shield
 		|| (hCount>=(144+392)&&hCount<=(144+392+11)&&vCount>=(35+200)&&vCount<=(35+200+115)); // right inner shield
 	
+	// cannons
 	assign dark_gray_fill =
 		(hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+152)&&vCount<=(35+152+10)) // top cannon tip
 		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+162)&&vCount<=(35+162+30)) // top cannon body
@@ -107,12 +108,14 @@ module block_controller(
 		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+165)&&vCount<=(35+165+5)) // top cannon strip
 		|| (hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+288)&&vCount<=(35+288+2)) // bottom cannon base
 		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+312)&&vCount<=(35+312+5)); // bottom cannon strip
-		
+	
+	// lights
 	assign pink_fill =
 		(hCount>=(144+271)&&hCount<=(144+271+14)&&vCount>=(35+250)&&vCount<=(35+250+14)) // left light
 		|| (hCount>=(144+313)&&hCount<=(144+313+14)&&vCount>=(35+258)&&vCount<=(35+258+14)) // middle light
 		|| (hCount>=(144+354)&&hCount<=(144+354+14)&&vCount>=(35+250)&&vCount<=(35+250+14)); // right light
-		
+	
+	// 
 	assign head_fill = 
 	    (hCount>=(144+303)&&hCount<=(144+303+34)&&vCount>=(35+214)&&vCount<=(35+214+34)); // head
 	    
@@ -126,6 +129,8 @@ module block_controller(
 		|| (hCount>=(144+314)&&hCount<=(144+314+3)&&vCount>=(35+211)&&vCount<=(35+211+3)) // left hair strand  
 		|| (hCount>=(144+319)&&hCount<=(144+319+3)&&vCount>=(35+208)&&vCount<=(35+208+6)) // mid hair strand  
 		|| (hCount>=(144+324)&&hCount<=(144+324+2)&&vCount>=(35+211)&&vCount<=(35+211+3)); // right hair strand  
+	
+	assign spaceship_display_fill = light_gray_fill || light_blue_fill || left_shield_fill || right_shield_fill || black_fill || head_fill || dark_gray_fill || medium_gray_fill;
 		
 	always@(posedge clk, posedge rst) 
 	begin
