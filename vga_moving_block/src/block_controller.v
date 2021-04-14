@@ -23,11 +23,11 @@ module block_controller(
 	parameter BLACK = 12'b0000_0000_0000;
 	parameter GREY = 12'b1100_1100_1100;
 	parameter LIGHT_BLUE = 12'b1001_1101_1111;
-	parameter PINK = 12'b1111_1110_1110;
+	parameter PINK = 12'b1111_1000_1000;
 	parameter DARK_GREY = 12'b1100_1100_1100;
 	parameter MEDIUM_GREY = 12'b1001_1001_1001;
-	parameter BACKGROUND = 12'b0000_1000_1010;
-	parameter BACKGROUND2 = 12'b1111_1111_1111;
+	parameter BACKGROUND = 12'b0000_1000_1010; // sky blue
+	parameter BACKGROUND2 = 12'b0000_0001_0101;
 	
 	/*when outputting the rgb value in an always block like this, make sure to include the if(~bright) statement, as this ensures the monitor 
 	will output some data to every pixel and not just the images you are trying to display*/
@@ -44,7 +44,7 @@ module block_controller(
 		           rgb = PINK;
 		  end
 		else	
-			rgb=BACKGROUND;
+			rgb=BACKGROUND2;
 	end
 		//the +-5 for the positions give the dimension of the block (i.e. it will be 10x10 pixels)
 	assign block_fill=vCount>=(ypos-5) && vCount<=(ypos+5) && hCount>=(xpos-5) && hCount<=(xpos+5);
