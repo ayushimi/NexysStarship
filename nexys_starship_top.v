@@ -17,14 +17,14 @@
 
 `timescale 1ns / 1ps
 
-module ee354_GCD_top
+module nexys_starship_top
 		(MemOE, MemWR, RamCS, QuadSpiFlashCS, // Disable the three memory chips
 
         ClkPort,                           // the 100 MHz incoming clock signal
 		
 		BtnL, BtnU, BtnD, BtnR,            // the Left, Up, Down, and the Right buttons BtnL, BtnR,
 		BtnC,                              // the center button (this is our reset in most of our designs)
-		Sw7, Sw6, Sw5, Sw4, Sw3, Sw2, Sw1, Sw0, // 8 switches
+		Sw3, Sw2, Sw1, Sw0, // 8 switches
 		Ld7, Ld6, Ld5, Ld4, Ld3, Ld2, Ld1, Ld0, // 8 LEDs
 		An3, An2, An1, An0,			       // 4 anodes
 		An7, An6, An5, An4,                // another 4 anodes which are not used
@@ -37,7 +37,7 @@ module ee354_GCD_top
 	input		ClkPort;	
 	// Project Specific Inputs
 	input		BtnL, BtnU, BtnD, BtnR, BtnC;	
-	input		Sw7, Sw6, Sw5, Sw4, Sw3, Sw2, Sw1, Sw0;
+	input		Sw3, Sw2, Sw1, Sw0;
 	
 	
 	/*  OUTPUTS */
@@ -59,14 +59,27 @@ module ee354_GCD_top
 	reg [26:0]	DIV_CLK;
 	
 	wire Start_Ack_Pulse;
-	wire in_AB_Pulse, CEN_Pulse, BtnR_Pulse, BtnU_Pulse;
-	wire q_I, q_Sub, q_Mult, q_Done;
-	wire [7:0] A, B, AB_GCD, i_count;
-	reg [7:0] Ain;
-	reg [7:0] Bin;
-	reg A_bar_slash_B;
+	wire Up_Pulse, Down_Pulse, Left_Pulse, Right_Pulse, Center_Pulse;
+	wire BtnR_Pulse, BtnU_Pulse, BtnL_Pulse, BtnD_Pulse, BtnC_Pulse;
+	wire q_Init, q_Play, q_Gameover; 
+	wire q_TR_Init, q_TR_Working, q_TR_Repair;
+	wire q_BR_Init, q_BR_Working, q_BR_Repair;
+	wire q_LR_Init, q_LR_Working, q_LR_Repair;
+	wire q_RR_Init, q_RR_Working, q_RR_Repair;
+	wire q_TM_Init, q_TM_Empty, q_TM_Full;
+	wire q_BM_Init, q_BM_Empty, q_BM_Full;
+	wire q_LM_Init, q_LM_Empty, q_LM_Unshielded, q_LM_Shielded; 
+	wire q_RM_Init, q_RM_Empty, q_RM_Unshielded, q_RM_Shielded; 
+	
+	// TODO: add game_timer reg 
+	reg play_flag, game_over;
+	reg top_broken, btm_broken, left_broken, right_broken;
+	reg top_monster, btm_monster, left_monster, right_monster; 
+	reg r_shield, l_shield; 
+	reg [3:0] hex_combo; 
+	reg [3:0] left_repair_combo, right_repair_combo, up_repair_combo, btm_repair_combo;
 	reg [3:0]	SSD;
-	wire [3:0]	SSD3, SSD2, SSD1, SSD0;
+	wire [3:0]	SSD0;
 	reg [7:0]  SSD_CATHODES;
 	
 //------------	
@@ -110,26 +123,29 @@ module ee354_GCD_top
 
 //------------
 // INPUT: SWITCHES & BUTTONS
-	// BtnL is used as both Start and Acknowledge. 
-	// Is the debouncing of the start/ack signal necessary? Discuss with your TA
 
-ee354_debouncer #(.N_dc(28)) ee354_debouncer_2 
-        (.CLK(sys_clk), .RESET(Reset), .PB(BtnL), .DPB( ), 
-		.SCEN(Start_Ack_Pulse), .MCEN( ), .CCEN( ));
-		 		 
-		 // BtnR is used to generate in_AB_Pulse to record the values of 
-		 // the inputs A and B as set on the switches.
-		 // BtnU is used as CEN_Pulse to allow single-stepping
-	assign {in_AB_Pulse, CEN_Pulse} = {BtnR_Pulse, BtnU_Pulse};
+	assign {Up_Pulse, Down_Pulse, Left_Pulse, Right_Pulse, Center_Pulse} = 
+	        {BtnU_Pulse, BtnD_Pulse, BtnL_Pulse, BtnR_Pulse, BtnC_Pulse};
 
-ee354_debouncer #(.N_dc(28)) ee354_debouncer_1 
+ee354_debouncer #(.N_dc(28)) ee354_debouncer_0 
         (.CLK(sys_clk), .RESET(Reset), .PB(BtnR), .DPB( ), 
 		.SCEN(BtnR_Pulse), .MCEN( ), .CCEN( ));
 
-ee354_debouncer #(.N_dc(28)) ee354_debouncer_0 // ****** TODO  in Part 2 ******
+ee354_debouncer #(.N_dc(28)) ee354_debouncer_1 // ****** TODO  in Part 2 ******
         (.CLK(sys_clk), .RESET(Reset), .PB(BtnU), .DPB( ), // complete this instantiation
 		.SCEN(BtnU_Pulse), .MCEN( ), .CCEN( )); // to produce BtnU_Pulse from BtnU
 		
+ee354_debouncer #(.N_dc(28)) ee354_debouncer_2 
+        (.CLK(sys_clk), .RESET(Reset), .PB(BtnL), .DPB( ), 
+		.SCEN(BtnL_Pulse), .MCEN( ), .CCEN( ));
+
+ee354_debouncer #(.N_dc(28)) ee354_debouncer_3 
+        (.CLK(sys_clk), .RESET(Reset), .PB(BtnD), .DPB( ), 
+		.SCEN(BtnD_Pulse), .MCEN( ), .CCEN( ));
+		
+ee354_debouncer #(.N_dc(28)) ee354_debouncer_4 
+        (.CLK(sys_clk), .RESET(Reset), .PB(BtnC), .DPB( ), 
+		.SCEN(BtnC_Pulse), .MCEN( ), .CCEN( ));
 //------------
 // DESIGN
 	// On two pushes of BtnR, numbers A and B are recorded in Ain and Bin
@@ -138,36 +154,44 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_0 // ****** TODO  in Part 2 ******
 	begin
 		if(Reset)
 		begin
-			Ain <= 0;
-			Bin <= 0;
-			A_bar_slash_B <= 0;
+            top_broken <= 0;
+            btm_broken <= 0;
+            left_broken <= 0;
+            right_broken <= 0;
+	        top_monster <= 0;
+	        btm_monster <= 0;
+	        left_monster <= 0;
+	        right_monster <= 0; 
+	        r_shield <= 0;
+	        l_shield <= 0; 
+	        hex_combo <= 4'b0000; 
+	        left_repair_combo <= 4'b0000;
+	        right_repair_combo <= 4'b0000;
+	        up_repair_combo <= 4'b0000;
+	        btm_repair_combo <= 4'b0000;
 		end
 		else
 		begin
-			if (in_AB_Pulse)  	// Note: in_AB_Pulse is same as BtnR_Pulse.
+			if (Center_Pulse)  	// Note: in_AB_Pulse is same as BtnR_Pulse.
 								// ****** TODO  in Part 2 ******
 								// Complete the lines below so that you deposit the value on switches
 								// either in Ain or in Bin based on the value of the flag A_bar_slash_B. 
 								// Also you need to toggle the value of the flag A_bar_slash_B.
-				begin
-					A_bar_slash_B <= ~ A_bar_slash_B;
-					if (A_bar_slash_B == 1'b0)
-						Ain <= {Sw7, Sw6, Sw5, Sw4, Sw3, Sw2, Sw1, Sw0};
-					else
-						Bin <= {Sw7, Sw6, Sw5, Sw4, Sw3, Sw2, Sw1, Sw0};
+				begin	
+					hexCombo <= {Sw3, Sw2, Sw1, Sw0};	
 				end
 		end
 	end
 	
 	// the state machine module
-	ee354_GCD ee354_GCD_1(.Clk(sys_clk), .CEN(CEN_Pulse), .Reset(Reset), .Start(Start_Ack_Pulse), .Ack(Start_Ack_Pulse), 
-						  .Ain(Ain), .Bin(Bin), .A(A), .B(B), .AB_GCD(AB_GCD), .i_count(i_count),
-						  .q_I(q_I), .q_Sub(q_Sub), .q_Mult(q_Mult), .q_Done(q_Done));
+	nexys_starship_game nexys_starship_game_1(.Clk(sys_clk), .BtnC(Center_Pulse), .Reset(Reset),  
+						  .q_Init(q_Init), .q_Play(q_Play), .q_GameOver(q_GameOver), 
+						  .play_flag(play_flag), .game_over(game_over));
 
 //------------
 // OUTPUT: LEDS
 	
-	assign {Ld7, Ld6, Ld5, Ld4} = {q_I, q_Sub, q_Mult, q_Done};
+	assign {Ld7, Ld6, Ld5} = {q_Init, q_Play, q_GameOver};
 	assign {Ld3, Ld2, Ld1, Ld0} = {BtnL, BtnU, BtnR, BtnD}; // Reset is driven by BtnC
 	// Here
 	// BtnL = Start/Ack
@@ -200,7 +224,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_0 // ****** TODO  in Part 2 ******
 	assign An1 = 1'b1;
 	
 	
-	always @ (ssdscan_clk, SSD0, SSD1, SSD2, SSD3)
+	always @ (ssdscan_clk, SSD0)
 	begin : SSD_SCAN_OUT
 		case (ssdscan_clk) 
 				  2'b11: SSD = SSD0;

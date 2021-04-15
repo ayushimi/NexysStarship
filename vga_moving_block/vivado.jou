@@ -1,0 +1,25 @@
+#-----------------------------------------------------------
+# Vivado v2019.2 (64-bit)
+# SW Build 2708876 on Wed Nov  6 21:40:23 MST 2019
+# IP Build 2700528 on Thu Nov  7 00:09:20 MST 2019
+# Start of session at: Tue Apr 13 19:21:03 2021
+# Process ID: 6224
+# Current directory: Z:/Desktop/ee354_final_project/NexysStarship/vga_moving_block
+# Command line: vivado.exe -gui_launcher_event rodinguilauncherevent4160 Z:\Desktop\ee354_final_project\NexysStarship\vga_moving_block\vga_moving_block.xpr
+# Log file: Z:/Desktop/ee354_final_project/NexysStarship/vga_moving_block/vivado.log
+# Journal file: Z:/Desktop/ee354_final_project/NexysStarship/vga_moving_block\vivado.jou
+#-----------------------------------------------------------
+start_gui
+open_project Z:/Desktop/ee354_final_project/NexysStarship/vga_moving_block/vga_moving_block.xpr
+update_compile_order -fileset sources_1
+open_hw_manager
+connect_hw_server -allow_non_jtag
+open_hw_target
+set_property PROGRAM.FILE {Z:/Desktop/ee354_final_project/NexysStarship/vga_moving_block/vga_moving_block.runs/impl_1/vga_top.bit} [get_hw_devices xc7a100t_0]
+current_hw_device [get_hw_devices xc7a100t_0]
+refresh_hw_device -update_hw_probes false [lindex [get_hw_devices xc7a100t_0] 0]
+disconnect_hw_server localhost:3121
+connect_hw_server -allow_non_jtag
+open_hw_target
+disconnect_hw_server localhost:3121
+connect_hw_server -allow_non_jtag
