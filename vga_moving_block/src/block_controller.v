@@ -19,9 +19,13 @@ module block_controller(
 	wire dark_gray_fill;
 	wire medium_gray_fill;
 	
+	wire top_shooting;
+	
 	
 	//these two values dictate the center of the block, incrementing and decrementing them leads the block to move in certain directions
 	reg [9:0] xpos, ypos;
+	reg [9:0] top_laser;
+	reg [9:0] bottom_laser;
 	
 	parameter RED   = 12'b1111_0000_0000;
 	parameter BLACK = 12'b0000_0000_0000;
@@ -32,7 +36,9 @@ module block_controller(
 	parameter MEDIUM_GREY = 12'b1001_1001_1001;
 	parameter BACKGROUND = 12'b0000_1000_1010; // sky blue
 	parameter BACKGROUND2 = 12'b0000_0001_0100; // dark blue
-	parameter TAN = 12'b1110_1011_1000; // EB8 	
+	parameter TAN = 12'b1110_1011_1000; // EB8 
+	parameter GREEN = 12'b0001_1111_0000;
+	
 
 	
 	/*when outputting the rgb value in an always block like this, make sure to include the if(~bright) statement, as this ensures the monitor 
@@ -131,6 +137,11 @@ module block_controller(
 		|| (hCount>=(144+324)&&hCount<=(144+324+2)&&vCount>=(35+211)&&vCount<=(35+211+2)); // right hair strand  
 	
 	assign spaceship_display_fill = light_gray_fill || light_blue_fill || left_shield_fill || right_shield_fill || black_fill || head_fill || dark_gray_fill || medium_gray_fill;
+	
+	assign green_fill = 
+		(hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser)&&vCount<=(35+top_laser+24)) // top 3rd bullet 
+		|| (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser-40)&&vCount<=(35+top_laser-40+24)) // top 2nd bullet 
+		|| (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser-80)&&vCount<=(35+top_laser-80+24)) // top 1st bullet 
 		
 	always@(posedge clk, posedge rst) 
 	begin
@@ -139,6 +150,7 @@ module block_controller(
 			//rough values for center of screen
 			xpos<=450;
 			ypos<=250;
+			top_laser<=232;
 		end
 		else if (clk) begin
 		
@@ -158,15 +170,25 @@ module block_controller(
 				if(xpos==150)
 					xpos<=800;
 			end
-			else if(up) begin
+			else if(up && !top_shooting) begin
 				ypos<=ypos-2;
 				if(ypos==34)
 					ypos<=514;
+				top_shooting<=1;
+				
 			end
 			else if(down) begin
 				ypos<=ypos+2;
 				if(ypos==514)
 					ypos<=34;
+			end
+			
+			if(top_shooting) begin
+				top_laser<=top_laser-1;
+				if(top_laser + 24 == 0) begin
+					top_shooting<=0;
+					top_laser<=232;
+				end
 			end
 		end
 	end
