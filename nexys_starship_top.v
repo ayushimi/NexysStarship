@@ -189,12 +189,12 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 						  .play_flag(play_flag), .game_over(game_over));
 						  
 	nexys_starship_BM nexys_starship_BM_1(.Clk(sys_clk), .Reset(Reset), .q_BM_Init(q_BM_Init), 
-	                        .q_BM_Empty(q_BM_Empty, .q_BM_Full(q_BM_Full), .play_flag(play_flag), 
-                            .bottom_monster(bottom_monster), .bottom_broken(bottom_broken), game_over);
+	                      .q_BM_Empty(q_BM_Empty, .q_BM_Full(q_BM_Full), .play_flag(play_flag), 
+                          .bottom_monster(bottom_monster), .bottom_broken(bottom_broken), game_over);
                             
 	nexys_starship_TM nexys_starship_TM_1(.Clk(sys_clk), .Reset(Reset), .q_TM_Init(q_TM_Init), 
-	                        .q_TM_Empty(q_TM_Empty, .q_TM_Full(q_TM_Full), .play_flag(play_flag), 
-                            .top_monster(top_monster), .top_broken(top_broken), game_over);
+	                      .q_TM_Empty(q_TM_Empty, .q_TM_Full(q_TM_Full), .play_flag(play_flag), 
+                          .top_monster(top_monster), .top_broken(top_broken), game_over);
 
 //------------
 // OUTPUT: LEDS
