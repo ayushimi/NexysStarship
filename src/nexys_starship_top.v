@@ -29,7 +29,8 @@ module nexys_starship_top
 		An3, An2, An1, An0,			       // 4 anodes
 		An7, An6, An5, An4,                // another 4 anodes which are not used
 		Ca, Cb, Cc, Cd, Ce, Cf, Cg,        // 7 cathodes
-		Dp                                 // Dot Point Cathode on SSDs
+		Dp,                                // Dot Point Cathode on SSDs
+	    hSync, vSync, vgaR, vgaG, vgaB     // vga 
 	  );
 
 	/*  INPUTS */
@@ -51,8 +52,8 @@ module nexys_starship_top
 	output 	An0, An1, An2, An3;	
 	output 	An4, An5, An6, An7;	
 	//VGA signal
-	output hSync, vSync,
-	output [3:0] vgaR, vgaG, vgaB,
+	output hSync, vSync;
+	output [3:0] vgaR, vgaG, vgaB;
 
 	
 	/*  LOCAL SIGNALS */
@@ -83,15 +84,19 @@ module nexys_starship_top
 	wire q_RM_Init, q_RM_Empty, q_RM_Unshielded, q_RM_Shielded; 
 	
 	// TODO: add game_timer reg 
-	reg play_flag, game_over;
-	reg top_broken, btm_broken, left_broken, right_broken;
-	reg top_monster, btm_monster, left_monster, right_monster; 
-	reg r_shield, l_shield; 
+	wire play_flag, game_over;
+	wire top_broken, btm_broken, left_broken, right_broken;
+	wire top_monster, btm_monster, left_monster, right_monster; 
+	wire r_shield, l_shield; 
 	reg [3:0] hex_combo; 
 	reg [3:0] left_repair_combo, right_repair_combo, up_repair_combo, btm_repair_combo;
 	reg [3:0]	SSD;
 	wire [3:0]	SSD0;
 	reg [7:0]  SSD_CATHODES;
+	
+	
+	// temp stuff
+	wire top_shooting;
 	
 //------------	
 // Disable the three memories so that they do not interfere with the rest of the design.
@@ -171,16 +176,6 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	begin
 		if(Reset)
 		begin
-            top_broken <= 0;
-            btm_broken <= 0;
-            left_broken <= 0;
-            right_broken <= 0;
-	        top_monster <= 0;
-	        btm_monster <= 0;
-	        left_monster <= 0;
-	        right_monster <= 0; 
-	        r_shield <= 0;
-	        l_shield <= 0; 
 	        hex_combo <= 4'b0000; 
 	        left_repair_combo <= 4'b0000;
 	        right_repair_combo <= 4'b0000;
@@ -195,7 +190,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 								// either in Ain or in Bin based on the value of the flag A_bar_slash_B. 
 								// Also you need to toggle the value of the flag A_bar_slash_B.
 				begin	
-					hexCombo <= {Sw3, Sw2, Sw1, Sw0};	
+					hex_combo <= {Sw3, Sw2, Sw1, Sw0};	
 				end
 		end
 	end
@@ -206,18 +201,20 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 						  .play_flag(play_flag), .game_over(game_over));
 						  
 	nexys_starship_BM nexys_starship_BM_1(.Clk(sys_clk), .Reset(Reset), .q_BM_Init(q_BM_Init), 
-	                      .q_BM_Empty(q_BM_Empty, .q_BM_Full(q_BM_Full), .play_flag(play_flag), 
-                          .bottom_monster(bottom_monster), .bottom_broken(bottom_broken), game_over);
+	                      .q_BM_Empty(q_BM_Empty), .q_BM_Full(q_BM_Full), .play_flag(play_flag), 
+                          .btm_monster(btm_monster), .btm_broken(btm_broken), .game_over(game_over));
                             
 	nexys_starship_TM nexys_starship_TM_1(.Clk(sys_clk), .Reset(Reset), .q_TM_Init(q_TM_Init), 
-	                      .q_TM_Empty(q_TM_Empty, .q_TM_Full(q_TM_Full), .play_flag(play_flag), 
-                          .top_monster(top_monster), .top_broken(top_broken), game_over);
+	                      .q_TM_Empty(q_TM_Empty), .q_TM_Full(q_TM_Full), .play_flag(play_flag), 
+                          .top_monster(top_monster), .top_broken(top_broken), .game_over(game_over));
 						  
 	
 	// vga modules
-	display_controller dc(.Clk(ClkPort), .hSync(hSync), .vSync(vSync), .bright(bright), .hCount(hc), .vCount(vc));
+	display_controller dc(.Clk(sys_clk), .hSync(hSync), .vSync(vSync), .bright(bright), .hCount(hc), .vCount(vc));
 	
-	block_controller sc(.Clk(move_clk), .bright(bright), .Reset(Reset), .BtnU(Up_Pulse), .BtnD(Down_Pulse),.BtnL(Left_Pulse), .BtnR(Right_Pulse), .hCount(hc), .vCount(vc), .rgb(rgb), .top_monster(top_monster), .top_broken(top_broken));
+	block_controller sc(.Clk(move_clk), .bright(bright), .Reset(Reset), .BtnU(Up_Pulse), .BtnD(Down_Pulse),
+	                       .BtnL(Left_Pulse), .BtnR(Right_Pulse), .hCount(hc), .vCount(vc), .rgb(rgb),
+	                       .top_monster(top_monster), .top_broken(top_broken), .top_shooting(top_shooting));
 
 //------------
 // VGA OUTPUT
@@ -228,7 +225,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 //------------
 // OUTPUT: LEDS
 	
-	assign {Ld7, Ld6, Ld5} = {q_Init, q_Play, top_monster};
+	assign {Ld7, Ld6, Ld5, Ld4} = {q_Init, q_Play, top_monster, top_shooting};
 	assign {Ld3, Ld2, Ld1, Ld0} = {BtnL, BtnU, BtnR, BtnD}; // Reset is driven by BtnC
 	// Here
 	// BtnL = Start/Ack

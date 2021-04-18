@@ -16,7 +16,7 @@ module nexys_starship_game(Clk, BtnC, Reset, q_Init, q_Play, q_GameOver,
 
 	/*  OUTPUTS */
 	// store the two flags 
-	output reg play_flag, game_over;		// the result of the operation: GCD of the two numbers
+	output reg play_flag, game_over;
 	// store current state
 	output q_Init, q_Play, q_GameOver;
 	reg [2:0] state;

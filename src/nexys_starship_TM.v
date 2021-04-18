@@ -15,7 +15,7 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 	input	Clk, Reset;	
 
 	/*  OUTPUTS */
-	output reg [7:0] play_flag, top_monster, top_broken, game_over;		
+	output reg play_flag, top_monster, top_broken, game_over;		
 	output q_TM_Init, q_TM_Empty, q_TM_Full;
 	reg [2:0] state;
 	assign {q_TM_Full, q_TM_Empty, q_TM_Init} = state;
@@ -23,12 +23,18 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 	localparam 	
 	INIT = 3'b001, EMPTY = 3'b010, FULL = 3'b100, UNK = 3'bXXX;
 	
-	function [1:0] generateMonster ();
-	begin 
-	     assert(randomize(generateMonster) with 
-	           { generateMonster dist {0:= 999, 1:= 1}; } );
+	function [0:0] generateMonster (input[0:0] R);
+	begin: GENERATEMONSTER
+        reg [7:0] rand;
+        rand = $random() % 256;
+        if (rand>(99*255/100))
+           R = 1'b1;
+        else
+           R = 1'b0; // 99% chance of being 0
+   
+	     generateMonster=R;
 	end
-	end function
+	endfunction
 
 	// NSL AND SM
 	always @ (posedge Clk, posedge Reset)
@@ -57,7 +63,7 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 					    if (top_monster) state <= FULL;
 					    // data transfers 
 					    // CLEAR DISPLAY  
-					    if (generateMonster()) 
+					    if (generateMonster(1)) 
 					    begin
 					        top_monster = 1; 
 					        // top_timer <= 0; 

@@ -7,7 +7,8 @@ module block_controller(
 	input BtnU, input BtnD, input BtnL, input BtnR,
 	input [9:0] hCount, vCount,
 	output reg [11:0] rgb,
-	input top_monster, input top_broken
+	reg top_monster, reg top_broken,
+	output reg top_shooting
    );
 	wire spaceship_black_fill;
 	wire light_gray_fill;
@@ -24,9 +25,7 @@ module block_controller(
 	wire tunnel_blue_fill;
 	wire laser_mask_fill;
 	wire top_green_fill;
-	
-	reg top_shooting;	
-	
+		
 	//these two values dictate the center of the block, incrementing and decrementing them leads the block to move in certain directions
 	reg [9:0] xpos, ypos;
 	reg signed [10:0] top_laser;
@@ -228,8 +227,6 @@ module block_controller(
 			ypos<=250;
 			top_laser<=256;
 			top_shooting<=0;
-			top_monster<=1;
-			top_broken<=0;
 		end
 		else if (Clk) begin
 		
@@ -243,7 +240,7 @@ module block_controller(
 			end
 			else if(BtnL) begin
 			end
-			else if(BtnU && !top_shooting && !top_broken) begin
+			else if(BtnU) begin
 				top_shooting<=1;
 				
 			end
@@ -254,7 +251,7 @@ module block_controller(
 				top_laser<=top_laser-2;
 				if (top_monster && top_laser == 76) begin
 					top_shooting<=0;
-					top_monster<=0;
+					top_monster=0;
 					top_laser<=256;
 				end
 				else if(top_laser == 0) begin
