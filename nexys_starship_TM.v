@@ -22,6 +22,13 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 		
 	localparam 	
 	INIT = 3'b001, EMPTY = 3'b010, FULL = 3'b100, UNK = 3'bXXX;
+	
+	function [1:0] generateMonster ();
+	begin 
+	     assert(randomize(generateMonster) with 
+	           { generateMonster dist {0:= 999, 1:= 1}; } );
+	end
+	end function
 
 	// NSL AND SM
 	always @ (posedge Clk, posedge Reset)
@@ -50,9 +57,11 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 					    if (top_monster) state <= FULL;
 					    // data transfers 
 					    // CLEAR DISPLAY  
-					    // if (generateMonster()) 
-					    top_monster = 1; 
-					    // top_timer <= 0; 
+					    if (generateMonster()) 
+					    begin
+					        top_monster = 1; 
+					        // top_timer <= 0; 
+					    end
 					end
 					FULL:
 					begin
