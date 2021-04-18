@@ -50,6 +50,9 @@ module nexys_starship_top
 	output 	Cg, Cf, Ce, Cd, Cc, Cb, Ca, Dp;
 	output 	An0, An1, An2, An3;	
 	output 	An4, An5, An6, An7;	
+	//VGA signal
+	output hSync, vSync,
+	output [3:0] vgaR, vgaG, vgaB,
 
 	
 	/*  LOCAL SIGNALS */
@@ -57,7 +60,15 @@ module nexys_starship_top
 	wire		board_clk, sys_clk;
 	wire [1:0] 	ssdscan_clk;
 	reg [26:0]	DIV_CLK;
+	wire move_clk; // slower vga
 	
+	// VGA wires
+	wire bright;
+	wire[9:0] hc, vc;
+	wire [11:0] rgb;
+
+
+	// SM wires
 	wire Start_Ack_Pulse;
 	wire Up_Pulse, Down_Pulse, Left_Pulse, Right_Pulse, Center_Pulse;
 	wire BtnR_Pulse, BtnU_Pulse, BtnL_Pulse, BtnD_Pulse, BtnC_Pulse;
@@ -121,6 +132,12 @@ module nexys_starship_top
 	assign	sys_clk = board_clk;
 	// assign	sys_clk = DIV_CLK[25];
 
+//------------------
+	// VGA CLOCK
+	assign move_clk = DIV_CLK[19]; //slower clock to drive the movement of objects on the vga screen
+
+
+
 //------------
 // INPUT: SWITCHES & BUTTONS
 
@@ -183,7 +200,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 		end
 	end
 	
-	// the state machine module
+	// the state machine modules
 	nexys_starship_game nexys_starship_game_1(.Clk(sys_clk), .BtnC(Center_Pulse), .Reset(Reset),  
 						  .q_Init(q_Init), .q_Play(q_Play), .q_GameOver(q_GameOver), 
 						  .play_flag(play_flag), .game_over(game_over));
@@ -195,11 +212,23 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	nexys_starship_TM nexys_starship_TM_1(.Clk(sys_clk), .Reset(Reset), .q_TM_Init(q_TM_Init), 
 	                      .q_TM_Empty(q_TM_Empty, .q_TM_Full(q_TM_Full), .play_flag(play_flag), 
                           .top_monster(top_monster), .top_broken(top_broken), game_over);
+						  
+	
+	// vga modules
+	display_controller dc(.Clk(ClkPort), .hSync(hSync), .vSync(vSync), .bright(bright), .hCount(hc), .vCount(vc));
+	
+	block_controller sc(.Clk(move_clk), .bright(bright), .Reset(Reset), .BtnU(Up_Pulse), .BtnD(Down_Pulse),.BtnL(Left_Pulse), .BtnR(Right_Pulse), .hCount(hc), .vCount(vc), .rgb(rgb), .top_monster(top_monster), .top_broken(top_broken));
+
+//------------
+// VGA OUTPUT
+	assign vgaR = rgb[11 : 8];
+	assign vgaG = rgb[7  : 4];
+	assign vgaB = rgb[3  : 0];
 
 //------------
 // OUTPUT: LEDS
 	
-	assign {Ld7, Ld6, Ld5} = {q_Init, q_Play, q_GameOver};
+	assign {Ld7, Ld6, Ld5} = {q_Init, q_Play, top_monster};
 	assign {Ld3, Ld2, Ld1, Ld0} = {BtnL, BtnU, BtnR, BtnD}; // Reset is driven by BtnC
 	// Here
 	// BtnL = Start/Ack

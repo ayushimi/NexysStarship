@@ -22,7 +22,7 @@
 // counter), 
 //////////////////////////////////////////////////////////////////////////////////
 module display_controller(
-	input clk,
+	input Clk,
 	output hSync, vSync,
 	output reg bright,
 	output reg[9:0] hCount, 
@@ -37,7 +37,7 @@ module display_controller(
 		pulse = 0;
 	end
 	
-	always @(posedge clk)
+	always @(posedge Clk)
 		pulse = ~pulse;
 	always @(posedge pulse)
 		clk25 = ~clk25;

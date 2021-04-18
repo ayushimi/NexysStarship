@@ -12,7 +12,7 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
                             play_flag, top_monster, top_broken, game_over);
 
 	/*  INPUTS */
-	input	Clk, BtnC, Reset;	
+	input	Clk, Reset;	
 
 	/*  OUTPUTS */
 	output reg [7:0] play_flag, top_monster, top_broken, game_over;		

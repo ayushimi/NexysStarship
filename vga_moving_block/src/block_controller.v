@@ -1,13 +1,13 @@
 `timescale 1ns / 1ps
 
 module block_controller(
-	input clk, //this clock must be a slow enough clock to view the changing positions of the objects
+	input Clk, //this clock must be a slow enough clock to view the changing positions of the objects
 	input bright,
-	input rst,
-	input up, input down, input left, input right,
+	input Reset,
+	input BtnU, input BtnD, input BtnL, input BtnR,
 	input [9:0] hCount, vCount,
 	output reg [11:0] rgb,
-	output reg [11:0] background
+	input top_monster, input top_broken
    );
 	wire spaceship_black_fill;
 	wire light_gray_fill;
@@ -25,15 +25,11 @@ module block_controller(
 	wire laser_mask_fill;
 	wire top_green_fill;
 	
-	reg top_shooting;
-	reg top_monster;
-	reg top_broken;
-	
+	reg top_shooting;	
 	
 	//these two values dictate the center of the block, incrementing and decrementing them leads the block to move in certain directions
 	reg [9:0] xpos, ypos;
 	reg signed [10:0] top_laser;
-	reg [9:0] bottom_laser;
 	
 	parameter RED   = 12'b1111_0000_0000;
 	parameter BLACK = 12'b0000_0000_0000;
@@ -223,9 +219,9 @@ module block_controller(
 
 
 	
-	always@(posedge clk, posedge rst) 
+	always@(posedge Clk, posedge Reset) 
 	begin
-		if(rst)
+		if(Reset)
 		begin 
 			//rough values for center of screen
 			xpos<=450;
@@ -235,7 +231,7 @@ module block_controller(
 			top_monster<=1;
 			top_broken<=0;
 		end
-		else if (clk) begin
+		else if (Clk) begin
 		
 		/* Note that the top left of the screen does NOT correlate to vCount=0 and hCount=0. The display_controller.v file has the 
 			synchronizing pulses for both the horizontal sync and the vertical sync begin at vcount=0 and hcount=0. Recall that after 
@@ -243,15 +239,15 @@ module block_controller(
 			the top left corner corresponds to (hcount,vcount)~(144,35). Which means with a 640x480 resolution, the bottom right corner 
 			corresponds to ~(783,515).  
 		*/
-			if(right) begin
+			if(BtnR) begin
 			end
-			else if(left) begin
+			else if(BtnL) begin
 			end
-			else if(up && !top_shooting && !top_broken) begin
+			else if(BtnU && !top_shooting && !top_broken) begin
 				top_shooting<=1;
 				
 			end
-			else if(down) begin
+			else if(BtnD) begin
 			end
 			
 			if(top_shooting) begin
@@ -268,22 +264,5 @@ module block_controller(
 			end
 		end
 	end
-	
-	//the background color reflects the most recent button press
-	always@(posedge clk, posedge rst) begin
-		if(rst)
-			background <= 12'b1111_1111_1111;
-		else 
-			if(right)
-				background <= 12'b1111_1111_0000;
-			else if(left)
-				background <= 12'b0000_1111_1111;
-			else if(down)
-				background <= 12'b0000_1111_0000;
-			else if(up)
-				background <= 12'b0000_0000_1111;
-	end
-
-	
-	
+		
 endmodule
