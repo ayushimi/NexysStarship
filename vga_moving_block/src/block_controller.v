@@ -9,7 +9,7 @@ module block_controller(
 	output reg [11:0] rgb,
 	output reg [11:0] background
    );
-	wire block_fill;
+	wire spaceship_black_fill;
 	wire light_gray_fill;
 	wire light_blue_fill;
 	wire left_shield_fill;
@@ -18,13 +18,21 @@ module block_controller(
 	wire head_fill;
 	wire dark_gray_fill;
 	wire medium_gray_fill;
+	wire TM_black_fill;
+	wire TM_red_fill;
+	wire TM_cream_fill;
+	wire tunnel_blue_fill;
+	wire laser_mask_fill;
+	wire top_green_fill;
 	
-	wire top_shooting;
+	reg top_shooting;
+	reg top_monster;
+	reg top_broken;
 	
 	
 	//these two values dictate the center of the block, incrementing and decrementing them leads the block to move in certain directions
 	reg [9:0] xpos, ypos;
-	reg [9:0] top_laser;
+	reg signed [10:0] top_laser;
 	reg [9:0] bottom_laser;
 	
 	parameter RED   = 12'b1111_0000_0000;
@@ -38,7 +46,9 @@ module block_controller(
 	parameter BACKGROUND2 = 12'b0000_0001_0100; // dark blue
 	parameter TAN = 12'b1110_1011_1000; // EB8 
 	parameter GREEN = 12'b0001_1111_0000;
-	
+	parameter CREAM = 12'b1111_1110_1011;
+	parameter TUNNEL_BLUE = 12'b0000_0001_0110;
+
 
 	
 	/*when outputting the rgb value in an always block like this, make sure to include the if(~bright) statement, as this ensures the monitor 
@@ -55,7 +65,7 @@ module block_controller(
 			  // gray body
 			  // shields
 			  // cannons
-				if (black_fill)
+				if (spaceship_black_fill)
 					rgb = BLACK;
 				else if (head_fill)
 					rgb = TAN;
@@ -70,11 +80,30 @@ module block_controller(
 				else if (dark_gray_fill)
 					rgb = DARK_GREY;
 		  end
+		else if (TM_display_fill)
+		  begin
+				if (TM_black_fill)
+					rgb = BLACK;
+				else if (TM_cream_fill)
+					rgb = CREAM;
+				else if (TM_red_fill)
+					rgb = RED;
+				else if (TM_mask_fill)
+					rgb = TUNNEL_BLUE;
+
+		  end
+		else if (top_green_fill)
+			rgb = GREEN;
+		else if (tunnel_blue_fill)
+			rgb = TUNNEL_BLUE;
 		else	
 			rgb=BACKGROUND2;
 	end
-		//the +-5 for the positions give the dimension of the block (i.e. it will be 10x10 pixels)
-	assign block_fill=vCount>=(ypos-5) && vCount<=(ypos+5) && hCount>=(xpos-5) && hCount<=(xpos+5);
+	
+	assign tunnel_blue_fill = 
+        (hCount>=(144+220)&&hCount<=(144+220+200)&&vCount>=(35)&&vCount<=(35+480)) // vertical tunnel 
+        || (hCount>=(144)&&hCount<=(144+640)&&vCount>=(35+171)&&vCount<=(35+171+159)); // horizontal tunnel 
+
 	
 	// gray spaceship body
 	assign light_gray_fill = 
@@ -125,7 +154,7 @@ module block_controller(
 	assign head_fill = 
 	    (hCount>=(144+303)&&hCount<=(144+303+34)&&vCount>=(35+214)&&vCount<=(35+214+34)); // head
 	    
-	assign black_fill = 
+	assign spaceship_black_fill = 
 	    (hCount>=(144+302)&&hCount<=(144+302+36)&&vCount>=(35+217)&&vCount<=(35+217+7)) // eyebrows / headband 
 		|| (hCount>=(144+309)&&hCount<=(144+309+5)&&vCount>=(35+224)&&vCount<=(35+224+3)) // left eye
 		|| (hCount>=(144+326)&&hCount<=(144+326+5)&&vCount>=(35+224)&&vCount<=(35+224+3)) // right eye
@@ -136,13 +165,64 @@ module block_controller(
 		|| (hCount>=(144+319)&&hCount<=(144+319+3)&&vCount>=(35+208)&&vCount<=(35+208+5)) // mid hair strand  
 		|| (hCount>=(144+324)&&hCount<=(144+324+2)&&vCount>=(35+211)&&vCount<=(35+211+2)); // right hair strand  
 	
-	assign spaceship_display_fill = light_gray_fill || light_blue_fill || left_shield_fill || right_shield_fill || black_fill || head_fill || dark_gray_fill || medium_gray_fill;
+	assign spaceship_display_fill = light_gray_fill || light_blue_fill || left_shield_fill || right_shield_fill || spaceship_black_fill || head_fill || dark_gray_fill || medium_gray_fill;
 	
-	assign green_fill = 
-		(hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser)&&vCount<=(35+top_laser+24)) // top 3rd bullet 
-		|| (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser-40)&&vCount<=(35+top_laser-40+24)) // top 2nd bullet 
-		|| (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser-80)&&vCount<=(35+top_laser-80+24)) // top 1st bullet 
+	assign top_green_fill = 
+		(hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser-24)&&vCount<=(35+top_laser)) // top 3rd bullet 
+		|| (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser-24-40)&&vCount<=(35+top_laser-40)) // top 2nd bullet 
+		|| (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser-24-80)&&vCount<=(35+top_laser-80)); // top 1st bullet 
 		
+	assign TM_red_fill =
+		// left antenna
+		(hCount>=(144+304)&&hCount<=(144+304+8)&&vCount>=(35+7)&&vCount<=(35+7+8))
+		|| (hCount>=(144+306)&&hCount<=(144+306+4)&&vCount>=(35+15)&&vCount<=(35+15+9))
+		// right antenna
+		|| (hCount>=(144+330)&&hCount<=(144+330+8)&&vCount>=(35+7)&&vCount<=(35+7+8))
+		|| (hCount>=(144+332)&&hCount<=(144+332+4)&&vCount>=(35+15)&&vCount<=(35+15+9))
+		// body
+		|| (hCount>=(144+290)&&hCount<=(144+290+59)&&vCount>=(35+24)&&vCount<=(35+24+52))
+        || (hCount>=(144+266)&&hCount<=(144+266+5)&&vCount>=(35+71)&&vCount<=(35+71+7)) // left outermost leg block
+        || (hCount>=(144+271)&&hCount<=(144+271+5)&&vCount>=(35+74)&&vCount<=(35+74+7)) // left second leg block
+        || (hCount>=(144+276)&&hCount<=(144+276+5)&&vCount>=(35+71)&&vCount<=(35+71+7)) // left third leg block
+        || (hCount>=(144+281)&&hCount<=(144+281+5)&&vCount>=(35+74)&&vCount<=(35+74+7)) // left fourth leg block
+        || (hCount>=(144+286)&&hCount<=(144+286+5)&&vCount>=(35+71)&&vCount<=(35+71+7)) // left innermost leg block
+        || (hCount>=(144+349)&&hCount<=(144+349+5)&&vCount>=(35+71)&&vCount<=(35+71+7)) // right innermost leg block
+        || (hCount>=(144+354)&&hCount<=(144+354+5)&&vCount>=(35+74)&&vCount<=(35+74+7)) // right second leg block
+        || (hCount>=(144+359)&&hCount<=(144+359+5)&&vCount>=(35+71)&&vCount<=(35+71+7)) // right third leg block
+        || (hCount>=(144+364)&&hCount<=(144+364+5)&&vCount>=(35+74)&&vCount<=(35+74+7)) // right fourth leg block
+        || (hCount>=(144+369)&&hCount<=(144+369+5)&&vCount>=(35+71)&&vCount<=(35+71+7)); // right outermost leg block 
+
+		
+	assign TM_black_fill =
+		// eyebrow
+		(hCount>=(144+298)&&hCount<=(144+298+9)&&vCount>=(35+29)&&vCount<=(35+29+5))
+		|| (hCount>=(144+303)&&hCount<=(144+303+9)&&vCount>=(35+32)&&vCount<=(35+32+5))
+		|| (hCount>=(144+309)&&hCount<=(144+309+9)&&vCount>=(35+34)&&vCount<=(35+34+5))
+		|| (hCount>=(144+315)&&hCount<=(144+315+10)&&vCount>=(35+36)&&vCount<=(35+36+6))
+		|| (hCount>=(144+333)&&hCount<=(144+333+9)&&vCount>=(35+29)&&vCount<=(35+29+5))
+		|| (hCount>=(144+328)&&hCount<=(144+328+9)&&vCount>=(35+32)&&vCount<=(35+32+5))
+		|| (hCount>=(144+322)&&hCount<=(144+322+9)&&vCount>=(35+34)&&vCount<=(35+34+5))
+		// pupil
+		|| (hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+51)&&vCount<=(35+51+12))
+		// mouth
+		|| (hCount>=(144+309)&&hCount<=(144+309+9)&&vCount>=(35+65)&&vCount<=(35+65+5))
+		|| (hCount>=(144+315)&&hCount<=(144+315+10)&&vCount>=(35+67)&&vCount<=(35+67+6))
+		|| (hCount>=(144+322)&&hCount<=(144+322+9)&&vCount>=(35+65)&&vCount<=(35+65+5));
+		
+	assign TM_cream_fill =
+		// white of eyeball
+		(hCount>=(144+306)&&hCount<=(144+306+28)&&vCount>=(35+37)&&vCount<=(35+37+26));
+	
+	assign TM_mask_fill =
+		(hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35)&&vCount<=(35+24));
+
+	assign TM_display_fill = top_monster && (TM_red_fill || TM_black_fill
+								|| TM_cream_fill || TM_mask_fill);
+	
+
+
+
+	
 	always@(posedge clk, posedge rst) 
 	begin
 		if(rst)
@@ -150,7 +230,10 @@ module block_controller(
 			//rough values for center of screen
 			xpos<=450;
 			ypos<=250;
-			top_laser<=232;
+			top_laser<=256;
+			top_shooting<=0;
+			top_monster<=1;
+			top_broken<=0;
 		end
 		else if (clk) begin
 		
@@ -161,33 +244,26 @@ module block_controller(
 			corresponds to ~(783,515).  
 		*/
 			if(right) begin
-				xpos<=xpos+2; //change the amount you increment to make the speed faster 
-				if(xpos==800) //these are rough values to attempt looping around, you can fine-tune them to make it more accurate- refer to the block comment above
-					xpos<=150;
 			end
 			else if(left) begin
-				xpos<=xpos-2;
-				if(xpos==150)
-					xpos<=800;
 			end
-			else if(up && !top_shooting) begin
-				ypos<=ypos-2;
-				if(ypos==34)
-					ypos<=514;
+			else if(up && !top_shooting && !top_broken) begin
 				top_shooting<=1;
 				
 			end
 			else if(down) begin
-				ypos<=ypos+2;
-				if(ypos==514)
-					ypos<=34;
 			end
 			
 			if(top_shooting) begin
-				top_laser<=top_laser-1;
-				if(top_laser + 24 == 0) begin
+				top_laser<=top_laser-2;
+				if (top_monster && top_laser == 76) begin
 					top_shooting<=0;
-					top_laser<=232;
+					top_monster<=0;
+					top_laser<=256;
+				end
+				else if(top_laser == 0) begin
+					top_shooting<=0;
+					top_laser<=256;
 				end
 			end
 		end
