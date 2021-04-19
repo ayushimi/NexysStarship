@@ -87,6 +87,18 @@ module block_controller(
 					rgb = TUNNEL_BLUE;
 
 		  end
+		else if (BM_display_fill)
+		  begin
+				if (BM_black_fill)
+					rgb = BLACK;
+				else if (BM_cream_fill)
+					rgb = CREAM;
+				else if (BM_red_fill)
+					rgb = RED;
+				else if (BM_mask_fill)
+					rgb = TUNNEL_BLUE;
+
+		  end
 		else if (top_green_fill)
 			rgb = GREEN;
 		else if (tunnel_blue_fill)
@@ -214,8 +226,51 @@ module block_controller(
 	assign TM_display_fill = top_monster && (TM_red_fill || TM_black_fill
 								|| TM_cream_fill || TM_mask_fill);
 	
-
-
+	assign BM_red_fill =
+		// left antenna
+		(hCount>=(144+304)&&hCount<=(144+304+8)&&vCount>=(35+389)&&vCount<=(35+389+8))
+		|| (hCount>=(144+306)&&hCount<=(144+306+4)&&vCount>=(35+397)&&vCount<=(35+397+9))
+		// right antenna
+		|| (hCount>=(144+330)&&hCount<=(144+330+8)&&vCount>=(35+389)&&vCount<=(35+389+8))
+		|| (hCount>=(144+332)&&hCount<=(144+332+4)&&vCount>=(35+397)&&vCount<=(35+397+9))
+		// body
+		|| (hCount>=(144+290)&&hCount<=(144+290+59)&&vCount>=(35+406)&&vCount<=(35+406+52))
+        || (hCount>=(144+266)&&hCount<=(144+266+5)&&vCount>=(35+453)&&vCount<=(35+453+7)) // left outermost leg block
+        || (hCount>=(144+271)&&hCount<=(144+271+5)&&vCount>=(35+456)&&vCount<=(35+456+7)) // left second leg block
+        || (hCount>=(144+276)&&hCount<=(144+276+5)&&vCount>=(35+453)&&vCount<=(35+453+7)) // left third leg block
+        || (hCount>=(144+281)&&hCount<=(144+281+5)&&vCount>=(35+456)&&vCount<=(35+456+7)) // left fourth leg block
+        || (hCount>=(144+286)&&hCount<=(144+286+5)&&vCount>=(35+453)&&vCount<=(35+453+7)) // left innermost leg block
+        || (hCount>=(144+349)&&hCount<=(144+349+5)&&vCount>=(35+453)&&vCount<=(35+453+7)) // right innermost leg block
+        || (hCount>=(144+354)&&hCount<=(144+354+5)&&vCount>=(35+456)&&vCount<=(35+456+7)) // right second leg block
+        || (hCount>=(144+359)&&hCount<=(144+359+5)&&vCount>=(35+453)&&vCount<=(35+453+7)) // right third leg block
+        || (hCount>=(144+364)&&hCount<=(144+364+5)&&vCount>=(35+456)&&vCount<=(35+456+7)) // right fourth leg block
+        || (hCount>=(144+369)&&hCount<=(144+369+5)&&vCount>=(35+453)&&vCount<=(35+453+7)); // right outermost leg block 
+        
+    
+   assign BM_black_fill =
+        // eyebrow
+        (hCount>=(144+298)&&hCount<=(144+298+9)&&vCount>=(35+411)&&vCount<=(35+411+5))
+        || (hCount>=(144+303)&&hCount<=(144+303+9)&&vCount>=(35+414)&&vCount<=(35+414+5))
+        || (hCount>=(144+309)&&hCount<=(144+309+9)&&vCount>=(35+416)&&vCount<=(35+416+5))
+        || (hCount>=(144+333)&&hCount<=(144+333+9)&&vCount>=(35+411)&&vCount<=(35+411+5))
+        || (hCount>=(144+328)&&hCount<=(144+328+9)&&vCount>=(35+414)&&vCount<=(35+414+5))
+        || (hCount>=(144+322)&&hCount<=(144+322+9)&&vCount>=(35+416)&&vCount<=(35+416+5))
+        // pupil eyebrow
+        || (hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+418)&&vCount<=(35+418+13))
+        // mouth
+        || (hCount>=(144+309)&&hCount<=(144+309+9)&&vCount>=(35+447)&&vCount<=(35+447+5))
+        || (hCount>=(144+315)&&hCount<=(144+315+10)&&vCount>=(35+449)&&vCount<=(35+449+6))
+        || (hCount>=(144+322)&&hCount<=(144+322+9)&&vCount>=(35+447)&&vCount<=(35+447+5));
+        
+    assign BM_cream_fill =
+        // white of eyeball
+        (hCount>=(144+306)&&hCount<=(144+306+28)&&vCount>=(35+419)&&vCount<=(35+419+26));
+    
+    assign BM_mask_fill =
+        (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+458)&&vCount<=(35+458+24));    
+    
+    assign BM_display_fill = (BM_red_fill || BM_black_fill
+								|| BM_cream_fill || BM_mask_fill);
 
 	
 	always@(posedge Clk, posedge Reset) 
