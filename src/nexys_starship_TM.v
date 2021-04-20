@@ -17,7 +17,8 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 	input top_monster_ctrl;
 
 	/*  OUTPUTS */
-	output reg play_flag, top_monster_sm, top_broken, game_over;		
+	output reg play_flag, top_broken, game_over;	
+	output reg top_monster_sm;
 	output q_TM_Init, q_TM_Empty, q_TM_Full;
 	reg [2:0] state;
 	assign {q_TM_Full, q_TM_Empty, q_TM_Init} = state;
@@ -40,14 +41,11 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 	endfunction
 	*/
 	
-	always @ (posedge Clk)
-	begin 
-	    top_monster_sm = top_monster_ctrl; 
-	end
 
 	// NSL AND SM
 	always @ (posedge Clk, posedge Reset)
 	begin 
+	    top_monster_sm = top_monster_ctrl;
 		if(Reset) 
 		  begin
 		    play_flag <= 0;

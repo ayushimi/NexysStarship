@@ -223,7 +223,7 @@ module block_controller(
 	assign TM_mask_fill =
 		(hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35)&&vCount<=(35+24));
 
-	assign TM_display_fill = top_monster && (TM_red_fill || TM_black_fill
+	assign TM_display_fill = top_monster_vga && (TM_red_fill || TM_black_fill
 								|| TM_cream_fill || TM_mask_fill);
 	
 	assign BM_red_fill =
@@ -273,14 +273,9 @@ module block_controller(
 								|| BM_cream_fill || BM_mask_fill);
 
 	
-	always @ (posedge Clk)
-	begin 
-	    top_monster_vga = top_monster_ctrl; 
-	end
-	
-	
 	always@(posedge Clk, posedge Reset) 
 	begin
+	    top_monster_vga = top_monster_ctrl; 
 		if(Reset)
 		begin 
 			//rough values for center of screen

@@ -209,7 +209,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
     */                        
 	nexys_starship_TM nexys_starship_TM_1(.Clk(sys_clk), .Reset(Reset), .q_TM_Init(q_TM_Init), 
 	                      .q_TM_Empty(q_TM_Empty), .q_TM_Full(q_TM_Full), .play_flag(play_flag), 
-                          .top_monster_sm(top_monster_sm), top_monster_ctrl(top_monster_ctrl),
+                          .top_monster_sm(top_monster_sm), .top_monster_ctrl(top_monster_ctrl),
                           .top_broken(top_broken), .game_over(game_over));
 						  
 	
@@ -218,7 +218,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	
 	block_controller sc(.Clk(move_clk), .bright(bright), .Reset(Reset), .BtnU(Up_Pulse), .BtnD(Down_Pulse),
 	                       .BtnL(Left_Pulse), .BtnR(Right_Pulse), .hCount(hc), .vCount(vc), .rgb(rgb),
-	                       .top_monster_vga(top_monster_vga), top_monster_ctrl(top_monster_ctrl), 
+	                       .top_monster_vga(top_monster_vga), .top_monster_ctrl(top_monster_ctrl), 
 	                       .top_broken(top_broken), .top_shooting(top_shooting));
 //------------
 // SHARED REGISTERS 
@@ -226,9 +226,9 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
     always @ (*)
     begin
         if (top_monster_sm)
-            assign top_monster_ctrl = top_monster_sm; 
+            top_monster_ctrl <= top_monster_sm; 
         else
-            assign top_monster_ctrl = top_monster_vga;  
+            top_monster_ctrl <= top_monster_vga;  
     end 
  
 //------------
