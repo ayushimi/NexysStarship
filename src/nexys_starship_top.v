@@ -199,7 +199,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	end
 	
 	// the state machine modules
-	nexys_starship_game nexys_starship_game_1(.Clk(sys_clk), .BtnC(Center_Pulse), .Reset(Reset),  
+	nexys_starship_game nexys_starship_game_1(.Clk(sys_clk), .BtnC(Center_Pulse), .BtnU(Up_Pulse), .Reset(Reset),  
 						  .q_Init(q_Init), .q_Play(q_Play), .q_GameOver(q_GameOver), 
 						  .play_flag(play_flag), .game_over(game_over));
 	/*					  

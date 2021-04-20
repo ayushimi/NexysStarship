@@ -8,11 +8,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module nexys_starship_game(Clk, BtnC, Reset, q_Init, q_Play, q_GameOver, 
+module nexys_starship_game(Clk, BtnC, BtnU, Reset, q_Init, q_Play, q_GameOver, 
                             play_flag, game_over);
 
 	/*  INPUTS */
-	input	Clk, BtnC, Reset;
+	input	Clk, BtnC, BtnU, Reset;
 
 	/*  OUTPUTS */
 	// store the two flags 
@@ -44,7 +44,7 @@ module nexys_starship_game(Clk, BtnC, Reset, q_Init, q_Play, q_GameOver,
 						// DISPLAY HOMESCREEN
 						// game_timer <= 0;
 						play_flag = 0;
-						if (BtnC)
+						if (BtnU)
 						    play_flag = 1; 
 					end		
 					PLAY: 
