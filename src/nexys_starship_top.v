@@ -67,7 +67,7 @@ module nexys_starship_top
 	wire bright;
 	wire[9:0] hc, vc;
 	wire [11:0] rgb;
-	wire up;
+	wire up, down;
 
 
 	// SM wires
@@ -90,7 +90,9 @@ module nexys_starship_top
 	wire top_broken, btm_broken, left_broken, right_broken;
 	wire top_monster_sm, top_monster_vga; 
 	reg top_monster_ctrl; 
-	wire btm_monster, left_monster, right_monster; 
+	wire btm_monster_sm, btm_monster_vga;
+	reg btm_monster_ctrl;  
+	wire left_monster, right_monster; 
 	wire r_shield, l_shield; 
 	reg [3:0] hex_combo; 
 	reg [3:0] left_repair_combo, right_repair_combo, up_repair_combo, btm_repair_combo;
@@ -211,11 +213,12 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_5 // ****** TODO  in Part 2 ******
 	nexys_starship_game nexys_starship_game_1(.Clk(sys_clk), .BtnC(Center_Pulse), .BtnU(Up_Pulse), .Reset(Reset),  
 						  .q_Init(q_Init), .q_Play(q_Play), .q_GameOver(q_GameOver), 
 						  .play_flag(play_flag), .game_over(game_over));
-	/*					  
+						  
 	nexys_starship_BM nexys_starship_BM_1(.Clk(sys_clk), .Reset(Reset), .q_BM_Init(q_BM_Init), 
 	                      .q_BM_Empty(q_BM_Empty), .q_BM_Full(q_BM_Full), .play_flag(play_flag), 
-                          .btm_monster(btm_monster), .btm_broken(btm_broken), .game_over(game_over));
-    */                        
+                          .btm_monster_sm(btm_monster_sm), .btm_monster_ctrl(btm_monster_ctrl), 
+                          .btm_broken(btm_broken), .game_over(game_over));
+                           
 	nexys_starship_TM nexys_starship_TM_1(.Clk(sys_clk), .Reset(Reset), .q_TM_Init(q_TM_Init), 
 	                      .q_TM_Empty(q_TM_Empty), .q_TM_Full(q_TM_Full), .play_flag(play_flag), 
                           .top_monster_sm(top_monster_sm), .top_monster_ctrl(top_monster_ctrl),
@@ -225,10 +228,11 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_5 // ****** TODO  in Part 2 ******
 	// vga modules
 	display_controller dc(.Clk(sys_clk), .hSync(hSync), .vSync(vSync), .bright(bright), .hCount(hc), .vCount(vc));
 	
-	block_controller sc(.Clk(move_clk), .bright(bright), .Reset(Reset), .up(BtnU), .BtnD(Down_Pulse),
+	block_controller sc(.Clk(move_clk), .bright(bright), .Reset(Reset), .up(BtnU), .down(BtnD),
 	                       .BtnL(Left_Pulse), .BtnR(Right_Pulse), .hCount(hc), .vCount(vc), .rgb(rgb),
 	                       .top_monster_vga(top_monster_vga), .top_monster_ctrl(top_monster_ctrl), 
-	                       .top_broken(top_broken));
+	                       .top_broken(top_broken), .btm_monster_vga(btm_monster_vga), 
+	                       .btm_monster_ctrl(btm_monster_ctrl));
 //------------
 // SHARED REGISTERS 
 
@@ -238,6 +242,14 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_5 // ****** TODO  in Part 2 ******
             top_monster_ctrl <= top_monster_sm; 
         else
             top_monster_ctrl <= top_monster_vga;  
+    end 
+    
+    always @ (*)
+    begin
+        if (btm_monster_sm)
+            btm_monster_ctrl <= btm_monster_sm; 
+        else
+            btm_monster_ctrl <= btm_monster_vga;  
     end 
     
 //------------
