@@ -86,7 +86,9 @@ module nexys_starship_top
 	// TODO: add game_timer reg 
 	wire play_flag, game_over;
 	wire top_broken, btm_broken, left_broken, right_broken;
-	wire top_monster, btm_monster, left_monster, right_monster; 
+	wire top_monster_sm, top_monster_vga; 
+	reg top_monster_ctrl; 
+	wire btm_monster, left_monster, right_monster; 
 	wire r_shield, l_shield; 
 	reg [3:0] hex_combo; 
 	reg [3:0] left_repair_combo, right_repair_combo, up_repair_combo, btm_repair_combo;
@@ -142,7 +144,6 @@ module nexys_starship_top
 	assign move_clk = DIV_CLK[19]; //slower clock to drive the movement of objects on the vga screen
 
 
-
 //------------
 // INPUT: SWITCHES & BUTTONS
 
@@ -168,6 +169,8 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_3
 ee354_debouncer #(.N_dc(28)) ee354_debouncer_4 
         (.CLK(sys_clk), .RESET(Reset), .PB(BtnC), .DPB( ), 
 		.SCEN(BtnC_Pulse), .MCEN( ), .CCEN( ));
+	
+
 //------------
 // DESIGN
 	// On two pushes of BtnR, numbers A and B are recorded in Ain and Bin
@@ -199,14 +202,15 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	nexys_starship_game nexys_starship_game_1(.Clk(sys_clk), .BtnC(Center_Pulse), .Reset(Reset),  
 						  .q_Init(q_Init), .q_Play(q_Play), .q_GameOver(q_GameOver), 
 						  .play_flag(play_flag), .game_over(game_over));
-						  
+	/*					  
 	nexys_starship_BM nexys_starship_BM_1(.Clk(sys_clk), .Reset(Reset), .q_BM_Init(q_BM_Init), 
 	                      .q_BM_Empty(q_BM_Empty), .q_BM_Full(q_BM_Full), .play_flag(play_flag), 
                           .btm_monster(btm_monster), .btm_broken(btm_broken), .game_over(game_over));
-                            
+    */                        
 	nexys_starship_TM nexys_starship_TM_1(.Clk(sys_clk), .Reset(Reset), .q_TM_Init(q_TM_Init), 
 	                      .q_TM_Empty(q_TM_Empty), .q_TM_Full(q_TM_Full), .play_flag(play_flag), 
-                          .top_monster(top_monster), .top_broken(top_broken), .game_over(game_over));
+                          .top_monster_sm(top_monster_sm), top_monster_ctrl(top_monster_ctrl),
+                          .top_broken(top_broken), .game_over(game_over));
 						  
 	
 	// vga modules
@@ -214,8 +218,19 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	
 	block_controller sc(.Clk(move_clk), .bright(bright), .Reset(Reset), .BtnU(Up_Pulse), .BtnD(Down_Pulse),
 	                       .BtnL(Left_Pulse), .BtnR(Right_Pulse), .hCount(hc), .vCount(vc), .rgb(rgb),
-	                       .top_monster(top_monster), .top_broken(top_broken), .top_shooting(top_shooting));
+	                       .top_monster_vga(top_monster_vga), top_monster_ctrl(top_monster_ctrl), 
+	                       .top_broken(top_broken), .top_shooting(top_shooting));
+//------------
+// SHARED REGISTERS 
 
+    always @ (*)
+    begin
+        if (top_monster_sm)
+            assign top_monster_ctrl = top_monster_sm; 
+        else
+            assign top_monster_ctrl = top_monster_vga;  
+    end 
+ 
 //------------
 // VGA OUTPUT
 	assign vgaR = rgb[11 : 8];
@@ -225,8 +240,8 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 //------------
 // OUTPUT: LEDS
 	
-	assign {Ld7, Ld6, Ld5, Ld4} = {q_Init, q_Play, top_monster, top_shooting};
-	assign {Ld3, Ld2, Ld1, Ld0} = {BtnL, BtnU, BtnR, BtnD}; // Reset is driven by BtnC
+	assign {Ld7, Ld6, Ld5, Ld4} = {q_Init, q_Play, top_monster_ctrl, top_monster_sm};
+	assign {Ld3, Ld2, Ld1, Ld0} = {BtnL, BtnU, BtnR, BtnC}; // Reset is driven by BtnC
 	// Here
 	// BtnL = Start/Ack
 	// BtnU = Single-Step

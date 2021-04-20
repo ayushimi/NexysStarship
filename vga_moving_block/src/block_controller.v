@@ -7,7 +7,7 @@ module block_controller(
 	input BtnU, input BtnD, input BtnL, input BtnR,
 	input [9:0] hCount, vCount,
 	output reg [11:0] rgb,
-	reg top_monster, reg top_broken,
+	input top_monster_ctrl, output reg top_monster_vga, input top_broken,
 	output reg top_shooting
    );
 	wire spaceship_black_fill;
@@ -273,6 +273,12 @@ module block_controller(
 								|| BM_cream_fill || BM_mask_fill);
 
 	
+	always @ (posedge Clk)
+	begin 
+	    top_monster_vga = top_monster_ctrl; 
+	end
+	
+	
 	always@(posedge Clk, posedge Reset) 
 	begin
 		if(Reset)
@@ -295,7 +301,7 @@ module block_controller(
 			end
 			else if(BtnL) begin
 			end
-			else if(BtnU) begin
+			else if(BtnU && !top_shooting) begin
 				top_shooting<=1;
 				
 			end
@@ -304,9 +310,9 @@ module block_controller(
 			
 			if(top_shooting) begin
 				top_laser<=top_laser-2;
-				if (top_monster && top_laser == 76) begin
+				if (top_monster_vga && top_laser == 76) begin
 					top_shooting<=0;
-					top_monster=0;
+					top_monster_vga=0;
 					top_laser<=256;
 				end
 				else if(top_laser == 0) begin
