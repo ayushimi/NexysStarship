@@ -17,7 +17,8 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 	input top_monster_ctrl;
 
 	/*  OUTPUTS */
-	output reg play_flag, top_broken, game_over;	
+	input play_flag;
+	output reg top_broken, game_over;	
 	output reg top_monster_sm;
 	output q_TM_Init, q_TM_Empty, q_TM_Full;
 	reg [2:0] state;
@@ -45,10 +46,9 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 	// NSL AND SM
 	always @ (posedge Clk, posedge Reset)
 	begin 
-	    top_monster_sm = top_monster_ctrl;
+	    top_monster_sm <= top_monster_ctrl;
 		if(Reset) 
 		  begin
-		    play_flag <= 0;
 			top_monster_sm <= 0;
 			top_broken <= 0; 
 			state <= INIT;
@@ -62,7 +62,7 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 						// data transfers
 						// DISPLAY HOMESCREEN
 						// game_timer <= 0;
-						top_monster_sm = 0;
+						top_monster_sm <= 0;
 					end		
 					EMPTY: 
 					begin
@@ -72,7 +72,7 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 					    // CLEAR DISPLAY  
 					    //if (generateMonster(1)) 
 					    begin
-					        top_monster_sm = 1; 
+					        top_monster_sm <= 1; 
 					        // top_timer <= 0; 
 					    end
 					end

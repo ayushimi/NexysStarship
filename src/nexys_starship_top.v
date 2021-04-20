@@ -59,7 +59,7 @@ module nexys_starship_top
 	/*  LOCAL SIGNALS */
 	wire		Reset, ClkPort;
 	wire		board_clk, sys_clk;
-	wire [1:0] 	ssdscan_clk;
+	wire [2:0] 	ssdscan_clk;
 	reg [26:0]	DIV_CLK;
 	wire move_clk; // slower vga
 	
@@ -67,11 +67,13 @@ module nexys_starship_top
 	wire bright;
 	wire[9:0] hc, vc;
 	wire [11:0] rgb;
+	wire up;
 
 
 	// SM wires
 	wire Start_Ack_Pulse;
 	wire Up_Pulse, Down_Pulse, Left_Pulse, Right_Pulse, Center_Pulse;
+	wire BtnU_Pulse_VGA,Up_Pulse_VGA;
 	wire BtnR_Pulse, BtnU_Pulse, BtnL_Pulse, BtnD_Pulse, BtnC_Pulse;
 	wire q_Init, q_Play, q_Gameover; 
 	wire q_TR_Init, q_TR_Working, q_TR_Repair;
@@ -93,12 +95,12 @@ module nexys_starship_top
 	reg [3:0] hex_combo; 
 	reg [3:0] left_repair_combo, right_repair_combo, up_repair_combo, btm_repair_combo;
 	reg [3:0]	SSD;
-	wire [3:0]	SSD0;
+	wire [7:0]	SSD7, SSD6, SSD5, SSD4, SSD3, SSD2, SSD1, SSD0;
 	reg [7:0]  SSD_CATHODES;
 	
 	
 	// temp stuff
-	wire top_shooting;
+	//wire top_shooting;
 	
 //------------	
 // Disable the three memories so that they do not interfere with the rest of the design.
@@ -149,6 +151,9 @@ module nexys_starship_top
 
 	assign {Up_Pulse, Down_Pulse, Left_Pulse, Right_Pulse, Center_Pulse} = 
 	        {BtnU_Pulse, BtnD_Pulse, BtnL_Pulse, BtnR_Pulse, BtnC_Pulse};
+	        
+	assign {Up_Pulse_VGA} = 
+	        {BtnU_Pulse_VGA};
 
 ee354_debouncer #(.N_dc(28)) ee354_debouncer_0 
         (.CLK(sys_clk), .RESET(Reset), .PB(BtnR), .DPB( ), 
@@ -170,6 +175,10 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
         (.CLK(sys_clk), .RESET(Reset), .PB(BtnC), .DPB( ), 
 		.SCEN(BtnC_Pulse), .MCEN( ), .CCEN( ));
 	
+ee354_debouncer #(.N_dc(28)) ee354_debouncer_5 // ****** TODO  in Part 2 ******
+        (.CLK(move_clk), .RESET(Reset), .PB(BtnU), .DPB( ), // complete this instantiation
+		.SCEN(BtnU_Pulse_VGA), .MCEN( ), .CCEN( )); // to produce BtnU_Pulse from BtnU
+
 
 //------------
 // DESIGN
@@ -216,10 +225,10 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	// vga modules
 	display_controller dc(.Clk(sys_clk), .hSync(hSync), .vSync(vSync), .bright(bright), .hCount(hc), .vCount(vc));
 	
-	block_controller sc(.Clk(move_clk), .bright(bright), .Reset(Reset), .BtnU(Up_Pulse), .BtnD(Down_Pulse),
+	block_controller sc(.Clk(move_clk), .bright(bright), .Reset(Reset), .up(BtnU), .BtnD(Down_Pulse),
 	                       .BtnL(Left_Pulse), .BtnR(Right_Pulse), .hCount(hc), .vCount(vc), .rgb(rgb),
 	                       .top_monster_vga(top_monster_vga), .top_monster_ctrl(top_monster_ctrl), 
-	                       .top_broken(top_broken), .top_shooting(top_shooting));
+	                       .top_broken(top_broken));
 //------------
 // SHARED REGISTERS 
 
@@ -230,7 +239,46 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
         else
             top_monster_ctrl <= top_monster_vga;  
     end 
- 
+    
+//------------
+// PSEUDO-RANDOM NUMBER GENERATOR
+reg [7:0] count0, count1, count2, count3, rand;
+reg monster;
+always @ (posedge sys_clk, posedge Reset) begin
+    if (Reset)
+    begin
+//        count0 <= 8'b00000000;
+//        count1 <= 8'b00011111;
+//        count2 <= 8'b01111111;
+//        count3 <= 8'b11111111;
+//        rand <= 8'b00000000;
+//        monster <= 0;
+        count0 <= 0;
+        count1 <= 31;
+        count2 <= 127;
+        count3 <= 214;
+        rand <= 0;
+        monster <= 0;
+    end
+    else
+    begin
+//        count0 <= count0 + 8'b00000001;
+//		count1 <= count1 + 8'b00000010;
+//		count2 <= count2 + 8'b00000011;
+//		count3 <= count3 + 8'b00000100;
+//        count0 <= count0 + 1;
+//		count1 <= count1 + 2;
+//		count2 <= count2 + 3;
+//		count3 <= count3 + 4;
+//		rand <= {count3[7:5], count2[4:2] ^ count1[4:2], count0[1:0]};
+//		if (rand == 1)
+//		  monster <= 1;
+//		else
+//		  monster <= 0;
+    end
+
+end
+
 //------------
 // VGA OUTPUT
 	assign vgaR = rgb[11 : 8];
@@ -240,8 +288,8 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 //------------
 // OUTPUT: LEDS
 	
-	assign {Ld7, Ld6, Ld5, Ld4} = {q_Init, q_Play, top_monster_ctrl, top_monster_sm};
-	assign {Ld3, Ld2, Ld1, Ld0} = {BtnL, BtnU, BtnR, BtnC}; // Reset is driven by BtnC
+	assign {Ld7, Ld6, Ld5, Ld4} = {q_Play, q_TM_Empty, top_monster_ctrl, top_monster_vga};
+	assign {Ld3, Ld2, Ld1, Ld0} = {BtnL, BtnU, monster, BtnC}; // Reset is driven by BtnC
 	// Here
 	// BtnL = Start/Ack
 	// BtnU = Single-Step
@@ -255,30 +303,43 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	// ****** TODO  in Part 2 ******
 	// assign y = s ? i1 : i0;  // an example of a 2-to-1 mux coding
 	// assign y = s1 ? (s0 ? i3: i2): (s0 ? i1: i0); // an example of a 4-to-1 mux coding
-	assign SSD0 = {Sw3, Sw2, Sw1, Sw0};
+	//assign SSD0 = {Sw3, Sw2, Sw1, Sw0};
+	assign SSD0 = {1'b0,1'b0,1'b0,monster};
+	assign SSD1 = rand[3:0];
+	assign SSD2 = rand[7:4];
+	assign SSD4 = count0[3:0];
+	assign SSD5 = count0[7:4];
+	assign SSD6 = count1[3:0];
+	assign SSD7 = count1[7:4];
 
 
 	// need a scan clk for the seven segment display 
 	// 191Hz (100 MHz / 2^19) works well
-	assign ssdscan_clk = DIV_CLK[19:18];
+	assign ssdscan_clk = DIV_CLK[16:14];
 	
-	assign An0	=  !((ssdscan_clk[1]) &&  (ssdscan_clk[0]));  // when ssdscan_clk = 11
-	// close another four anodes
-	assign An7 = 1'b1;
-	assign An6 = 1'b1;
-	assign An5 = 1'b1;
-	assign An4 = 1'b1;
-	assign An3 = 1'b1;
-	assign An2 = 1'b1;
-	assign An1 = 1'b1;
+    assign An0    = ~(~(ssdscan_clk[2]) && ~(ssdscan_clk[1]) && ~(ssdscan_clk[0]));  // when sev_seg_clk = 000
+    assign An1    = ~(~(ssdscan_clk[2]) && ~(ssdscan_clk[1]) &&  (ssdscan_clk[0]));  // when sev_seg_clk = 001
+    assign An2    = ~(~(ssdscan_clk[2]) &&  (ssdscan_clk[1]) && ~(ssdscan_clk[0]));  // when sev_seg_clk = 010
+    assign An3    = ~(~(ssdscan_clk[2]) &&  (ssdscan_clk[1]) &&  (ssdscan_clk[0]));  // when sev_seg_clk = 011
+    assign An4    = ~( (ssdscan_clk[2]) && ~(ssdscan_clk[1]) && ~(ssdscan_clk[0]));  // when sev_seg_clk = 100
+    assign An5    = ~( (ssdscan_clk[2]) && ~(ssdscan_clk[1]) &&  (ssdscan_clk[0]));  // when sev_seg_clk = 101
+    assign An6    = ~( (ssdscan_clk[2]) &&  (ssdscan_clk[1]) && ~(ssdscan_clk[0]));  // when sev_seg_clk = 110
+    assign An7    = ~( (ssdscan_clk[2]) &&  (ssdscan_clk[1]) &&  (ssdscan_clk[0]));  // when sev_seg_clk = 111
+        
 	
-	
-	always @ (ssdscan_clk, SSD0)
-	begin : SSD_SCAN_OUT
-		case (ssdscan_clk) 
-				  2'b11: SSD = SSD0;
-		endcase 
-	end
+	always @ (ssdscan_clk, SSD0, SSD1, SSD2, SSD3, SSD4, SSD5, SSD6, SSD7)
+    begin
+       case (ssdscan_clk) 
+               3'b000: SSD = SSD0;
+               3'b001: SSD = SSD1;
+               3'b010: SSD = SSD2;
+               3'b011: SSD = SSD3;
+               3'b100: SSD = SSD4;
+               3'b101: SSD = SSD5;
+               3'b110: SSD = SSD6;
+               3'b111: SSD = SSD7;
+       endcase 
+    end
 	
 	// and finally convert SSD_num to ssd
 	// We convert the output of our 4-bit 4x1 mux

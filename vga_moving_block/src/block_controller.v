@@ -4,11 +4,10 @@ module block_controller(
 	input Clk, //this clock must be a slow enough clock to view the changing positions of the objects
 	input bright,
 	input Reset,
-	input BtnU, input BtnD, input BtnL, input BtnR,
+	input up, input BtnD, input BtnL, input BtnR,
 	input [9:0] hCount, vCount,
 	output reg [11:0] rgb,
-	input top_monster_ctrl, output reg top_monster_vga, input top_broken,
-	output reg top_shooting
+	input top_monster_ctrl, output reg top_monster_vga, input top_broken
    );
 	wire spaceship_black_fill;
 	wire light_gray_fill;
@@ -23,12 +22,17 @@ module block_controller(
 	wire TM_red_fill;
 	wire TM_cream_fill;
 	wire tunnel_blue_fill;
-	wire laser_mask_fill;
+	wire TM_mask_fill;
 	wire top_green_fill;
+	wire BM_black_fill;
+	wire BM_red_fill;
+	wire BM_cream_fill;
+	wire BM_mask_fill;
 		
 	//these two values dictate the center of the block, incrementing and decrementing them leads the block to move in certain directions
 	reg [9:0] xpos, ypos;
 	reg signed [10:0] top_laser;
+	reg top_shooting;
 	
 	parameter RED   = 12'b1111_0000_0000;
 	parameter BLACK = 12'b0000_0000_0000;
@@ -51,15 +55,10 @@ module block_controller(
 	always@ (*) begin
     	if(~bright )	//force black if not inside the display area
 			rgb = 12'b0000_0000_0000;
+//		else if (top_green_fill)
+//			rgb = GREEN;
 		else if (spaceship_display_fill)
 		  begin
-		      // facial features
-			  // head
-			  // window
-			  // lights
-			  // gray body
-			  // shields
-			  // cannons
 				if (spaceship_black_fill)
 					rgb = BLACK;
 				else if (head_fill)
@@ -275,7 +274,7 @@ module block_controller(
 	
 	always@(posedge Clk, posedge Reset) 
 	begin
-	    top_monster_vga = top_monster_ctrl; 
+	    top_monster_vga <= top_monster_ctrl; 
 		if(Reset)
 		begin 
 			//rough values for center of screen
@@ -292,22 +291,13 @@ module block_controller(
 			the top left corner corresponds to (hcount,vcount)~(144,35). Which means with a 640x480 resolution, the bottom right corner 
 			corresponds to ~(783,515).  
 		*/
-			if(BtnR) begin
-			end
-			else if(BtnL) begin
-			end
-			else if(BtnU && !top_shooting) begin
-				top_shooting<=1;
-				
-			end
-			else if(BtnD) begin
-			end
-			
+			if(up && !top_shooting)
+				top_shooting=1;
 			if(top_shooting) begin
 				top_laser<=top_laser-2;
 				if (top_monster_vga && top_laser == 76) begin
 					top_shooting<=0;
-					top_monster_vga=0;
+					top_monster_vga<=0;
 					top_laser<=256;
 				end
 				else if(top_laser == 0) begin
