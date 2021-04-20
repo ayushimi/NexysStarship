@@ -4,10 +4,11 @@ module block_controller(
 	input Clk, //this clock must be a slow enough clock to view the changing positions of the objects
 	input bright,
 	input Reset,
-	input up, input BtnD, input BtnL, input BtnR,
+	input up, input down, input left, input right,
 	input [9:0] hCount, vCount,
 	output reg [11:0] rgb,
-	input top_monster_ctrl, output reg top_monster_vga, input top_broken
+	input top_monster_ctrl, output reg top_monster_vga, input top_broken,
+	input btm_monster_ctrl, output reg btm_monster_vga, input btm_broken
    );
 	wire spaceship_black_fill;
 	wire light_gray_fill;
@@ -28,11 +29,12 @@ module block_controller(
 	wire BM_red_fill;
 	wire BM_cream_fill;
 	wire BM_mask_fill;
+	wire btm_green_fill;
+
 		
 	//these two values dictate the center of the block, incrementing and decrementing them leads the block to move in certain directions
-	reg [9:0] xpos, ypos;
-	reg signed [10:0] top_laser;
-	reg top_shooting;
+	reg signed [10:0] top_laser, btm_laser;
+	reg top_shooting, btm_shooting;
 	
 	parameter RED   = 12'b1111_0000_0000;
 	parameter BLACK = 12'b0000_0000_0000;
@@ -99,6 +101,8 @@ module block_controller(
 
 		  end
 		else if (top_green_fill)
+			rgb = GREEN;
+		else if (btm_green_fill)
 			rgb = GREEN;
 		else if (tunnel_blue_fill)
 			rgb = TUNNEL_BLUE;
@@ -225,6 +229,11 @@ module block_controller(
 	assign TM_display_fill = top_monster_vga && (TM_red_fill || TM_black_fill
 								|| TM_cream_fill || TM_mask_fill);
 	
+	assign btm_green_fill = 
+		(hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+btm_laser)&&vCount<=(35+btm_laser+24)) // bottom 1st bullet 
+		|| (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+btm_laser+40)&&vCount<=(35+btm_laser+40+24)) // bottom 2nd bullet 
+		|| (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+btm_laser+80)&&vCount<=(35+btm_laser+80+24)); // bottom 3rd bullet
+		
 	assign BM_red_fill =
 		// left antenna
 		(hCount>=(144+304)&&hCount<=(144+304+8)&&vCount>=(35+389)&&vCount<=(35+389+8))
@@ -268,7 +277,7 @@ module block_controller(
     assign BM_mask_fill =
         (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+458)&&vCount<=(35+458+24));    
     
-    assign BM_display_fill = (BM_red_fill || BM_black_fill
+    assign BM_display_fill = btm_monster_vga && (BM_red_fill || BM_black_fill
 								|| BM_cream_fill || BM_mask_fill);
 
 	
@@ -277,11 +286,10 @@ module block_controller(
 	    top_monster_vga <= top_monster_ctrl; 
 		if(Reset)
 		begin 
-			//rough values for center of screen
-			xpos<=450;
-			ypos<=250;
 			top_laser<=256;
+			btm_laser<=226;
 			top_shooting<=0;
+			btm_shooting<=0;
 		end
 		else if (Clk) begin
 		
@@ -292,7 +300,10 @@ module block_controller(
 			corresponds to ~(783,515).  
 		*/
 			if(up && !top_shooting)
-				top_shooting=1;
+				top_shooting<=1;
+			if(down && !btm_shooting)
+				btm_shooting<=1;
+
 			if(top_shooting) begin
 				top_laser<=top_laser-2;
 				if (top_monster_vga && top_laser == 76) begin
@@ -303,6 +314,19 @@ module block_controller(
 				else if(top_laser == 0) begin
 					top_shooting<=0;
 					top_laser<=256;
+				end
+			end
+			
+			if(btm_shooting) begin
+				btm_laser<=btm_laser+2;
+				if (btm_monster_vga && btm_laser == 406) begin
+					btm_shooting<=0;
+					btm_monster_vga<=0;
+					btm_laser<=226;
+				end
+				else if(btm_laser == 480) begin
+					btm_shooting<=0;
+					btm_laser<=226;
 				end
 			end
 		end
