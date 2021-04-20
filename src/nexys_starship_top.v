@@ -67,7 +67,7 @@ module nexys_starship_top
 	wire bright;
 	wire[9:0] hc, vc;
 	wire [11:0] rgb;
-	wire up, down;
+	wire up, down, left, right;
 
 
 	// SM wires
@@ -229,7 +229,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_5 // ****** TODO  in Part 2 ******
 	display_controller dc(.Clk(sys_clk), .hSync(hSync), .vSync(vSync), .bright(bright), .hCount(hc), .vCount(vc));
 	
 	block_controller sc(.Clk(move_clk), .bright(bright), .Reset(Reset), .up(BtnU), .down(BtnD),
-	                       .BtnL(Left_Pulse), .BtnR(Right_Pulse), .hCount(hc), .vCount(vc), .rgb(rgb),
+	                       .left(BtnL), .right(BtnR), .hCount(hc), .vCount(vc), .rgb(rgb),
 	                       .top_monster_vga(top_monster_vga), .top_monster_ctrl(top_monster_ctrl), 
 	                       .top_broken(top_broken), .btm_monster_vga(btm_monster_vga), 
 	                       .btm_monster_ctrl(btm_monster_ctrl));
@@ -300,8 +300,8 @@ end
 //------------
 // OUTPUT: LEDS
 	
-	assign {Ld7, Ld6, Ld5, Ld4} = {q_Play, q_TM_Empty, top_monster_ctrl, top_monster_vga};
-	assign {Ld3, Ld2, Ld1, Ld0} = {BtnL, BtnU, monster, BtnC}; // Reset is driven by BtnC
+	assign {Ld7, Ld6, Ld5, Ld4} = {q_Play, q_BM_Empty, btm_monster_ctrl, btm_monster_vga};
+	assign {Ld3, Ld2, Ld1, Ld0} = {BtnL, BtnU, BtnD, BtnC}; // Reset is driven by BtnC
 	// Here
 	// BtnL = Start/Ack
 	// BtnU = Single-Step
