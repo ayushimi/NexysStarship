@@ -283,7 +283,8 @@ module block_controller(
 	
 	always@(posedge Clk, posedge Reset) 
 	begin
-	    top_monster_vga <= top_monster_ctrl; 
+	    top_monster_vga <= top_monster_ctrl;
+	    btm_monster_vga <= btm_monster_ctrl; 
 		if(Reset)
 		begin 
 			top_laser<=256;
