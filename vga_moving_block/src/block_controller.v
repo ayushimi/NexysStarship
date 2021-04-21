@@ -17,8 +17,10 @@ module block_controller(
 	wire right_shield_fill;
 	wire black_fill;
 	wire head_fill;
-	wire dark_gray_fill;
-	wire medium_gray_fill;
+	wire top_dark_gray_fill;
+	wire btm_dark_gray_fill;
+	wire top_medium_gray_fill;
+	wire btm_medium_gray_fill;
 	wire TM_black_fill;
 	wire TM_red_fill;
 	wire TM_cream_fill;
@@ -48,7 +50,9 @@ module block_controller(
 	parameter TAN = 12'b1110_1011_1000; // EB8 
 	parameter GREEN = 12'b0001_1111_0000;
 	parameter CREAM = 12'b1111_1110_1011;
-	parameter TUNNEL_BLUE = 12'b0000_0001_0110;
+	parameter TUNNEL_BLUE = 12'b0000_0001_0101;
+	parameter DISABLED_DARK_SHADE = 1'b0001_0001_0001; 
+	parameter DISABLED_MEDIUM_SHADE = 1'b0010_0010_0010; 
 
 
 	
@@ -59,6 +63,20 @@ module block_controller(
 			rgb = 12'b0000_0000_0000;
 //		else if (top_green_fill)
 //			rgb = GREEN;
+        else if (top_broken)
+          begin 
+                if (top_medium_gray_fill)
+                    rgb = DISABLED_MEDIUM_SHADE; 
+                else if (top_dark_gray_fill)
+                    rgb = DISABLED_DARK_SHADE; 
+          end 
+        else if (btm_broken)
+          begin 
+                if (btm_medium_gray_fill)
+                    rgb = DISABLED_MEDIUM_SHADE; 
+                else if (btm_dark_gray_fill)
+                    rgb = DISABLED_DARK_SHADE; 
+          end 
 		else if (spaceship_display_fill)
 		  begin
 				if (spaceship_black_fill)
@@ -71,9 +89,9 @@ module block_controller(
 					rgb = PINK;
 				else if (light_gray_fill)
 					rgb = GREY;
-				else if (medium_gray_fill)
+				else if (top_medium_gray_fill || btm_medium_gray_fill)
 					rgb = MEDIUM_GREY;
-				else if (dark_gray_fill)
+				else if (top_dark_gray_fill || btm_dark_gray_fill)
 					rgb = DARK_GREY;
 		  end
 		else if (TM_display_fill)
@@ -142,16 +160,20 @@ module block_controller(
 		|| (hCount>=(144+392)&&hCount<=(144+392+11)&&vCount>=(35+200)&&vCount<=(35+200+115)); // right inner shield
 	
 	// cannons
-	assign dark_gray_fill =
+	assign top_dark_gray_fill =
 		(hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+152)&&vCount<=(35+152+10)) // top cannon tip
-		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+162)&&vCount<=(35+162+30)) // top cannon body
-		|| (hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+320)&&vCount<=(35+320+10)) // bottom cannon tip
+		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+162)&&vCount<=(35+162+30)); // top cannon body
+	
+	assign top_medium_gray_fill =
+		(hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+192)&&vCount<=(35+192+2)) // top cannon base
+		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+165)&&vCount<=(35+165+4)); // top cannon strip
+		
+	assign btm_dark_gray_fill =  
+		(hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+320)&&vCount<=(35+320+10)) // bottom cannon tip
 		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+290)&&vCount<=(35+290+30)); // bottom cannon body
 	
-	assign medium_gray_fill =
-		(hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+192)&&vCount<=(35+192+2)) // top cannon base
-		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+165)&&vCount<=(35+165+4)) // top cannon strip
-		|| (hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+288)&&vCount<=(35+288+2)) // bottom cannon base
+	assign btm_medium_gray_fill = 
+		(hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+288)&&vCount<=(35+288+2)) // bottom cannon base
 		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+312)&&vCount<=(35+312+4)); // bottom cannon strip
 	
 	// lights
@@ -291,6 +313,8 @@ module block_controller(
 			btm_laser<=226;
 			top_shooting<=0;
 			btm_shooting<=0;
+			top_monster_vga<=0; 
+			top_monster_ctrl<=0; 
 		end
 		else if (Clk) begin
 		
