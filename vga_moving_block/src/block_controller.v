@@ -291,6 +291,8 @@ module block_controller(
 			btm_laser<=226;
 			top_shooting<=0;
 			btm_shooting<=0;
+			top_monster_vga<=0;
+			btm_monster_vga<=0;
 		end
 		else if (Clk) begin
 		

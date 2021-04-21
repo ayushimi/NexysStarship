@@ -94,8 +94,8 @@ module nexys_starship_top
 	reg btm_monster_ctrl;  
 	wire left_monster, right_monster; 
 	wire r_shield, l_shield; 
-	reg [3:0] hex_combo; 
-	reg [3:0] left_repair_combo, right_repair_combo, up_repair_combo, btm_repair_combo;
+	wire top_random, btm_random, left_random, right_random;
+	reg [3:0] hex_combo, random_hex;
 	reg [3:0]	SSD;
 	wire [7:0]	SSD7, SSD6, SSD5, SSD4, SSD3, SSD2, SSD1, SSD0;
 	reg [7:0]  SSD_CATHODES;
@@ -144,9 +144,9 @@ module nexys_starship_top
 	// assign	sys_clk = DIV_CLK[25];
 
 //------------------
-	// VGA CLOCK
+	// CLOCK
 	assign move_clk = DIV_CLK[19]; //slower clock to drive the movement of objects on the vga screen
-
+	assign random_clk = DIV_CLK[3];
 
 //------------
 // INPUT: SWITCHES & BUTTONS
@@ -191,10 +191,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_5 // ****** TODO  in Part 2 ******
 		if(Reset)
 		begin
 	        hex_combo <= 4'b0000; 
-	        left_repair_combo <= 4'b0000;
-	        right_repair_combo <= 4'b0000;
-	        up_repair_combo <= 4'b0000;
-	        btm_repair_combo <= 4'b0000;
+	        random_hex <= 4'b0000;
 		end
 		else
 		begin
@@ -217,12 +214,18 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_5 // ****** TODO  in Part 2 ******
 	nexys_starship_BM nexys_starship_BM_1(.Clk(sys_clk), .Reset(Reset), .q_BM_Init(q_BM_Init), 
 	                      .q_BM_Empty(q_BM_Empty), .q_BM_Full(q_BM_Full), .play_flag(play_flag), 
                           .btm_monster_sm(btm_monster_sm), .btm_monster_ctrl(btm_monster_ctrl), 
-                          .btm_broken(btm_broken), .game_over(game_over));
+                          .game_over(game_over));
                            
 	nexys_starship_TM nexys_starship_TM_1(.Clk(sys_clk), .Reset(Reset), .q_TM_Init(q_TM_Init), 
 	                      .q_TM_Empty(q_TM_Empty), .q_TM_Full(q_TM_Full), .play_flag(play_flag), 
                           .top_monster_sm(top_monster_sm), .top_monster_ctrl(top_monster_ctrl),
-                          .top_broken(top_broken), .game_over(game_over));
+                          .top_random(top_random), .game_over(game_over));
+						  
+						  
+	// random modules
+	nexys_starship_PRNG nexys_starship_PRNG_1(.Clk(random_clk), .Reset(Reset), .top_random(top_random),
+												.btm_random(btm_random), .left_random(left_random),
+												.right_random(right_random));
 						  
 	
 	// vga modules
@@ -238,10 +241,10 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_5 // ****** TODO  in Part 2 ******
 
     always @ (*)
     begin
-        if (top_monster_sm)
-            top_monster_ctrl <= top_monster_sm; 
+        if (q_TM_Full)
+            top_monster_ctrl <= top_monster_vga;
         else
-            top_monster_ctrl <= top_monster_vga;  
+            top_monster_ctrl <= top_monster_sm;  
     end 
     
     always @ (*)
@@ -253,43 +256,33 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_5 // ****** TODO  in Part 2 ******
     end 
     
 //------------
-// PSEUDO-RANDOM NUMBER GENERATOR
-reg [7:0] count0, count1, count2, count3, rand;
-reg monster;
-always @ (posedge sys_clk, posedge Reset) begin
-    if (Reset)
-    begin
-//        count0 <= 8'b00000000;
-//        count1 <= 8'b00011111;
-//        count2 <= 8'b01111111;
-//        count3 <= 8'b11111111;
-//        rand <= 8'b00000000;
+//// PSEUDO-RANDOM NUMBER GENERATOR
+//reg [7:0] count0, count1, count2, count3, rand;
+//reg monster;
+//always @ (posedge sys_clk, posedge Reset) begin
+//    if (Reset)
+//    begin
+//        count0 <= 0;
+//        count1 <= 31;
+//        count2 <= 127;
+//        count3 <= 214;
+//        rand <= 0;
 //        monster <= 0;
-        count0 <= 0;
-        count1 <= 31;
-        count2 <= 127;
-        count3 <= 214;
-        rand <= 0;
-        monster <= 0;
-    end
-    else
-    begin
-//        count0 <= count0 + 8'b00000001;
-//		count1 <= count1 + 8'b00000010;
-//		count2 <= count2 + 8'b00000011;
-//		count3 <= count3 + 8'b00000100;
+//    end
+//    else
+//    begin
 //        count0 <= count0 + 1;
 //		count1 <= count1 + 2;
 //		count2 <= count2 + 3;
 //		count3 <= count3 + 4;
 //		rand <= {count3[7:5], count2[4:2] ^ count1[4:2], count0[1:0]};
-//		if (rand == 1)
+//		if (rand > 55)
 //		  monster <= 1;
 //		else
 //		  monster <= 0;
-    end
+//    end
 
-end
+//end
 
 //------------
 // VGA OUTPUT
@@ -300,7 +293,7 @@ end
 //------------
 // OUTPUT: LEDS
 	
-	assign {Ld7, Ld6, Ld5, Ld4} = {q_Play, q_BM_Empty, btm_monster_ctrl, btm_monster_vga};
+	assign {Ld7, Ld6, Ld5, Ld4} = {q_TM_Empty, q_TM_Full, top_monster_ctrl, top_monster_sm};
 	assign {Ld3, Ld2, Ld1, Ld0} = {BtnL, BtnU, BtnD, BtnC}; // Reset is driven by BtnC
 	// Here
 	// BtnL = Start/Ack
@@ -315,14 +308,14 @@ end
 	// ****** TODO  in Part 2 ******
 	// assign y = s ? i1 : i0;  // an example of a 2-to-1 mux coding
 	// assign y = s1 ? (s0 ? i3: i2): (s0 ? i1: i0); // an example of a 4-to-1 mux coding
-	//assign SSD0 = {Sw3, Sw2, Sw1, Sw0};
-	assign SSD0 = {1'b0,1'b0,1'b0,monster};
-	assign SSD1 = rand[3:0];
-	assign SSD2 = rand[7:4];
-	assign SSD4 = count0[3:0];
-	assign SSD5 = count0[7:4];
-	assign SSD6 = count1[3:0];
-	assign SSD7 = count1[7:4];
+	assign SSD0 = {Sw3, Sw2, Sw1, Sw0};
+//	assign SSD0 = {1'b0,1'b0,1'b0,monster};
+//	assign SSD1 = rand[3:0];
+//	assign SSD2 = rand[7:4];
+//	assign SSD4 = count0[3:0];
+//	assign SSD5 = count0[7:4];
+//	assign SSD6 = count1[3:0];
+//	assign SSD7 = count1[7:4];
 
 
 	// need a scan clk for the seven segment display 

@@ -9,13 +9,13 @@
 
 
 module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full, 
-                            play_flag, btm_monster_sm, btm_monster_ctrl, btm_broken, game_over);
+                            play_flag, btm_monster_sm, btm_monster_ctrl, game_over);
 
 	/*  INPUTS */
 	input	Clk, Reset, btm_monster_ctrl, play_flag;
 	
 	/*  OUTPUTS */
-	output reg btm_monster_sm, btm_broken, game_over;		
+	output reg btm_monster_sm, game_over;		
 	output q_BM_Init, q_BM_Empty, q_BM_Full;
 	reg [2:0] state;
 	assign {q_BM_Full, q_BM_Empty, q_BM_Init} = state;
@@ -30,7 +30,6 @@ module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full,
 		if(Reset) 
 		  begin
 			btm_monster_sm <= 0;
-			btm_broken <= 0; 
 			state <= INIT;
 		  end
 		else				
@@ -48,6 +47,7 @@ module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full,
 					begin
 					    // state transfers
 					    if (btm_monster_sm) state <= FULL;
+					    if (game_over) state <= INIT;
 					    // data transfers 
 					    // CLEAR DISPLAY  
 					    // if (generateMonster()) 
@@ -58,6 +58,7 @@ module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full,
 					begin
 						// state transfers
 						if (!btm_monster_sm) state <= EMPTY;	
+						if (game_over) state <= INIT;
     					// data transfers
 						// DISPLAY MONSTER SHOOTING 
 						// increment bottom_timer 
