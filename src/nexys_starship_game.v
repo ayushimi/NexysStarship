@@ -9,10 +9,10 @@
 
 
 module nexys_starship_game(Clk, BtnC, BtnU, Reset, q_Init, q_Play, q_GameOver, 
-                            play_flag, game_over);
+                            play_flag, gameover_ctrl);
 
 	/*  INPUTS */
-	input	Clk, BtnC, BtnU, Reset, game_over;
+	input	Clk, BtnC, BtnU, Reset, gameover_ctrl;
 
 	/*  OUTPUTS */
 	// store the two flags 
@@ -50,16 +50,16 @@ module nexys_starship_game(Clk, BtnC, BtnU, Reset, q_Init, q_Play, q_GameOver,
 					PLAY: 
 					begin
 					    // state transfers
-					    if (game_over) state <= GAMEOVER;
+					    if (gameover_ctrl) state <= GAMEOVER;
 					    // data transfers 
 					    // DISPLAY SPACESHIP AND TERMINALS 
-					    // game_timer <= game_timer + 1; 
 					    play_flag = 1;
 					end
 					GAMEOVER:
 					begin
 						// state transfers
-						if (BtnU) state <= INIT;	
+						//if (BtnC) state <= INIT;
+						play_flag = 0; 	
     					// data transfers
 						// DISPLAY END SCREEN AND GAME TIMER
 						end

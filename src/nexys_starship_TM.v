@@ -10,37 +10,43 @@
 
 module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full, 
                             play_flag, top_monster_sm, top_monster_ctrl, 
-							top_monster_vga, top_random, game_over, temp, BtnR);
+							top_random, top_gameover, gameover_ctrl, timer_clk);
 
 	/*  INPUTS */
-	input	Clk, Reset;	
-	input top_monster_ctrl, top_random, top_monster_vga, BtnR;
+	input	Clk, Reset, timer_clk;	
+	input top_monster_ctrl, top_random;
 
 	/*  OUTPUTS */
-	input play_flag;
-	output reg top_monster_sm;
-	output reg [3:0] temp;	
-	output reg game_over;
+	input play_flag, gameover_ctrl;
+	output reg top_monster_sm;	
+	output reg top_gameover;
 	output q_TM_Init, q_TM_Empty, q_TM_Full;
-	reg[19:0] top_random_counter;
-	reg slow_down;
 	reg [2:0] state;
 	assign {q_TM_Full, q_TM_Empty, q_TM_Init} = state;
 		
 	localparam 	
-	INIT = 3'b001, EMPTY = 3'b010, FULL = 3'b100, UNK = 3'bXXX;        
+	INIT = 3'b001, EMPTY = 3'b010, FULL = 3'b100, UNK = 3'bXXX;     
+	
+	reg [7:0] top_timer;
+	
+	always @ (posedge timer_clk, posedge Reset)
+	begin
+	   if (Reset || state == INIT)
+	       top_timer <= 0;
+	   else if (state == FULL)
+           top_timer <= top_timer + 1;
+	end
 
 	// NSL AND SM
 	always @ (posedge Clk, posedge Reset)
 	begin 
 	    top_monster_sm <= top_monster_ctrl;
+	    top_gameover <= gameover_ctrl; 
 		if(Reset) 
 		  begin
 			top_monster_sm <= 0;
-			top_random_counter<= 0;
-			slow_down <= 0;
+			top_gameover <=0; 
 			state <= INIT;
-			temp<=0;
 		  end
 		else				
 				case(state)	
@@ -51,31 +57,31 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 						// data transfers
 						// DISPLAY HOMESCREEN
 						// game_timer <= 0;
+						top_gameover <= 0; 
 						top_monster_sm <= 0;
 					end		
 					EMPTY: 
 					begin
 					    // state transfers
 					    if (top_monster_sm) state <= FULL;
-					    if (game_over) state <= INIT;
+					    if (top_gameover) state <= INIT;
 					    // data transfers 
 					    // CLEAR DISPLAY  
 					    if (top_random)
-					    begin
 					           top_monster_sm <= 1; 
-					    end
 					end
 					FULL:
 					begin
 						// state transfers
 						if (!top_monster_sm) state <= EMPTY;	
-						if (game_over) state <= INIT;
+						if (top_gameover) state <= INIT;
     					// data transfers
 						// DISPLAY MONSTER SHOOTING 
-						// increment top_timer 
-						// if (top_timer) expires 
-						// game_over = 1; 
+						if (top_timer >= 6) 
+						begin
+						  top_gameover <= 1; 
 						end
+					end
 						
 					default:		
 						state <= UNK;

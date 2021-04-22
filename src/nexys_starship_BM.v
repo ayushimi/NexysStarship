@@ -9,13 +9,15 @@
 
 
 module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full, 
-                            play_flag, btm_monster_sm, btm_monster_ctrl, game_over, timerClk, btm_random);
+                            play_flag, btm_monster_sm, btm_monster_ctrl, 
+                            btm_random, btm_gameover, gameover_ctrl, timer_clk);
 
 	/*  INPUTS */
-	input	Clk, Reset, btm_monster_ctrl, play_flag, timerClk, btm_random;
-	
+	input	Clk, Reset, timer_clk;
+	input btm_monster_ctrl, btm_random; 
+	input play_flag, gameover_ctrl; 
 	/*  OUTPUTS */
-	output reg btm_monster_sm, game_over;		
+	output reg btm_monster_sm, btm_gameover;		
 	output q_BM_Init, q_BM_Empty, q_BM_Full;
 	reg [2:0] state;
 	assign {q_BM_Full, q_BM_Empty, q_BM_Init} = state;
@@ -23,23 +25,24 @@ module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full,
 	localparam 	
 	INIT = 3'b001, EMPTY = 3'b010, FULL = 3'b100, UNK = 3'bXXX;
 
-	reg [7:0] bottom_timer;
-	always @ (posedge timerClk, posedge Reset)
+	reg [7:0] btm_timer;
+	always @ (posedge timer_clk, posedge Reset)
 	begin
 	   if (Reset || state == INIT)
-	       bottom_timer <= 0;
+	       btm_timer <= 0;
 	   else if (state == FULL)
-           bottom_timer <= bottom_timer + 1;
+           btm_timer <= btm_timer + 1;
 	end
 	
 	// NSL AND SM
 	always @ (posedge Clk, posedge Reset)
 	begin 
 	    btm_monster_sm <= btm_monster_ctrl;
+	    btm_gameover <= gameover_ctrl;
 		if(Reset) 
 		  begin
 			btm_monster_sm <= 0;
-		  game_over <= 0;
+		    btm_gameover <= 0;
 			state <= INIT;
 		  end
 		else				
@@ -51,13 +54,14 @@ module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full,
 						// data transfers
 						// DISPLAY HOMESCREEN
 						// game_timer <= 0;
+						btm_gameover <=0; 
 						btm_monster_sm <= 0;
 					end		
 					EMPTY: 
 					begin
 					    // state transfers
 					    if (btm_monster_sm) state <= FULL;
-					    if (game_over) state <= INIT;
+					    if (btm_gameover) state <= INIT;
 					    // data transfers 
 					    // CLEAR DISPLAY  
 					    if (btm_random)
@@ -67,12 +71,13 @@ module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full,
 					begin
 						// state transfers
 						if (!btm_monster_sm) state <= EMPTY;	
-						if (game_over) state <= INIT;
+						if (btm_gameover) state <= INIT;
     					// data transfers
 						// DISPLAY MONSTER SHOOTING 
 						// increment bottom_timer 
-						if (bottom_timer >= 100) begin
-						  game_over = 1; 
+						if (btm_timer >= 6) 
+						begin
+						  btm_gameover <= 1; 
 						end
 				    end
 						

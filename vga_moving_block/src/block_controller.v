@@ -347,7 +347,7 @@ module block_controller(
 			the top left corner corresponds to (hcount,vcount)~(144,35). Which means with a 640x480 resolution, the bottom right corner 
 			corresponds to ~(783,515).  
 		*/
-			if(up && !top_shooting)
+			if(up && !top_shooting && !top_broken)
 				top_shooting<=1;
 			if(down && !btm_shooting)
 				btm_shooting<=1;
@@ -370,7 +370,7 @@ module block_controller(
 					btm_shooting<=0;
 					btm_laser<=226;
 				end
-				else if(btm_laser >= 480) begin
+				else if(btm_laser == 478) begin
 					btm_shooting<=0;
 					btm_laser<=226;
 				end
