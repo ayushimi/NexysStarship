@@ -258,8 +258,8 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
     begin 
         if (q_GameOver)
             gameover_ctrl <= 1; 
-        else if (q_Init || q_BM_Init || q_TM_Init)   
-            gameover_ctrl <= 0; 
+  //      else if (q_Init || q_BM_Init || q_TM_Init)   
+   //         gameover_ctrl <= 0; 
         else
             gameover_ctrl <= top_gameover || btm_gameover; 
     end

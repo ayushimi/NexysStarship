@@ -28,7 +28,7 @@ module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full,
 	reg [7:0] btm_timer;
 	always @ (posedge timer_clk, posedge Reset)
 	begin
-	   if (Reset || state == INIT)
+	   if (Reset || state == INIT || state == EMPTY)
 	       btm_timer <= 0;
 	   else if (state == FULL)
            btm_timer <= btm_timer + 1;

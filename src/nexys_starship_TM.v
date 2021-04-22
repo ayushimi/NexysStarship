@@ -31,7 +31,7 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 	
 	always @ (posedge timer_clk, posedge Reset)
 	begin
-	   if (Reset || state == INIT)
+	   if (Reset || state == INIT || state == EMPTY)
 	       top_timer <= 0;
 	   else if (state == FULL)
            top_timer <= top_timer + 1;

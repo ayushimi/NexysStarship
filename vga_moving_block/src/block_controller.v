@@ -64,14 +64,14 @@ module block_controller(
 			rgb = 12'b0000_0000_0000;
 //		else if (top_green_fill)
 //			rgb = GREEN;
-        else if (top_broken)
+        else if (top_broken && (top_medium_gray_fill || top_dark_gray_fill))
           begin 
                 if (top_medium_gray_fill)
                     rgb = DISABLED_MEDIUM_SHADE; 
                 else if (top_dark_gray_fill)
                     rgb = DISABLED_DARK_SHADE; 
           end 
-        else if (btm_broken)
+        else if (btm_broken && (btm_medium_gray_fill || btm_dark_gray_fill))
           begin 
                 if (btm_medium_gray_fill)
                     rgb = DISABLED_MEDIUM_SHADE; 
@@ -349,7 +349,7 @@ module block_controller(
 		*/
 			if(up && !top_shooting && !top_broken)
 				top_shooting<=1;
-			if(down && !btm_shooting)
+			if(down && !btm_shooting && !btm_broken)
 				btm_shooting<=1;
 
 			if(top_shooting) begin
