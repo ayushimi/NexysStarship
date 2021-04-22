@@ -60,18 +60,9 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 					    if (game_over) state <= INIT;
 					    // data transfers 
 					    // CLEAR DISPLAY  
-					    //slow_down <= 0;
-//					    temp<=0;
 					    if (top_random)
 					    begin
-					       //temp<=temp+1;
-					        top_random_counter <= top_random_counter + 1;
-					        if (top_random_counter == 1000000) begin
-					           top_random_counter <= 0;
 					           top_monster_sm <= 1; 
-					        // top_timer <= 0; 
-					        end
-					        
 					    end
 					end
 					FULL:
@@ -84,11 +75,6 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 						// increment top_timer 
 						// if (top_timer) expires 
 						// game_over = 1; 
-						// if (slow_down == 0) slow_down <= 1;
-//						temp<=temp+1;
-//						if (temp == 2)
-//						  temp <= 0;
-						//top_monster_sm <= top_monster_vga;
 						end
 						
 					default:		

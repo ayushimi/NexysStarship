@@ -62,6 +62,7 @@ module nexys_starship_top
 	wire [2:0] 	ssdscan_clk;
 	reg [26:0]	DIV_CLK;
 	wire move_clk; // slower vga
+	wire timer_clk;
 	
 	// VGA wires
 	wire bright;
@@ -147,7 +148,8 @@ module nexys_starship_top
 //------------------
 	// CLOCK
 	assign move_clk = DIV_CLK[19]; //slower clock to drive the movement of objects on the vga screen
-	assign random_clk = DIV_CLK[3];
+	assign random_clk = DIV_CLK[24];
+	assign timer_clk = DIV_CLK[1];
 
 //------------
 // INPUT: SWITCHES & BUTTONS
@@ -211,7 +213,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	nexys_starship_BM nexys_starship_BM_1(.Clk(sys_clk), .Reset(Reset), .q_BM_Init(q_BM_Init), 
 	                      .q_BM_Empty(q_BM_Empty), .q_BM_Full(q_BM_Full), .play_flag(play_flag), 
                           .btm_monster_sm(btm_monster_sm), .btm_monster_ctrl(btm_monster_ctrl), 
-                          .game_over(game_over));
+                          .game_over(game_over), .timerClk(timer_clk), .btm_random(btm_random));
                            
     wire[3:0] temp;
     wire sysClk;
@@ -223,7 +225,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 						  
 						  
 	// random modules
-	nexys_starship_PRNG nexys_starship_PRNG_1(.Clk(sys_clk), .Reset(Reset), .top_random(top_random),
+	nexys_starship_PRNG nexys_starship_PRNG_1(.Clk(random_clk), .Reset(Reset), .top_random(top_random),
                         .btm_random(btm_random), .left_random(left_random),
                         .right_random(right_random));
                       
@@ -250,10 +252,10 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
     
     always @ (*)
     begin
-        if (btm_monster_sm)
-            btm_monster_ctrl <= btm_monster_sm; 
+        if (q_BM_Full)
+            btm_monster_ctrl <= btm_monster_vga; 
         else
-            btm_monster_ctrl <= btm_monster_vga;  
+            btm_monster_ctrl <= btm_monster_sm;  
     end 
     
 //------------
@@ -295,7 +297,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 // OUTPUT: LEDS
 	
 	assign {Ld7, Ld6, Ld5, Ld4} = {q_TM_Empty, q_TM_Full, top_monster_ctrl, top_monster_sm};
-	assign {Ld3, Ld2, Ld1, Ld0} = {top_monster_vga, BtnU, q_Play, play_flag}; // Reset is driven by BtnC
+	assign {Ld3, Ld2, Ld1, Ld0} = {q_GameOver, q_Play, play_flag, game_over}; // Reset is driven by BtnC
 	// Here
 	// BtnL = Start/Ack
 	// BtnU = Single-Step
@@ -311,7 +313,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	// assign y = s1 ? (s0 ? i3: i2): (s0 ? i1: i0); // an example of a 4-to-1 mux coding
 	assign SSD0 = {Sw3, Sw2, Sw1, Sw0};
 	assign SSD1 = temp;
-	assign SSD2 = {1'b0,1'b0,1'b0,top_random};
+	assign SSD2 = {1'b0,1'b0,1'b0,game_over};
 //	assign SSD1 = rand[3:0];
 //	assign SSD2 = rand[7:4];
 //	assign SSD4 = count0[3:0];

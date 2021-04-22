@@ -308,20 +308,28 @@ module block_controller(
 	
 	always@(posedge sysClk, posedge Reset) begin
 	    top_monster_vga <= top_monster_ctrl;
+	    btm_monster_vga <= btm_monster_ctrl;
 	   	if(Reset)
 		begin 
-					top_monster_vga<=0; 
-					
+			top_monster_vga<=0;
+			btm_monster_vga<=0; 
 		end
 		else
-		if (top_monster_vga && top_laser == 76) begin
-              top_monster_vga<=0;
+		begin
+            if (top_monster_vga && top_laser == 76) begin
+                 top_monster_vga<=0;
+            end
+            if (btm_monster_vga && btm_laser == 406) begin
+                 btm_monster_vga<=0;
+            end
         end
 	end
+	
+
 	always@(posedge Clk, posedge Reset) 
 	begin
 	    //top_monster_vga <= top_monster_ctrl;
-	    btm_monster_vga <= btm_monster_ctrl; 
+	    //btm_monster_vga <= btm_monster_ctrl; 
 		if(Reset)
 		begin 
 			top_laser<=256;
@@ -329,7 +337,7 @@ module block_controller(
 			top_shooting<=0;
 			btm_shooting<=0;
 			//top_monster_vga<=0; 
-			btm_monster_vga<=0; 
+			//btm_monster_vga<=0; 
 		end
 		else if (Clk) begin
 		
@@ -345,26 +353,24 @@ module block_controller(
 				btm_shooting<=1;
 
 			if(top_shooting) begin
-				top_laser<=top_laser-2;
-				/*if (top_monster_vga && top_laser == 76) begin
+				top_laser<=top_laser-4;
+				if (top_monster_vga && top_laser == 76) begin
 					top_shooting<=0;
-					top_monster_vga<=0;
 					top_laser<=256;
 				end
-				else */if(top_laser == 0) begin
+				else if(top_laser == 0) begin
 					top_shooting<=0;
 					top_laser<=256;
 				end
 			end
 			
 			if(btm_shooting) begin
-				btm_laser<=btm_laser+2;
+				btm_laser<=btm_laser+4;
 				if (btm_monster_vga && btm_laser == 406) begin
 					btm_shooting<=0;
-					btm_monster_vga<=0;
 					btm_laser<=226;
 				end
-				else if(btm_laser == 480) begin
+				else if(btm_laser >= 480) begin
 					btm_shooting<=0;
 					btm_laser<=226;
 				end

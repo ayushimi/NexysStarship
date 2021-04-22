@@ -35,10 +35,36 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
             top2 <= top2 + 3;
             top3 <= top3 + 9;
             top_random_8 <= {top3[7:5], top2[4:2] ^ top1[4:2], top0[1:0]};
-			if (top_random_8 == 0)
+			if (top_random_8 <= 15)
 				top_random <= 1;
 			else
 				top_random <= 0;
+        end
+    
+    end
+    
+    // TOP
+    reg [7:0] btm0, btm1, btm2, btm3, btm_random_8;
+    always @ (posedge Clk, posedge Reset) begin
+        if (Reset)
+        begin
+            btm0 <= 0;
+            btm1 <= 230;
+            btm2 <= 99;
+            btm3 <= 180;
+            btm_random_8 <= 0;
+        end
+        else
+        begin
+            btm0 <= btm0 + 3;
+            btm1 <= btm1 + 9;
+            btm2 <= btm2 + 5;
+            btm3 <= btm3 + 7;
+            btm_random_8 <= {btm3[7:5], btm2[4:2] ^ btm1[4:2], btm0[1:0]};
+			if (btm_random_8 <= 15)
+				btm_random <= 1;
+			else
+				btm_random <= 0;
         end
     
     end
