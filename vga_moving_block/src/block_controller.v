@@ -8,7 +8,8 @@ module block_controller(
 	input [9:0] hCount, vCount,
 	output reg [11:0] rgb,
 	input top_monster_ctrl, output reg top_monster_vga, input top_broken,
-	input btm_monster_ctrl, output reg btm_monster_vga, input btm_broken
+	input btm_monster_ctrl, output reg btm_monster_vga, input btm_broken,
+	input sysClk
    );
 	wire spaceship_black_fill;
 	wire light_gray_fill;
@@ -51,8 +52,8 @@ module block_controller(
 	parameter GREEN = 12'b0001_1111_0000;
 	parameter CREAM = 12'b1111_1110_1011;
 	parameter TUNNEL_BLUE = 12'b0000_0001_0101;
-	parameter DISABLED_DARK_SHADE = 1'b0001_0001_0001; 
-	parameter DISABLED_MEDIUM_SHADE = 1'b0010_0010_0010; 
+	parameter DISABLED_DARK_SHADE = 12'b0001_0001_0001; 
+	parameter DISABLED_MEDIUM_SHADE = 12'b0010_0010_0010; 
 
 
 	
@@ -197,7 +198,9 @@ module block_controller(
 		|| (hCount>=(144+319)&&hCount<=(144+319+3)&&vCount>=(35+208)&&vCount<=(35+208+5)) // mid hair strand  
 		|| (hCount>=(144+324)&&hCount<=(144+324+2)&&vCount>=(35+211)&&vCount<=(35+211+2)); // right hair strand  
 	
-	assign spaceship_display_fill = light_gray_fill || light_blue_fill || left_shield_fill || right_shield_fill || spaceship_black_fill || head_fill || dark_gray_fill || medium_gray_fill;
+	assign spaceship_display_fill = light_gray_fill || light_blue_fill || left_shield_fill || right_shield_fill
+	                                   || spaceship_black_fill || head_fill || top_dark_gray_fill || top_medium_gray_fill
+	                                   || btm_dark_gray_fill || btm_medium_gray_fill;
 	
 	assign top_green_fill = 
 		(hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser-24)&&vCount<=(35+top_laser)) // top 3rd bullet 
@@ -303,9 +306,21 @@ module block_controller(
 								|| BM_cream_fill || BM_mask_fill);
 
 	
+	always@(posedge sysClk, posedge Reset) begin
+	    top_monster_vga <= top_monster_ctrl;
+	   	if(Reset)
+		begin 
+					top_monster_vga<=0; 
+					
+		end
+		else
+		if (top_monster_vga && top_laser == 76) begin
+              top_monster_vga<=0;
+        end
+	end
 	always@(posedge Clk, posedge Reset) 
 	begin
-	    top_monster_vga <= top_monster_ctrl;
+	    //top_monster_vga <= top_monster_ctrl;
 	    btm_monster_vga <= btm_monster_ctrl; 
 		if(Reset)
 		begin 
@@ -313,8 +328,8 @@ module block_controller(
 			btm_laser<=226;
 			top_shooting<=0;
 			btm_shooting<=0;
-			top_monster_vga<=0; 
-			top_monster_ctrl<=0; 
+			//top_monster_vga<=0; 
+			btm_monster_vga<=0; 
 		end
 		else if (Clk) begin
 		
@@ -331,12 +346,12 @@ module block_controller(
 
 			if(top_shooting) begin
 				top_laser<=top_laser-2;
-				if (top_monster_vga && top_laser == 76) begin
+				/*if (top_monster_vga && top_laser == 76) begin
 					top_shooting<=0;
 					top_monster_vga<=0;
 					top_laser<=256;
 				end
-				else if(top_laser == 0) begin
+				else */if(top_laser == 0) begin
 					top_shooting<=0;
 					top_laser<=256;
 				end

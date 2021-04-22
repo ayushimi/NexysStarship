@@ -54,6 +54,7 @@ module nexys_starship_game(Clk, BtnC, BtnU, Reset, q_Init, q_Play, q_GameOver,
 					    // data transfers 
 					    // DISPLAY SPACESHIP AND TERMINALS 
 					    // game_timer <= game_timer + 1; 
+					    play_flag = 1;
 					end
 					GAMEOVER:
 					begin

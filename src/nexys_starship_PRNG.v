@@ -35,7 +35,7 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
             top2 <= top2 + 3;
             top3 <= top3 + 9;
             top_random_8 <= {top3[7:5], top2[4:2] ^ top1[4:2], top0[1:0]};
-			if (top_random_8 <= 1)
+			if (top_random_8 == 0)
 				top_random <= 1;
 			else
 				top_random <= 0;
