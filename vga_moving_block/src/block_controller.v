@@ -85,6 +85,28 @@ module block_controller (
 				default: top_hex_fill = T0_fill;
 			endcase
 		end
+		if (btm_broken)
+		begin
+			case (BR_combo)
+				4'b0000: btm_hex_fill = B0_fill; // 0
+				4'b0001: btm_hex_fill = B1_fill; // 1
+				4'b0010: btm_hex_fill = B2_fill; // 2
+				4'b0011: btm_hex_fill = B3_fill; // 3
+				4'b0100: btm_hex_fill = B4_fill; // 4
+				4'b0101: btm_hex_fill = B5_fill; // 5
+				4'b0110: btm_hex_fill = B6_fill; // 6
+				4'b0111: btm_hex_fill = B7_fill; // 7
+				4'b1000: btm_hex_fill = B8_fill; // 8
+				4'b1001: btm_hex_fill = B9_fill; // 9
+				4'b1010: btm_hex_fill = BA_fill; // A
+				4'b1011: btm_hex_fill = BB_fill; // B
+				4'b1100: btm_hex_fill = BC_fill; // C
+				4'b1101: btm_hex_fill = BD_fill; // D
+				4'b1110: btm_hex_fill = BE_fill; // E
+				4'b1111: btm_hex_fill = BF_fill; // F    
+				default: btm_hex_fill = B0_fill;
+			endcase
+		end
 
 		
 		if(~bright )	//force black if not inside the display area

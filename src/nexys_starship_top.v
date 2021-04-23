@@ -226,7 +226,14 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
                             .play_flag(play_flag), .top_broken(top_broken), .hex_combo(hex_combo), 
                             .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
                             .TR_random(TR_random), .BtnR(Right_Pulse),
-                            .TR_combo(TR_combo), .TR_submit(TR_submit));
+                            .TR_combo(TR_combo));
+                            
+	nexys_starship_BR nexys_starship_BR_1(.Clk(sys_clk), .Reset(Reset), .q_BR_Init(q_BR_Init), 
+	                       .q_BR_Working(q_BR_Working), .q_BR_Repair(q_BR_Repair), .BtnD(Down_Pulse),
+                            .play_flag(play_flag), .btm_broken(btm_broken), .hex_combo(hex_combo), 
+                            .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
+                            .BR_random(BR_random), .BtnR(Right_Pulse),
+                            .BR_combo(BR_combo));                            
 				  
 	// random modules
 	nexys_starship_PRNG nexys_starship_PRNG_1(.Clk(random_clk), .Reset(Reset),

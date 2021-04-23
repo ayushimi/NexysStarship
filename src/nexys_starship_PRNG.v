@@ -22,7 +22,8 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
 	
 	// TOP
     reg [7:0] top0, top1, top2, top3, top_random_8;
-    reg [7:0] TR_random_8, random_hex_8;
+    reg [7:0] random_hex_8;
+    reg [7:0] TR_random_8, BR_random_8; 
     always @ (posedge Clk, posedge Reset) begin
         if (Reset)
         begin
@@ -31,6 +32,10 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
             top2 <= 127;
             top3 <= 214;
             top_random_8 <= 0;
+            TR_random_8 <= 172; 
+            random_hex_8 <=0;
+            top_random <= 0;
+            TR_random <=0; 
         end
         else
         begin
@@ -41,11 +46,11 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
             top_random_8 <= {top3[7:5], top2[4:2] ^ top1[4:2], top0[1:0]};
             TR_random_8 <= {top0[7:5], top3[4:2] ^ top1[4:2], top2[1:0]};
             random_hex_8 <= {top2[7:5], top0[4:2] ^ top3[4:2], top1[1:0]};
-			if (top_random_8 <= 15)
+			if (top_random_8 <= 8)
 				top_random <= 1;
 			else
 				top_random <= 0;
-		    if (TR_random_8 <= 15)
+		    if (TR_random_8 <= 6)
                 TR_random <= 1;
             else
                 TR_random <= 0;
@@ -63,6 +68,9 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
             btm2 <= 99;
             btm3 <= 180;
             btm_random_8 <= 0;
+            BR_random_8 <= 175; 
+            btm_random <= 0;
+            BR_random <=0; 
         end
         else
         begin
@@ -71,10 +79,14 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
             btm2 <= btm2 + 5;
             btm3 <= btm3 + 7;
             btm_random_8 <= {btm3[7:5], btm2[4:2] ^ btm1[4:2], btm0[1:0]};
-			if (btm_random_8 <= 15)
+			if (btm_random_8 <= 8)
 				btm_random <= 1;
 			else
 				btm_random <= 0;
+			if (BR_random_8 <= 6)
+                BR_random <= 1;
+            else
+                BR_random <= 0;
         end
     end
 
