@@ -94,7 +94,7 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 						if (top_gameover) state <= INIT;
     					// data transfers
 						// DISPLAY MONSTER SHOOTING 
-						if (top_timer >= 6) 
+						if (top_timer >= 10) 
 						begin
 						  top_gameover <= 1; 
 						end

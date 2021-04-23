@@ -102,9 +102,11 @@ module nexys_starship_top
 	reg gameover_ctrl;  
 	reg [3:0] hex_combo;
 	wire [3:0] random_hex;
+	reg TR_submit;
 	reg [3:0]	SSD;
 	wire [7:0]	SSD7, SSD6, SSD5, SSD4, SSD3, SSD2, SSD1, SSD0;
 	reg [7:0]  SSD_CATHODES;
+	
 	
 	
 
@@ -188,14 +190,15 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 		if(Reset)
 		begin
 	        hex_combo <= 4'b0000; 
-	        //random_hex <= 4'b0000;
+	        TR_submit <= 0;
 		end
 		else
 		begin
-			if (Center_Pulse || Up_Pulse || Down_Pulse)  		
-				begin	
+			//if (Up_Pulse)  		
+				//begin	
 					hex_combo <= {Sw3, Sw2, Sw1, Sw0};	
-				end
+					//TR_submit <= 1;
+				//end
 		end
 	end
 	
@@ -223,7 +226,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
                             .play_flag(play_flag), .top_broken(top_broken), .hex_combo(hex_combo), 
                             .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
                             .TR_random(TR_random), .BtnR(Right_Pulse),
-                            .random_repair_combo(random_repair_combo));
+                            .random_repair_combo(random_repair_combo), .TR_submit(TR_submit));
 				  
 	// random modules
 	nexys_starship_PRNG nexys_starship_PRNG_1(.Clk(random_clk), .Reset(Reset),

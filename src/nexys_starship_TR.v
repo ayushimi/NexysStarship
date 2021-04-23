@@ -10,13 +10,15 @@
 
 module nexys_starship_TR(Clk, Reset, q_TR_Init, q_TR_Working , q_TR_Repair, BtnU,
                             play_flag, top_broken, hex_combo, random_hex, gameover_ctrl,
-                            TR_random, BtnR, random_repair_combo);
+                            TR_random, BtnR, random_repair_combo, TR_submit);
 
 	/*  INPUTS */
 	input	Clk, Reset, BtnU, gameover_ctrl;	
-	input   play_flag, hex_combo, random_hex;
+	input   play_flag;
+	input [3:0] hex_combo, random_hex;
 	input   TR_random;
 	input   BtnR;
+	input TR_submit;
 
 	/*  OUTPUTS */
 	output reg top_broken;	
@@ -65,11 +67,11 @@ module nexys_starship_TR(Clk, Reset, q_TR_Init, q_TR_Working , q_TR_Repair, BtnU
 						if (!top_broken) state <= WORKING;	
 						if (gameover_ctrl) state <= INIT;
     					// data transfers
-//						if (BtnU)
-//						begin
+						if (BtnU)
+						begin
 							if (hex_combo == random_repair_combo)
 								top_broken <= 0;
-//						end
+						end
                         if (BtnR)
                             top_broken <= 0;
 						end

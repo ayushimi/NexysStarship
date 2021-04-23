@@ -94,7 +94,7 @@ module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full,
     					// data transfers
 						// DISPLAY MONSTER SHOOTING 
 						// increment bottom_timer 
-						if (btm_timer >= 6) 
+						if (btm_timer >= 10) 
 						begin
 						  btm_gameover <= 1; 
 						end
