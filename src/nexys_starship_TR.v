@@ -55,7 +55,7 @@ module nexys_starship_TR(Clk, Reset, q_TR_Init, q_TR_Working , q_TR_Repair, BtnU
 					    // data transfers 
 					    if (TR_random) 
 					    begin
-					        top_broken <= 1; 
+					        top_broken = 1; 
 							random_repair_combo <= random_hex;
 					    end
 					end

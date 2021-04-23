@@ -43,7 +43,7 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
 				top_random <= 1;
 			else
 				top_random <= 0;
-		    if (TR_random_8 <= 15)
+		    if (TR_random_8 <= 7)
                 TR_random <= 1;
             else
                 TR_random <= 0;
