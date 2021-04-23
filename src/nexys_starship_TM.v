@@ -28,6 +28,8 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 	INIT = 3'b001, EMPTY = 3'b010, FULL = 3'b100, UNK = 3'bXXX;     
 	
 	reg [7:0] top_timer;
+	reg [7:0] top_delay;
+	reg generate_monster;
 	
 	always @ (posedge timer_clk, posedge Reset)
 	begin
@@ -35,6 +37,14 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 	       top_timer <= 0;
 	   else if (state == FULL)
            top_timer <= top_timer + 1;
+	end
+	
+	always @ (posedge timer_clk, posedge Reset)
+	begin
+	   if (Reset || state == INIT || state == FULL)
+	       top_delay <= 0;
+	   else if (state == EMPTY)
+	       top_delay <= top_delay + 1;
 	end
 
 	// NSL AND SM
@@ -47,6 +57,7 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 			top_monster_sm <= 0;
 			top_gameover <=0; 
 			state <= INIT;
+			generate_monster <= 0;
 		  end
 		else				
 				case(state)	
@@ -59,6 +70,7 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 						// game_timer <= 0;
 						top_gameover <= 0; 
 						top_monster_sm <= 0;
+						generate_monster <= 0;
 					end		
 					EMPTY: 
 					begin
@@ -67,8 +79,13 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 					    if (top_gameover) state <= INIT;
 					    // data transfers 
 					    // CLEAR DISPLAY  
-					    if (top_random)
+					    if (top_delay == 1)
+					       generate_monster <= 1;
+					    if (top_random && generate_monster)
+					    begin
 					           top_monster_sm <= 1; 
+					           generate_monster <= 0;
+					    end
 					end
 					FULL:
 					begin

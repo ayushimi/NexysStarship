@@ -16,6 +16,7 @@ module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full,
 	input	Clk, Reset, timer_clk;
 	input btm_monster_ctrl, btm_random; 
 	input play_flag, gameover_ctrl; 
+	
 	/*  OUTPUTS */
 	output reg btm_monster_sm, btm_gameover;		
 	output q_BM_Init, q_BM_Empty, q_BM_Full;
@@ -26,12 +27,23 @@ module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full,
 	INIT = 3'b001, EMPTY = 3'b010, FULL = 3'b100, UNK = 3'bXXX;
 
 	reg [7:0] btm_timer;
+	reg [7:0] btm_delay;
+	reg generate_monster;
+	
 	always @ (posedge timer_clk, posedge Reset)
 	begin
 	   if (Reset || state == INIT || state == EMPTY)
 	       btm_timer <= 0;
 	   else if (state == FULL)
            btm_timer <= btm_timer + 1;
+	end
+	
+	always @ (posedge timer_clk, posedge Reset)
+	begin
+	   if (Reset || state == INIT || state == FULL)
+	       btm_delay <= 0;
+	   else if (state == EMPTY)
+	       btm_delay <= btm_delay + 1;
 	end
 	
 	// NSL AND SM
@@ -44,6 +56,7 @@ module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full,
 			btm_monster_sm <= 0;
 		    btm_gameover <= 0;
 			state <= INIT;
+			generate_monster <= 0;
 		  end
 		else				
 				case(state)	
@@ -56,6 +69,7 @@ module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full,
 						// game_timer <= 0;
 						btm_gameover <=0; 
 						btm_monster_sm <= 0;
+						generate_monster <= 0;
 					end		
 					EMPTY: 
 					begin
@@ -64,8 +78,13 @@ module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full,
 					    if (btm_gameover) state <= INIT;
 					    // data transfers 
 					    // CLEAR DISPLAY  
-					    if (btm_random)
-					       btm_monster_sm <= 1; 
+					    if (btm_delay == 1)
+					       generate_monster <= 1;
+					    if (btm_random && generate_monster)
+					    begin
+					           btm_monster_sm <= 1; 
+					           generate_monster <= 0;
+					    end
 					end
 					FULL:
 					begin
