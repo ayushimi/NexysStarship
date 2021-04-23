@@ -100,7 +100,8 @@ module nexys_starship_top
 	wire TR_random, BR_random, LR_random, RR_random;
 	wire top_gameover, btm_gameover, left_gameover, right_gameover;
 	reg gameover_ctrl;  
-	reg [3:0] hex_combo, random_hex;
+	reg [3:0] hex_combo;
+	wire [3:0] random_hex;
 	reg [3:0]	SSD;
 	wire [7:0]	SSD7, SSD6, SSD5, SSD4, SSD3, SSD2, SSD1, SSD0;
 	reg [7:0]  SSD_CATHODES;
@@ -187,11 +188,11 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 		if(Reset)
 		begin
 	        hex_combo <= 4'b0000; 
-	        random_hex <= 4'b0000;
+	        //random_hex <= 4'b0000;
 		end
 		else
 		begin
-			if (Center_Pulse)  		
+			if (Center_Pulse || Up_Pulse || Down_Pulse)  		
 				begin	
 					hex_combo <= {Sw3, Sw2, Sw1, Sw0};	
 				end
@@ -216,17 +217,19 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
                           .top_random(top_random), .top_gameover(top_gameover), 
                           .gameover_ctrl(gameover_ctrl), .timer_clk(timer_clk));
 					  
+	wire [3:0] random_repair_combo;
 	nexys_starship_TR nexys_starship_TR_1(.Clk(sys_clk), .Reset(Reset), .q_TR_Init(q_TR_Init), 
 	                       .q_TR_Working(q_TR_Working), .q_TR_Repair(q_TR_Repair), .BtnU(Up_Pulse),
                             .play_flag(play_flag), .top_broken(top_broken), .hex_combo(hex_combo), 
                             .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
-                            .TR_random(TR_random), .BtnR(Right_Pulse));
+                            .TR_random(TR_random), .BtnR(Right_Pulse),
+                            .random_repair_combo(random_repair_combo));
 				  
 	// random modules
 	nexys_starship_PRNG nexys_starship_PRNG_1(.Clk(random_clk), .Reset(Reset),
 	                    .top_random(top_random), .btm_random(btm_random), .left_random(left_random),
                         .right_random(right_random), .TR_random(TR_random), .BR_random(BR_random),
-                        .LR_random(LR_random), .RR_random(RR_random));
+                        .LR_random(LR_random), .RR_random(RR_random), .random_hex(random_hex));
                       
 	
 	// vga modules
@@ -283,7 +286,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 // SSD (Seven Segment Display)
 
 	assign SSD0 = {Sw3, Sw2, Sw1, Sw0};
-	assign SSD1 = {1'b0,1'b0,1'b0,game_over};
+	assign SSD1 = random_repair_combo;
 
 
 	// need a scan clk for the seven segment display 

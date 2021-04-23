@@ -10,7 +10,7 @@
 
 module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
 							left_random, right_random, TR_random,
-							BR_random, LR_random, RR_random);
+							BR_random, LR_random, RR_random, random_hex);
 
 	/*  INPUTS */
 	input	Clk, Reset;	
@@ -18,10 +18,11 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
 	/*  OUTPUTS */
 	output reg top_random, btm_random, left_random, right_random;
 	output reg TR_random, BR_random, LR_random, RR_random;
+	output reg random_hex;
 	
 	// TOP
     reg [7:0] top0, top1, top2, top3, top_random_8;
-    reg [7:0] TR_random_8;
+    reg [7:0] TR_random_8, random_hex_8;
     always @ (posedge Clk, posedge Reset) begin
         if (Reset)
         begin
@@ -39,6 +40,7 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
             top3 <= top3 + 9;
             top_random_8 <= {top3[7:5], top2[4:2] ^ top1[4:2], top0[1:0]};
             TR_random_8 <= {top0[7:5], top3[4:2] ^ top1[4:2], top2[1:0]};
+            random_hex_8 <= {top2[7:5], top0[4:2] ^ top3[4:2], top1[1:0]};
 			if (top_random_8 <= 15)
 				top_random <= 1;
 			else
@@ -47,6 +49,7 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
                 TR_random <= 1;
             else
                 TR_random <= 0;
+            random_hex <= random_hex_8 / 16;
         end
     end
     
