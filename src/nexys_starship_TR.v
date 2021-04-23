@@ -10,7 +10,7 @@
 
 module nexys_starship_TR(Clk, Reset, q_TR_Init, q_TR_Working , q_TR_Repair, BtnU,
                             play_flag, top_broken, hex_combo, random_hex, gameover_ctrl,
-                            TR_random, BtnR, random_repair_combo, TR_submit);
+                            TR_random, BtnR, TR_combo, TR_submit);
 
 	/*  INPUTS */
 	input	Clk, Reset, BtnU, gameover_ctrl;	
@@ -23,7 +23,7 @@ module nexys_starship_TR(Clk, Reset, q_TR_Init, q_TR_Working , q_TR_Repair, BtnU
 	/*  OUTPUTS */
 	output reg top_broken;	
 	output q_TR_Init, q_TR_Working , q_TR_Repair;
-	output reg [3:0] random_repair_combo;
+	output reg [3:0] TR_combo;
 	reg [2:0] state;
 	assign {q_TR_Repair, q_TR_Working , q_TR_Init} = state;
 		
@@ -48,6 +48,7 @@ module nexys_starship_TR(Clk, Reset, q_TR_Init, q_TR_Working , q_TR_Repair, BtnU
 						if (play_flag) state <= WORKING;
 						// data transfers
 						top_broken <= 0;
+						TR_combo <= 0;
 					end		
 					WORKING: 
 					begin
@@ -58,7 +59,7 @@ module nexys_starship_TR(Clk, Reset, q_TR_Init, q_TR_Working , q_TR_Repair, BtnU
 					    if (TR_random) 
 					    begin
 					        top_broken = 1; 
-							random_repair_combo <= random_hex;
+							TR_combo <= random_hex;
 					    end
 					end
 					REPAIR:
@@ -69,7 +70,7 @@ module nexys_starship_TR(Clk, Reset, q_TR_Init, q_TR_Working , q_TR_Repair, BtnU
     					// data transfers
 						if (BtnU)
 						begin
-							if (hex_combo == random_repair_combo)
+							if (hex_combo == TR_combo)
 								top_broken <= 0;
 						end
                         if (BtnR)

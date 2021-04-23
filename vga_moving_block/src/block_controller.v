@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module block_controller(
+module block_controller (
 	input Clk, //this clock must be a slow enough clock to view the changing positions of the objects
 	input bright,
 	input Reset,
@@ -9,35 +9,30 @@ module block_controller(
 	output reg [11:0] rgb,
 	input top_monster_ctrl, output reg top_monster_vga, input top_broken,
 	input btm_monster_ctrl, output reg btm_monster_vga, input btm_broken,
-	input sysClk
+	input sysClk,
+	input [3:0] TR_combo, BR_combo
    );
 	wire spaceship_black_fill;
+	wire tunnel_blue_fill;
 	wire light_gray_fill;
 	wire light_blue_fill;
-	wire left_shield_fill;
-	wire right_shield_fill;
+	wire left_shield_fill, right_shield_fill;
 	wire black_fill;
 	wire head_fill;
-	wire top_dark_gray_fill;
-	wire btm_dark_gray_fill;
-	wire top_medium_gray_fill;
-	wire btm_medium_gray_fill;
-	wire TM_black_fill;
-	wire TM_red_fill;
-	wire TM_cream_fill;
-	wire tunnel_blue_fill;
-	wire TM_mask_fill;
-	wire top_green_fill;
-	wire BM_black_fill;
-	wire BM_red_fill;
-	wire BM_cream_fill;
-	wire BM_mask_fill;
-	wire btm_green_fill;
+	wire top_dark_gray_fill, btm_dark_gray_fill, top_medium_gray_fill, btm_medium_gray_fill;
+	wire TM_black_fill, TM_red_fill, TM_cream_fill, TM_mask_fill, top_green_fill;
+	wire BM_black_fill, BM_red_fill, BM_cream_fill, BM_mask_fill, btm_green_fill;
+	wire T0_fill, T1_fill, T2_fill, T3_fill, T4_fill, T5_fill, T6_fill, T7_fill, T8_fill, T9_fill;
+	wire B0_fill, B1_fill, B2_fill, B3_fill, B4_fill, B5_fill, B6_fill, B7_fill, B8_fill, B9_fill;
+	wire L0_fill, L1_fill, L2_fill, L3_fill, L4_fill, L5_fill, L6_fill, L7_fill, L8_fill, L9_fill;
+	wire R0_fill, R1_fill, R2_fill, R3_fill, R4_fill, R5_fill, R6_fill, R7_fill, R8_fill, R9_fill;
 
-		
 	//these two values dictate the center of the block, incrementing and decrementing them leads the block to move in certain directions
 	reg signed [10:0] top_laser, btm_laser;
 	reg top_shooting, btm_shooting;
+	reg [9:0] top_h, top_v, btm_h, btm_v, left_h, left_v, right_h, right_v;
+	reg top_hex_fill;
+
 	
 	parameter RED   = 12'b1111_0000_0000;
 	parameter BLACK = 12'b0000_0000_0000;
@@ -56,14 +51,35 @@ module block_controller(
 	parameter DISABLED_MEDIUM_SHADE = 12'b0010_0010_0010; 
 
 
-	
 	/*when outputting the rgb value in an always block like this, make sure to include the if(~bright) statement, as this ensures the monitor 
 	will output some data to every pixel and not just the images you are trying to display*/
 	always@ (*) begin
-    	if(~bright )	//force black if not inside the display area
+    	if (top_broken)
+		begin
+			case (TR_combo)
+				4'b0000: top_hex_fill = T0_fill; // 0
+				4'b0001: top_hex_fill = T1_fill; // 1
+				4'b0010: top_hex_fill = T2_fill; // 2
+				4'b0011: top_hex_fill = T3_fill; // 3
+				4'b0100: top_hex_fill = T4_fill; // 4
+				4'b0101: top_hex_fill = T5_fill; // 5
+				4'b0110: top_hex_fill = T6_fill; // 6
+				4'b0111: top_hex_fill = T7_fill; // 7
+				4'b1000: top_hex_fill = T8_fill; // 8
+				4'b1001: top_hex_fill = T9_fill; // 9
+				4'b1010: top_hex_fill = TA_fill; // A
+				4'b1011: top_hex_fill = TB_fill; // B
+				4'b1100: top_hex_fill = TC_fill; // C
+				4'b1101: top_hex_fill = TD_fill; // D
+				4'b1110: top_hex_fill = TE_fill; // E
+				4'b1111: top_hex_fill = TF_fill; // F    
+				default: top_hex_fill = T0_fill;
+			endcase
+		end
+
+		
+		if(~bright )	//force black if not inside the display area
 			rgb = 12'b0000_0000_0000;
-//		else if (top_green_fill)
-//			rgb = GREEN;
         else if (top_broken && (top_medium_gray_fill || top_dark_gray_fill))
           begin 
                 if (top_medium_gray_fill)
@@ -78,6 +94,10 @@ module block_controller(
                 else if (btm_dark_gray_fill)
                     rgb = DISABLED_DARK_SHADE; 
           end 
+		else if (top_broken && top_hex_fill)
+			rgb = 
+		else if (btm_broken && btm_hex_fill)
+			rgb = 
 		else if (spaceship_display_fill)
 		  begin
 				if (spaceship_black_fill)
@@ -304,8 +324,247 @@ module block_controller(
     
     assign BM_display_fill = btm_monster_vga && (BM_red_fill || BM_black_fill
 								|| BM_cream_fill || BM_mask_fill);
+								
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	assign T0_fill = 
+		(hCount>=(144+top_h+2)&&hCount<=(144+top_h+2+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+16))
+		|| (hCount>=(144+top_h+5)&&hCount<=(144+top_h+5+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+3))
+		|| (hCount>=(144+top_h+8)&&hCount<=(144+top_h+8+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+16))
+		|| (hCount>=(144+top_h+5)&&hCount<=(144+top_h+5+3)&&vCount>=(35+top_v+13)&&vCount<=(35+top_v+13+3));
+		
+	assign T1_fill = 
+		(hCount>=(144+top_h+3)&&hCount<=(144+top_h+3+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+3))
+		|| (hCount>=(144+top_h+6)&&hCount<=(144+top_h+6+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+16));
+		
+	assign T2_fill =
+		(hCount>=(144+top_h+1)&&hCount<=(144+top_h+1+6)&&vCount>=(35+top_v)&&vCount<=(35+top_v+3))
+		|| (hCount>=(144+top_h+8)&&hCount<=(144+top_h+8+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+9))
+		|| (hCount>=(144+top_h+1)&&hCount<=(144+top_h+1+3)&&vCount>=(35+top_v+6)&&vCount<=(35+top_v+6+10))
+		|| (hCount>=(144+top_h+4)&&hCount<=(144+top_h+4+4)&&vCount>=(35+top_v+6)&&vCount<=(35+top_v+6+3))
+		|| (hCount>=(144+top_h+4)&&hCount<=(144+top_h+4+7)&&vCount>=(35+top_v+13)&&vCount<=(35+top_v+13+3));
 
-	
+	assign T3_fill = 
+		(hCount>=(144+top_h+2)&&hCount<=(144+top_h+2+6)&&vCount>=(35+top_v)&&vCount<=(35+top_v+3))
+		|| (hCount>=(144+top_h+8)&&hCount<=(144+top_h+8+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+16))
+		|| (hCount>=(144+top_h+5)&&hCount<=(144+top_h+5+3)&&vCount>=(35+top_v+6)&&vCount<=(35+top_v+6+3))
+		|| (hCount>=(144+top_h+2)&&hCount<=(144+top_h+2+6)&&vCount>=(35+top_v+13)&&vCount<=(35+top_v+13+3));
+
+	assign T4_fill = 
+		(hCount>=(144+top_h+2)&&hCount<=(144+top_h+2+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+9))
+		|| (hCount>=(144+top_h+8)&&hCount<=(144+top_h+8+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+16))
+		|| (hCount>=(144+top_h+5)&&hCount<=(144+top_h+5+3)&&vCount>=(35+top_v+6)&&vCount<=(35+top_v+6+3));
+
+	assign T5_fill =
+		(hCount>=(144+top_h+1)&&hCount<=(144+top_h+1+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+9))
+		|| (hCount>=(144+top_h+4)&&hCount<=(144+top_h+4+7)&&vCount>=(35+top_v)&&vCount<=(35+top_v+3))
+		|| (hCount>=(144+top_h+4)&&hCount<=(144+top_h+4+4)&&vCount>=(35+top_v+6)&&vCount<=(35+top_v+6+3))
+		|| (hCount>=(144+top_h+8)&&hCount<=(144+top_h+8+3)&&vCount>=(35+top_v+6)&&vCount<=(35+top_v+6+10))
+		|| (hCount>=(144+top_h+1)&&hCount<=(144+top_h+1+7)&&vCount>=(35+top_v+13)&&vCount<=(35+top_v+13+3));
+
+	assign T6_fill =
+		(hCount>=(144+top_h+2)&&hCount<=(144+top_h+2+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+16))
+		|| (hCount>=(144+top_h+5)&&hCount<=(144+top_h+5+3)&&vCount>=(35+top_v+7)&&vCount<=(35+top_v+7+3))
+		|| (hCount>=(144+top_h+8)&&hCount<=(144+top_h+8+3)&&vCount>=(35+top_v+7)&&vCount<=(35+top_v+7+9))
+		|| (hCount>=(144+top_h+5)&&hCount<=(144+top_h+5+3)&&vCount>=(35+top_v+13)&&vCount<=(35+top_v+13+3));
+
+	assign T7_fill = 
+		(hCount>=(144+top_h+2)&&hCount<=(144+top_h+2+6)&&vCount>=(35+top_v)&&vCount<=(35+top_v+3))
+		|| (hCount>=(144+top_h+8)&&hCount<=(144+top_h+8+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+16));
+		
+	assign T8_fill = 
+		(hCount>=(144+top_h+2)&&hCount<=(144+top_h+2+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+16))
+		|| (hCount>=(144+top_h+5)&&hCount<=(144+top_h+5+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+3))
+		|| (hCount>=(144+top_h+8)&&hCount<=(144+top_h+8+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+16))
+		|| (hCount>=(144+top_h+5)&&hCount<=(144+top_h+5+3)&&vCount>=(35+top_v+6)&&vCount<=(35+top_v+6+3))
+		|| (hCount>=(144+top_h+5)&&hCount<=(144+top_h+5+3)&&vCount>=(35+top_v+13)&&vCount<=(35+top_v+13+3));
+
+	assign T9_fill = 
+		(hCount>=(144+top_h+2)&&hCount<=(144+top_h+2+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+9))
+		|| (hCount>=(144+top_h+5)&&hCount<=(144+top_h+5+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+3))
+		|| (hCount>=(144+top_h+8)&&hCount<=(144+top_h+8+3)&&vCount>=(35+top_v)&&vCount<=(35+top_v+16))
+		|| (hCount>=(144+top_h+5)&&hCount<=(144+top_h+5+3)&&vCount>=(35+top_v+6)&&vCount<=(35+top_v+6+3));
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	assign B0_fill = 
+		(hCount>=(144+btm_h+2)&&hCount<=(144+btm_h+2+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+16))
+		|| (hCount>=(144+btm_h+5)&&hCount<=(144+btm_h+5+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+3))
+		|| (hCount>=(144+btm_h+8)&&hCount<=(144+btm_h+8+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+16))
+		|| (hCount>=(144+btm_h+5)&&hCount<=(144+btm_h+5+3)&&vCount>=(35+btm_v+13)&&vCount<=(35+btm_v+13+3));
+		
+	assign B1_fill = 
+		(hCount>=(144+btm_h+3)&&hCount<=(144+btm_h+3+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+3))
+		|| (hCount>=(144+btm_h+6)&&hCount<=(144+btm_h+6+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+16));
+		
+	assign B2_fill =
+		(hCount>=(144+btm_h+1)&&hCount<=(144+btm_h+1+6)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+3))
+		|| (hCount>=(144+btm_h+8)&&hCount<=(144+btm_h+8+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+9))
+		|| (hCount>=(144+btm_h+1)&&hCount<=(144+btm_h+1+3)&&vCount>=(35+btm_v+6)&&vCount<=(35+btm_v+6+10))
+		|| (hCount>=(144+btm_h+4)&&hCount<=(144+btm_h+4+4)&&vCount>=(35+btm_v+6)&&vCount<=(35+btm_v+6+3))
+		|| (hCount>=(144+btm_h+4)&&hCount<=(144+btm_h+4+7)&&vCount>=(35+btm_v+13)&&vCount<=(35+btm_v+13+3));
+
+	assign B3_fill = 
+		(hCount>=(144+btm_h+2)&&hCount<=(144+btm_h+2+6)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+3))
+		|| (hCount>=(144+btm_h+8)&&hCount<=(144+btm_h+8+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+16))
+		|| (hCount>=(144+btm_h+5)&&hCount<=(144+btm_h+5+3)&&vCount>=(35+btm_v+6)&&vCount<=(35+btm_v+6+3))
+		|| (hCount>=(144+btm_h+2)&&hCount<=(144+btm_h+2+6)&&vCount>=(35+btm_v+13)&&vCount<=(35+btm_v+13+3));
+
+	assign B4_fill = 
+		(hCount>=(144+btm_h+2)&&hCount<=(144+btm_h+2+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+9))
+		|| (hCount>=(144+btm_h+8)&&hCount<=(144+btm_h+8+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+16))
+		|| (hCount>=(144+btm_h+5)&&hCount<=(144+btm_h+5+3)&&vCount>=(35+btm_v+6)&&vCount<=(35+btm_v+6+3));
+
+	assign B5_fill =
+		(hCount>=(144+btm_h+1)&&hCount<=(144+btm_h+1+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+9))
+		|| (hCount>=(144+btm_h+4)&&hCount<=(144+btm_h+4+7)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+3))
+		|| (hCount>=(144+btm_h+4)&&hCount<=(144+btm_h+4+4)&&vCount>=(35+btm_v+6)&&vCount<=(35+btm_v+6+3))
+		|| (hCount>=(144+btm_h+8)&&hCount<=(144+btm_h+8+3)&&vCount>=(35+btm_v+6)&&vCount<=(35+btm_v+6+10))
+		|| (hCount>=(144+btm_h+1)&&hCount<=(144+btm_h+1+7)&&vCount>=(35+btm_v+13)&&vCount<=(35+btm_v+13+3));
+
+	assign B6_fill =
+		(hCount>=(144+btm_h+2)&&hCount<=(144+btm_h+2+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+16))
+		|| (hCount>=(144+btm_h+5)&&hCount<=(144+btm_h+5+3)&&vCount>=(35+btm_v+7)&&vCount<=(35+btm_v+7+3))
+		|| (hCount>=(144+btm_h+8)&&hCount<=(144+btm_h+8+3)&&vCount>=(35+btm_v+7)&&vCount<=(35+btm_v+7+9))
+		|| (hCount>=(144+btm_h+5)&&hCount<=(144+btm_h+5+3)&&vCount>=(35+btm_v+13)&&vCount<=(35+btm_v+13+3));
+
+	assign B7_fill = 
+		(hCount>=(144+btm_h+2)&&hCount<=(144+btm_h+2+6)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+3))
+		|| (hCount>=(144+btm_h+8)&&hCount<=(144+btm_h+8+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+16));
+		
+	assign B8_fill = 
+		(hCount>=(144+btm_h+2)&&hCount<=(144+btm_h+2+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+16))
+		|| (hCount>=(144+btm_h+5)&&hCount<=(144+btm_h+5+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+3))
+		|| (hCount>=(144+btm_h+8)&&hCount<=(144+btm_h+8+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+16))
+		|| (hCount>=(144+btm_h+5)&&hCount<=(144+btm_h+5+3)&&vCount>=(35+btm_v+6)&&vCount<=(35+btm_v+6+3))
+		|| (hCount>=(144+btm_h+5)&&hCount<=(144+btm_h+5+3)&&vCount>=(35+btm_v+13)&&vCount<=(35+btm_v+13+3));
+
+	assign B9_fill = 
+		(hCount>=(144+btm_h+2)&&hCount<=(144+btm_h+2+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+9))
+		|| (hCount>=(144+btm_h+5)&&hCount<=(144+btm_h+5+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+3))
+		|| (hCount>=(144+btm_h+8)&&hCount<=(144+btm_h+8+3)&&vCount>=(35+btm_v)&&vCount<=(35+btm_v+16))
+		|| (hCount>=(144+btm_h+5)&&hCount<=(144+btm_h+5+3)&&vCount>=(35+btm_v+6)&&vCount<=(35+btm_v+6+3));
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	assign L0_fill = 
+		(hCount>=(144+left_h+2)&&hCount<=(144+left_h+2+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+16))
+		|| (hCount>=(144+left_h+5)&&hCount<=(144+left_h+5+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+3))
+		|| (hCount>=(144+left_h+8)&&hCount<=(144+left_h+8+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+16))
+		|| (hCount>=(144+left_h+5)&&hCount<=(144+left_h+5+3)&&vCount>=(35+left_v+13)&&vCount<=(35+left_v+13+3));
+		
+	assign L1_fill = 
+		(hCount>=(144+left_h+3)&&hCount<=(144+left_h+3+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+3))
+		|| (hCount>=(144+left_h+6)&&hCount<=(144+left_h+6+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+16));
+		
+	assign L2_fill =
+		(hCount>=(144+left_h+1)&&hCount<=(144+left_h+1+6)&&vCount>=(35+left_v)&&vCount<=(35+left_v+3))
+		|| (hCount>=(144+left_h+8)&&hCount<=(144+left_h+8+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+9))
+		|| (hCount>=(144+left_h+1)&&hCount<=(144+left_h+1+3)&&vCount>=(35+left_v+6)&&vCount<=(35+left_v+6+10))
+		|| (hCount>=(144+left_h+4)&&hCount<=(144+left_h+4+4)&&vCount>=(35+left_v+6)&&vCount<=(35+left_v+6+3))
+		|| (hCount>=(144+left_h+4)&&hCount<=(144+left_h+4+7)&&vCount>=(35+left_v+13)&&vCount<=(35+left_v+13+3));
+
+	assign L3_fill = 
+		(hCount>=(144+left_h+2)&&hCount<=(144+left_h+2+6)&&vCount>=(35+left_v)&&vCount<=(35+left_v+3))
+		|| (hCount>=(144+left_h+8)&&hCount<=(144+left_h+8+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+16))
+		|| (hCount>=(144+left_h+5)&&hCount<=(144+left_h+5+3)&&vCount>=(35+left_v+6)&&vCount<=(35+left_v+6+3))
+		|| (hCount>=(144+left_h+2)&&hCount<=(144+left_h+2+6)&&vCount>=(35+left_v+13)&&vCount<=(35+left_v+13+3));
+
+	assign L4_fill = 
+		(hCount>=(144+left_h+2)&&hCount<=(144+left_h+2+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+9))
+		|| (hCount>=(144+left_h+8)&&hCount<=(144+left_h+8+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+16))
+		|| (hCount>=(144+left_h+5)&&hCount<=(144+left_h+5+3)&&vCount>=(35+left_v+6)&&vCount<=(35+left_v+6+3));
+
+	assign L5_fill =
+		(hCount>=(144+left_h+1)&&hCount<=(144+left_h+1+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+9))
+		|| (hCount>=(144+left_h+4)&&hCount<=(144+left_h+4+7)&&vCount>=(35+left_v)&&vCount<=(35+left_v+3))
+		|| (hCount>=(144+left_h+4)&&hCount<=(144+left_h+4+4)&&vCount>=(35+left_v+6)&&vCount<=(35+left_v+6+3))
+		|| (hCount>=(144+left_h+8)&&hCount<=(144+left_h+8+3)&&vCount>=(35+left_v+6)&&vCount<=(35+left_v+6+10))
+		|| (hCount>=(144+left_h+1)&&hCount<=(144+left_h+1+7)&&vCount>=(35+left_v+13)&&vCount<=(35+left_v+13+3));
+
+	assign L6_fill =
+		(hCount>=(144+left_h+2)&&hCount<=(144+left_h+2+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+16))
+		|| (hCount>=(144+left_h+5)&&hCount<=(144+left_h+5+3)&&vCount>=(35+left_v+7)&&vCount<=(35+left_v+7+3))
+		|| (hCount>=(144+left_h+8)&&hCount<=(144+left_h+8+3)&&vCount>=(35+left_v+7)&&vCount<=(35+left_v+7+9))
+		|| (hCount>=(144+left_h+5)&&hCount<=(144+left_h+5+3)&&vCount>=(35+left_v+13)&&vCount<=(35+left_v+13+3));
+
+	assign L7_fill = 
+		(hCount>=(144+left_h+2)&&hCount<=(144+left_h+2+6)&&vCount>=(35+left_v)&&vCount<=(35+left_v+3))
+		|| (hCount>=(144+left_h+8)&&hCount<=(144+left_h+8+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+16));
+		
+	assign L8_fill = 
+		(hCount>=(144+left_h+2)&&hCount<=(144+left_h+2+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+16))
+		|| (hCount>=(144+left_h+5)&&hCount<=(144+left_h+5+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+3))
+		|| (hCount>=(144+left_h+8)&&hCount<=(144+left_h+8+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+16))
+		|| (hCount>=(144+left_h+5)&&hCount<=(144+left_h+5+3)&&vCount>=(35+left_v+6)&&vCount<=(35+left_v+6+3))
+		|| (hCount>=(144+left_h+5)&&hCount<=(144+left_h+5+3)&&vCount>=(35+left_v+13)&&vCount<=(35+left_v+13+3));
+
+	assign L9_fill = 
+		(hCount>=(144+left_h+2)&&hCount<=(144+left_h+2+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+9))
+		|| (hCount>=(144+left_h+5)&&hCount<=(144+left_h+5+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+3))
+		|| (hCount>=(144+left_h+8)&&hCount<=(144+left_h+8+3)&&vCount>=(35+left_v)&&vCount<=(35+left_v+16))
+		|| (hCount>=(144+left_h+5)&&hCount<=(144+left_h+5+3)&&vCount>=(35+left_v+6)&&vCount<=(35+left_v+6+3));
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	assign R0_fill = 
+		(hCount>=(144+right_h+2)&&hCount<=(144+right_h+2+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+16))
+		|| (hCount>=(144+right_h+5)&&hCount<=(144+right_h+5+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+3))
+		|| (hCount>=(144+right_h+8)&&hCount<=(144+right_h+8+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+16))
+		|| (hCount>=(144+right_h+5)&&hCount<=(144+right_h+5+3)&&vCount>=(35+right_v+13)&&vCount<=(35+right_v+13+3));
+		
+	assign R1_fill = 
+		(hCount>=(144+right_h+3)&&hCount<=(144+right_h+3+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+3))
+		|| (hCount>=(144+right_h+6)&&hCount<=(144+right_h+6+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+16));
+		
+	assign R2_fill =
+		(hCount>=(144+right_h+1)&&hCount<=(144+right_h+1+6)&&vCount>=(35+right_v)&&vCount<=(35+right_v+3))
+		|| (hCount>=(144+right_h+8)&&hCount<=(144+right_h+8+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+9))
+		|| (hCount>=(144+right_h+1)&&hCount<=(144+right_h+1+3)&&vCount>=(35+right_v+6)&&vCount<=(35+right_v+6+10))
+		|| (hCount>=(144+right_h+4)&&hCount<=(144+right_h+4+4)&&vCount>=(35+right_v+6)&&vCount<=(35+right_v+6+3))
+		|| (hCount>=(144+right_h+4)&&hCount<=(144+right_h+4+7)&&vCount>=(35+right_v+13)&&vCount<=(35+right_v+13+3));
+
+	assign R3_fill = 
+		(hCount>=(144+right_h+2)&&hCount<=(144+right_h+2+6)&&vCount>=(35+right_v)&&vCount<=(35+right_v+3))
+		|| (hCount>=(144+right_h+8)&&hCount<=(144+right_h+8+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+16))
+		|| (hCount>=(144+right_h+5)&&hCount<=(144+right_h+5+3)&&vCount>=(35+right_v+6)&&vCount<=(35+right_v+6+3))
+		|| (hCount>=(144+right_h+2)&&hCount<=(144+right_h+2+6)&&vCount>=(35+right_v+13)&&vCount<=(35+right_v+13+3));
+
+	assign R4_fill = 
+		(hCount>=(144+right_h+2)&&hCount<=(144+right_h+2+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+9))
+		|| (hCount>=(144+right_h+8)&&hCount<=(144+right_h+8+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+16))
+		|| (hCount>=(144+right_h+5)&&hCount<=(144+right_h+5+3)&&vCount>=(35+right_v+6)&&vCount<=(35+right_v+6+3));
+
+	assign R5_fill =
+		(hCount>=(144+right_h+1)&&hCount<=(144+right_h+1+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+9))
+		|| (hCount>=(144+right_h+4)&&hCount<=(144+right_h+4+7)&&vCount>=(35+right_v)&&vCount<=(35+right_v+3))
+		|| (hCount>=(144+right_h+4)&&hCount<=(144+right_h+4+4)&&vCount>=(35+right_v+6)&&vCount<=(35+right_v+6+3))
+		|| (hCount>=(144+right_h+8)&&hCount<=(144+right_h+8+3)&&vCount>=(35+right_v+6)&&vCount<=(35+right_v+6+10))
+		|| (hCount>=(144+right_h+1)&&hCount<=(144+right_h+1+7)&&vCount>=(35+right_v+13)&&vCount<=(35+right_v+13+3));
+
+	assign R6_fill =
+		(hCount>=(144+right_h+2)&&hCount<=(144+right_h+2+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+16))
+		|| (hCount>=(144+right_h+5)&&hCount<=(144+right_h+5+3)&&vCount>=(35+right_v+7)&&vCount<=(35+right_v+7+3))
+		|| (hCount>=(144+right_h+8)&&hCount<=(144+right_h+8+3)&&vCount>=(35+right_v+7)&&vCount<=(35+right_v+7+9))
+		|| (hCount>=(144+right_h+5)&&hCount<=(144+right_h+5+3)&&vCount>=(35+right_v+13)&&vCount<=(35+right_v+13+3));
+
+	assign R7_fill = 
+		(hCount>=(144+right_h+2)&&hCount<=(144+right_h+2+6)&&vCount>=(35+right_v)&&vCount<=(35+right_v+3))
+		|| (hCount>=(144+right_h+8)&&hCount<=(144+right_h+8+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+16));
+		
+	assign R8_fill = 
+		(hCount>=(144+right_h+2)&&hCount<=(144+right_h+2+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+16))
+		|| (hCount>=(144+right_h+5)&&hCount<=(144+right_h+5+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+3))
+		|| (hCount>=(144+right_h+8)&&hCount<=(144+right_h+8+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+16))
+		|| (hCount>=(144+right_h+5)&&hCount<=(144+right_h+5+3)&&vCount>=(35+right_v+6)&&vCount<=(35+right_v+6+3))
+		|| (hCount>=(144+right_h+5)&&hCount<=(144+right_h+5+3)&&vCount>=(35+right_v+13)&&vCount<=(35+right_v+13+3));
+
+	assign R9_fill = 
+		(hCount>=(144+right_h+2)&&hCount<=(144+right_h+2+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+9))
+		|| (hCount>=(144+right_h+5)&&hCount<=(144+right_h+5+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+3))
+		|| (hCount>=(144+right_h+8)&&hCount<=(144+right_h+8+3)&&vCount>=(35+right_v)&&vCount<=(35+right_v+16))
+		|| (hCount>=(144+right_h+5)&&hCount<=(144+right_h+5+3)&&vCount>=(35+right_v+6)&&vCount<=(35+right_v+6+3));
+
+
+
 	always@(posedge sysClk, posedge Reset) begin
 	    top_monster_vga <= top_monster_ctrl;
 	    btm_monster_vga <= btm_monster_ctrl;

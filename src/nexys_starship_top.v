@@ -98,6 +98,7 @@ module nexys_starship_top
 	wire r_shield, l_shield; 
 	wire top_random, btm_random, left_random, right_random;
 	wire TR_random, BR_random, LR_random, RR_random;
+	wire [3:0] TR_combo, BR_combo, LR_combo, RR_combo;
 	wire top_gameover, btm_gameover, left_gameover, right_gameover;
 	reg gameover_ctrl;  
 	reg [3:0] hex_combo;
@@ -220,13 +221,12 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
                           .top_random(top_random), .top_gameover(top_gameover), 
                           .gameover_ctrl(gameover_ctrl), .timer_clk(timer_clk));
 					  
-	wire [3:0] random_repair_combo;
 	nexys_starship_TR nexys_starship_TR_1(.Clk(sys_clk), .Reset(Reset), .q_TR_Init(q_TR_Init), 
 	                       .q_TR_Working(q_TR_Working), .q_TR_Repair(q_TR_Repair), .BtnU(Up_Pulse),
                             .play_flag(play_flag), .top_broken(top_broken), .hex_combo(hex_combo), 
                             .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
                             .TR_random(TR_random), .BtnR(Right_Pulse),
-                            .random_repair_combo(random_repair_combo), .TR_submit(TR_submit));
+                            .TR_combo(TR_combo), .TR_submit(TR_submit));
 				  
 	// random modules
 	nexys_starship_PRNG nexys_starship_PRNG_1(.Clk(random_clk), .Reset(Reset),
@@ -243,7 +243,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	                       .top_monster_vga(top_monster_vga), .top_monster_ctrl(top_monster_ctrl), 
 	                       .top_broken(top_broken), .btm_monster_vga(btm_monster_vga), 
 	                       .btm_monster_ctrl(btm_monster_ctrl), .btm_broken(btm_broken),
-	                       .sysClk(sys_clk));
+	                       .sysClk(sys_clk), .TR_combo(TR_combo), .BR_combo(BR_combo));
 //------------
 // SHARED REGISTERS 
 
@@ -289,7 +289,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 // SSD (Seven Segment Display)
 
 	assign SSD0 = {Sw3, Sw2, Sw1, Sw0};
-	assign SSD1 = random_repair_combo;
+	assign SSD1 = TR_combo;
 
 
 	// need a scan clk for the seven segment display 
