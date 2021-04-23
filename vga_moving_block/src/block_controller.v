@@ -435,7 +435,7 @@ module block_controller (
 	assign TC_fill =
         // top terminal C
         (hCount>=(144+TOP_H+2)&&hCount<=(144+TOP_H+2+9)&&vCount>=(35+TOP_V)&&vCount<=(35+TOP_V+3)) // top rectangle
-        || (hCount>=(144+TOP_H+2)&&hCount<=(144+TOP_H+2+10)&&vCount>=(35+TOP_V+3)&&vCount<=(35+TOP_V+3+3)) // left second
+        || (hCount>=(144+TOP_H+2)&&hCount<=(144+TOP_H+2+3)&&vCount>=(35+TOP_V+3)&&vCount<=(35+TOP_V+3+10)) // left second
         ||(hCount>=(144+TOP_H+2)&&hCount<=(144+TOP_H+2+9)&&vCount>=(35+TOP_V+13)&&vCount<=(35+TOP_V+13+3)); // bottom rectangle
         
     assign TD_fill =
@@ -537,7 +537,7 @@ module block_controller (
 	assign BC_fill =
         // top terminal C
         (hCount>=(144+BTM_H+2)&&hCount<=(144+BTM_H+2+9)&&vCount>=(35+BTM_V)&&vCount<=(35+BTM_V+3)) // top rectangle
-        || (hCount>=(144+BTM_H+2)&&hCount<=(144+BTM_H+2+10)&&vCount>=(35+BTM_V+3)&&vCount<=(35+BTM_V+3+3)) // left second
+        || (hCount>=(144+BTM_H+2)&&hCount<=(144+BTM_H+2+3)&&vCount>=(35+BTM_V+3)&&vCount<=(35+BTM_V+3+10)) // left second
         ||(hCount>=(144+BTM_H+2)&&hCount<=(144+BTM_H+2+9)&&vCount>=(35+BTM_V+13)&&vCount<=(35+BTM_V+13+3)); // bottom rectangle
         
     assign BD_fill =
@@ -640,7 +640,7 @@ module block_controller (
 	assign LC_fill =
         // top terminal C
         (hCount>=(144+LEFT_H+2)&&hCount<=(144+LEFT_H+2+9)&&vCount>=(35+LEFT_V)&&vCount<=(35+LEFT_V+3)) // top rectangle
-        || (hCount>=(144+LEFT_H+2)&&hCount<=(144+LEFT_H+2+10)&&vCount>=(35+LEFT_V+3)&&vCount<=(35+LEFT_V+3+3)) // left second
+        || (hCount>=(144+LEFT_H+2)&&hCount<=(144+LEFT_H+2+3)&&vCount>=(35+LEFT_V+3)&&vCount<=(35+LEFT_V+3+10)) // left second
         ||(hCount>=(144+LEFT_H+2)&&hCount<=(144+LEFT_H+2+9)&&vCount>=(35+LEFT_V+13)&&vCount<=(35+LEFT_V+13+3)); // bottom rectangle
         
     assign LD_fill =
@@ -743,7 +743,7 @@ module block_controller (
 	assign RC_fill =
         // top terminal C
         (hCount>=(144+RIGHT_H+2)&&hCount<=(144+RIGHT_H+2+9)&&vCount>=(35+RIGHT_V)&&vCount<=(35+RIGHT_V+3)) // top rectangle
-        || (hCount>=(144+RIGHT_H+2)&&hCount<=(144+RIGHT_H+2+10)&&vCount>=(35+RIGHT_V+3)&&vCount<=(35+RIGHT_V+3+3)) // left second
+        || (hCount>=(144+RIGHT_H+2)&&hCount<=(144+RIGHT_H+2+3)&&vCount>=(35+RIGHT_V+3)&&vCount<=(35+RIGHT_V+3+10)) // left second
         ||(hCount>=(144+RIGHT_H+2)&&hCount<=(144+RIGHT_H+2+9)&&vCount>=(35+RIGHT_V+13)&&vCount<=(35+RIGHT_V+13+3)); // bottom rectangle
         
     assign RD_fill =
