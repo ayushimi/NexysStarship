@@ -22,6 +22,8 @@ module block_controller (
 	wire top_dark_gray_fill, btm_dark_gray_fill, top_medium_gray_fill, btm_medium_gray_fill;
 	wire TM_black_fill, TM_red_fill, TM_cream_fill, TM_mask_fill, top_green_fill;
 	wire BM_black_fill, BM_red_fill, BM_cream_fill, BM_mask_fill, btm_green_fill;
+	wire LM_black_fill, LM_blue_fill, LM_cream_fill, LM_mask_fill, left_red_fill; 
+	wire RM_black_fill, RM_blue_fill, RM_cream_fill, RM_mask_fill, right_red_fill; 
 	wire T0_fill, T1_fill, T2_fill, T3_fill, T4_fill, T5_fill, T6_fill, T7_fill, T8_fill, T9_fill;
 	wire B0_fill, B1_fill, B2_fill, B3_fill, B4_fill, B5_fill, B6_fill, B7_fill, B8_fill, B9_fill;
 	wire L0_fill, L1_fill, L2_fill, L3_fill, L4_fill, L5_fill, L6_fill, L7_fill, L8_fill, L9_fill;
@@ -52,7 +54,8 @@ module block_controller (
 	parameter TUNNEL_BLUE = 12'b0000_0001_0101;
 	parameter DISABLED_DARK_SHADE = 12'b0001_0001_0001; 
 	parameter DISABLED_MEDIUM_SHADE = 12'b0010_0010_0010; 
-    parameter TEXT_BABY_BLUE = 12'b1001_1100_1111; 
+    parameter TEXT_BABY_BLUE = 12'b1001_1100_1111;
+    parameter BLUE = 12'b0011_1001_1111; //3399FF blue monster 
     
     parameter TOP_H = 314, TOP_V = 130;
     parameter BTM_H = 314, BTM_V = 336; 
@@ -355,7 +358,45 @@ module block_controller (
     
     assign BM_display_fill = btm_monster_vga && (BM_red_fill || BM_black_fill
 								|| BM_cream_fill || BM_mask_fill);
-								
+	
+	assign LM_blue_fill = 
+	    (hCount>=(144+42)&&hCount<=(144+42+13)&&vCount>=(35+185)&&vCount<=(35+185+6)) // top #1 antenna 
+	    || (hCount>=(144+43)&&hCount<=(144+43+7)&&vCount>=(35+191)&&vCount<=(35+191+9)) // top #2 antenna
+	    || (hCount>=(144+15)&&hCount<=(144+15+4)&&vCount>=(35+209)&&vCount<=(35+209+26)) // top #1 body  
+	    || (hCount>=(144+19)&&hCount<=(144+19+5)&&vCount>=(35+204)&&vCount<=(35+204+36)) // top #2 body  
+	    || (hCount>=(144+24)&&hCount<=(144+24+42)&&vCount>=(35+200)&&vCount<=(35+200+45)) // top #3 body  
+	    || (hCount>=(144+42)&&hCount<=(144+42+13)&&vCount>=(35+256)&&vCount<=(35+256+6)) // bottom #1 antenna 
+	    || (hCount>=(144+43)&&hCount<=(144+43+7)&&vCount>=(35+262)&&vCount<=(35+262+9)) // bottom #2 antenna
+	    || (hCount>=(144+15)&&hCount<=(144+15+4)&&vCount>=(35+271)&&vCount<=(35+271+26)) // bottom #1 body  
+	    || (hCount>=(144+19)&&hCount<=(144+19+5)&&vCount>=(35+275)&&vCount<=(35+275+36)) // bottom #2 body  
+	    || (hCount>=(144+24)&&hCount<=(144+24+42)&&vCount>=(35+280)&&vCount<=(35+280+45)); // bottom #3 body
+	
+	assign LM_black_fill = 
+	    (hCount>=(144+43)&&hCount<=(144+43+6)&&vCount>=(35+205)&&vCount<=(35+205+4)) // top #1 brow
+	    || (hCount>=(144+46)&&hCount<=(144+46+6)&&vCount>=(35+207)&&vCount<=(35+207+4)) // top #2 brow 
+	    || (hCount>=(144+51)&&hCount<=(144+51+6)&&vCount>=(35+209)&&vCount<=(35+209+4)) // top #3 brow 
+	    || (hCount>=(144+55)&&hCount<=(144+55+6)&&vCount>=(35+210)&&vCount<=(35+210+4)) // top #4 brow 
+	    || (hCount>=(144+53)&&hCount<=(144+53+8)&&vCount>=(35+217)&&vCount<=(35+217+9)) // top pupil
+	    || (hCount>=(144+51)&&hCount<=(144+51+11)&&vCount>=(35+232)&&vCount<=(35+232+7)) // top mouth     
+	    || (hCount>=(144+43)&&hCount<=(144+43+6)&&vCount>=(35+276)&&vCount<=(35+276+4)) // bottom #1 brow
+	    || (hCount>=(144+46)&&hCount<=(144+46+6)&&vCount>=(35+278)&&vCount<=(35+278+4)) // bottom #2 brow 
+	    || (hCount>=(144+51)&&hCount<=(144+51+6)&&vCount>=(35+280)&&vCount<=(35+280+4)) // bottom #3 brow 
+	    || (hCount>=(144+55)&&hCount<=(144+55+6)&&vCount>=(35+281)&&vCount<=(35+281+4)) // bottom #4 brow 
+	    || (hCount>=(144+53)&&hCount<=(144+53+8)&&vCount>=(35+288)&&vCount<=(35+288+9)) // bottom pupil
+	    || (hCount>=(144+51)&&hCount<=(144+51+11)&&vCount>=(35+303)&&vCount<=(35+303+7)); // bottom mouth 
+	    
+	assign LM_cream_fill = 
+	    (hCount>=(144+42)&&hCount<=(144+42+20)&&vCount>=(35+212)&&vCount<=(35+212+18)) // top eyeball
+	    || (hCount>=(144+42)&&hCount<=(144+42+20)&&vCount>=(35+283)&&vCount<=(35+283+18)); // bottom eyeball 
+	
+	assign LM_red_fill = 
+	    (hCount>=(144+57)&&hCount<=(144+57+4)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top pupil
+	    || (hCount>=(144+57)&&hCount<=(144+57+4)&&vCount>=(35+291)&&vCount<=(35+291+4)); // bottom pupil 
+	
+	assign LM_mask_fill = 
+        (hCount>=(144+0)&&hCount<=(144+0+4)&&vCount>=(35+291)&&vCount<=(35+291+15)) // top mask 
+	    || (hCount>=(144+0)&&hCount<=(144+0+4)&&vCount>=(35+220)&&vCount<=(35+220+15)); // bottom mask 
+	    
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	assign T0_fill = 
 		(hCount>=(144+TOP_H+2)&&hCount<=(144+TOP_H+2+3)&&vCount>=(35+TOP_V)&&vCount<=(35+TOP_V+16))
