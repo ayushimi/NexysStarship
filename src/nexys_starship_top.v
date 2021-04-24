@@ -250,7 +250,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	                       .top_monster_vga(top_monster_vga), .top_monster_ctrl(top_monster_ctrl), 
 	                       .top_broken(top_broken), .btm_monster_vga(btm_monster_vga), 
 	                       .btm_monster_ctrl(btm_monster_ctrl), .btm_broken(btm_broken),
-	                       .left_monster(left_monster), .right(right_monster),
+	                       .left_monster(left_monster), .right_monster(right_monster),
 	                       .sysClk(sys_clk), .TR_combo(TR_combo), .BR_combo(BR_combo));
 //------------
 // SHARED REGISTERS 

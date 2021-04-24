@@ -188,7 +188,7 @@ module block_controller (
           end
         else if (RM_display_fill)
           begin
-                if (LM_red_fill)
+                if (RM_red_fill)
                     rgb = RED;
                 else if (RM_black_fill)
                     rgb = BLACK;
@@ -393,9 +393,9 @@ module block_controller (
 	    || (hCount>=(144+24)&&hCount<=(144+24+42)&&vCount>=(35+200)&&vCount<=(35+200+45)) // top #3 body  
 	    || (hCount>=(144+42)&&hCount<=(144+42+13)&&vCount>=(35+256)&&vCount<=(35+256+6)) // bottom #1 antenna 
 	    || (hCount>=(144+43)&&hCount<=(144+43+7)&&vCount>=(35+262)&&vCount<=(35+262+9)) // bottom #2 antenna
-	    || (hCount>=(144+15)&&hCount<=(144+15+4)&&vCount>=(35+271)&&vCount<=(35+271+26)) // bottom #1 body  
+	    || (hCount>=(144+15)&&hCount<=(144+15+4)&&vCount>=(35+280)&&vCount<=(35+280+26)) // bottom #1 body  
 	    || (hCount>=(144+19)&&hCount<=(144+19+5)&&vCount>=(35+275)&&vCount<=(35+275+36)) // bottom #2 body  
-	    || (hCount>=(144+24)&&hCount<=(144+24+42)&&vCount>=(35+280)&&vCount<=(35+280+45)); // bottom #3 body
+	    || (hCount>=(144+24)&&hCount<=(144+24+42)&&vCount>=(35+271)&&vCount<=(35+271+45)); // bottom #3 body
 	
 	assign LM_black_fill = 
 	    (hCount>=(144+43)&&hCount<=(144+43+6)&&vCount>=(35+205)&&vCount<=(35+205+4)) // top #1 brow
