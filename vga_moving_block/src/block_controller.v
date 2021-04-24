@@ -9,6 +9,8 @@ module block_controller (
 	output reg [11:0] rgb,
 	input top_monster_ctrl, output reg top_monster_vga, input top_broken,
 	input btm_monster_ctrl, output reg btm_monster_vga, input btm_broken,
+	input left_monster,
+	input right_monster, 
 	input sysClk,
 	input [3:0] TR_combo, BR_combo
    );
@@ -22,8 +24,8 @@ module block_controller (
 	wire top_dark_gray_fill, btm_dark_gray_fill, top_medium_gray_fill, btm_medium_gray_fill;
 	wire TM_black_fill, TM_red_fill, TM_cream_fill, TM_mask_fill, top_green_fill;
 	wire BM_black_fill, BM_red_fill, BM_cream_fill, BM_mask_fill, btm_green_fill;
-	wire LM_black_fill, LM_blue_fill, LM_cream_fill, LM_mask_fill, left_red_fill; 
-	wire RM_black_fill, RM_blue_fill, RM_cream_fill, RM_mask_fill, right_red_fill; 
+	wire LM_black_fill, LM_blue_fill, LM_cream_fill, LM_mask_fill, LM_red_fill, left_red_fill; 
+	wire RM_black_fill, RM_blue_fill, RM_cream_fill, RM_mask_fill, RM_red_fill, right_red_fill; 
 	wire T0_fill, T1_fill, T2_fill, T3_fill, T4_fill, T5_fill, T6_fill, T7_fill, T8_fill, T9_fill;
 	wire B0_fill, B1_fill, B2_fill, B3_fill, B4_fill, B5_fill, B6_fill, B7_fill, B8_fill, B9_fill;
 	wire L0_fill, L1_fill, L2_fill, L3_fill, L4_fill, L5_fill, L6_fill, L7_fill, L8_fill, L9_fill;
@@ -150,33 +152,57 @@ module block_controller (
 					rgb = DARK_GREY;
 		  end
 		else if (TM_display_fill)
-		  begin
-				if (TM_black_fill)
-					rgb = BLACK;
-				else if (TM_cream_fill)
-					rgb = CREAM;
-				else if (TM_red_fill)
-					rgb = RED;
-				else if (TM_mask_fill)
-					rgb = TUNNEL_BLUE;
-
-		  end
-		else if (BM_display_fill)
-		  begin
-				if (BM_black_fill)
-					rgb = BLACK;
-				else if (BM_cream_fill)
-					rgb = CREAM;
-				else if (BM_red_fill)
-					rgb = RED;
-				else if (BM_mask_fill)
-					rgb = TUNNEL_BLUE;
-
-		  end
-		else if (top_green_fill)
-			rgb = GREEN;
-		else if (btm_green_fill)
-			rgb = GREEN;
+          begin
+                if (TM_black_fill)
+                    rgb = BLACK;
+                else if (TM_cream_fill)
+                    rgb = CREAM;
+                else if (TM_red_fill)
+                    rgb = RED;
+                else if (TM_mask_fill)
+                    rgb = TUNNEL_BLUE;
+          end
+        else if (BM_display_fill)
+          begin
+                if (BM_black_fill)
+                    rgb = BLACK;
+                else if (BM_cream_fill)
+                    rgb = CREAM;
+                else if (BM_red_fill)
+                    rgb = RED;
+                else if (BM_mask_fill)
+                    rgb = TUNNEL_BLUE;
+          end
+        else if (LM_display_fill)
+          begin
+                if (LM_red_fill)
+                    rgb = RED;
+                else if (LM_black_fill)
+                    rgb = BLACK;
+                else if (LM_cream_fill)
+                    rgb = CREAM;
+                else if (LM_blue_fill)
+                    rgb = BLUE;
+                else if (LM_mask_fill)
+                    rgb = TUNNEL_BLUE;
+          end
+        else if (RM_display_fill)
+          begin
+                if (LM_red_fill)
+                    rgb = RED;
+                else if (RM_black_fill)
+                    rgb = BLACK;
+                else if (RM_cream_fill)
+                    rgb = CREAM;
+                else if (RM_blue_fill)
+                    rgb = BLUE;
+                else if (RM_mask_fill)
+                    rgb = TUNNEL_BLUE;
+          end
+        else if (top_green_fill || btm_green_fill)
+            rgb = GREEN;
+        else if (left_red_fill || right_red_fill)
+            rgb = RED;
 		else if (tunnel_blue_fill)
 			rgb = TUNNEL_BLUE;
 		else	
@@ -396,7 +422,66 @@ module block_controller (
 	assign LM_mask_fill = 
         (hCount>=(144+0)&&hCount<=(144+0+4)&&vCount>=(35+291)&&vCount<=(35+291+15)) // top mask 
 	    || (hCount>=(144+0)&&hCount<=(144+0+4)&&vCount>=(35+220)&&vCount<=(35+220+15)); // bottom mask 
-	    
+	
+	assign LM_display_fill = /*left_monster &&*/ (LM_blue_fill || LM_black_fill
+                                || LM_cream_fill || LM_red_fill || LM_mask_fill);
+
+	assign RM_blue_fill =
+        // top body
+        (hCount>=(144+574)&&hCount<=(144+574+42)&&vCount>=(35+200)&&vCount<=(35+200+45))
+        || (hCount>=(144+616)&&hCount<=(144+616+5)&&vCount>=(35+204)&&vCount<=(35+204+36))
+        || (hCount>=(144+621)&&hCount<=(144+621+4)&&vCount>=(35+209)&&vCount<=(35+209+26))
+        // top antenna
+        || (hCount>=(144+585)&&hCount<=(144+585+13)&&vCount>=(35+185)&&vCount<=(35+185+6))
+        || (hCount>=(144+590)&&hCount<=(144+590+7)&&vCount>=(35+191)&&vCount<=(35+191+9))
+        // bottom body
+        || (hCount>=(144+574)&&hCount<=(144+574+42)&&vCount>=(35+271)&&vCount<=(35+271+45))
+        || (hCount>=(144+616)&&hCount<=(144+616+5)&&vCount>=(35+275)&&vCount<=(35+275+36))
+        || (hCount>=(144+621)&&hCount<=(144+621+4)&&vCount>=(35+280)&&vCount<=(35+280+26))
+        // bottom antenna
+        || (hCount>=(144+585)&&hCount<=(144+585+13)&&vCount>=(35+256)&&vCount<=(35+256+6))
+        || (hCount>=(144+590)&&hCount<=(144+590+7)&&vCount>=(35+262)&&vCount<=(35+262+9));
+	
+	assign RM_black_fill =
+        // top eyebrow
+        (hCount>=(144+591)&&hCount<=(144+591+6)&&vCount>=(35+205)&&vCount<=(35+205+4))
+        || (hCount>=(144+587)&&hCount<=(144+587+7)&&vCount>=(35+207)&&vCount<=(35+207+4))
+        || (hCount>=(144+583)&&hCount<=(144+583+6)&&vCount>=(35+209)&&vCount<=(35+209+3))
+        || (hCount>=(144+578)&&hCount<=(144+578+7)&&vCount>=(35+210)&&vCount<=(35+210+4))
+        // top pupil
+        || (hCount>=(144+579)&&hCount<=(144+579+8)&&vCount>=(35+217)&&vCount<=(35+217+9))
+        // top mouth
+        || (hCount>=(144+578)&&hCount<=(144+578+11)&&vCount>=(35+232)&&vCount<=(35+232+7))
+        // bottom eyebrow
+        || (hCount>=(144+591)&&hCount<=(144+591+6)&&vCount>=(35+276)&&vCount<=(35+276+4))
+        || (hCount>=(144+587)&&hCount<=(144+587+7)&&vCount>=(35+278)&&vCount<=(35+278+4))
+        || (hCount>=(144+583)&&hCount<=(144+583+6)&&vCount>=(35+280)&&vCount<=(35+280+3))
+        || (hCount>=(144+578)&&hCount<=(144+578+7)&&vCount>=(35+281)&&vCount<=(35+281+4))
+        // bottom pupil
+        || (hCount>=(144+579)&&hCount<=(144+579+8)&&vCount>=(35+288)&&vCount<=(35+288+9))
+        // bottom mouth
+        || (hCount>=(144+578)&&hCount<=(144+578+11)&&vCount>=(35+303)&&vCount<=(35+303+7));
+        
+    assign RM_cream_fill =
+        // top eyeball
+        (hCount>=(144+578)&&hCount<=(144+578+20)&&vCount>=(35+212)&&vCount<=(35+212+18))
+        // bottom eyeball
+        || (hCount>=(144+578)&&hCount<=(144+578+20)&&vCount>=(35+283)&&vCount<=(35+283+18));
+    
+    assign RM_red_fill =
+        // top pupil
+        (hCount>=(144+579)&&hCount<=(144+579+4)&&vCount>=(35+220)&&vCount<=(35+220+4))
+        // bottom pupil
+        || (hCount>=(144+579)&&hCount<=(144+579+4)&&vCount>=(35+291)&&vCount<=(35+291+4));
+    
+    assign RM_mask_fill =
+        // top mask
+        (hCount>=(144+625)&&hCount<=(144+625+4)&&vCount>=(35+220)&&vCount<=(35+220+15))
+        // bottom mask
+        || (hCount>=(144+625)&&hCount<=(144+625+4)&&vCount>=(35+291)&&vCount<=(35+291+15));
+        
+    assign RM_display_fill = /* right_monster && */ (RM_blue_fill || RM_black_fill
+                                || RM_cream_fill || RM_red_fill || RM_mask_fill);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	assign T0_fill = 
 		(hCount>=(144+TOP_H+2)&&hCount<=(144+TOP_H+2+3)&&vCount>=(35+TOP_V)&&vCount<=(35+TOP_V+16))
