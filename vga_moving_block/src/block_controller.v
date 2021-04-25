@@ -19,6 +19,7 @@ module block_controller (
 	wire light_gray_fill;
 	wire light_blue_fill;
 	wire left_shield_fill, right_shield_fill;
+	wire LS_mask_fill, RS_mask_fill, spaceship_mask_fill; 
 	wire black_fill;
 	wire head_fill;
 	wire top_dark_gray_fill, btm_dark_gray_fill, top_medium_gray_fill, btm_medium_gray_fill;
@@ -149,11 +150,17 @@ module block_controller (
 					rgb = MEDIUM_GREY;
 				else if (top_dark_gray_fill || btm_dark_gray_fill)
 					rgb = DARK_GREY;
+				else if (spaceship_mask_fill)
+				    rgb = TUNNEL_BLUE; 
 		  end
 		else if (left_shield && left_shield_fill) 
-				    rgb = PINK; 
+	       rgb = PINK; 
+	    else if (left_shield && LS_mask_fill) 
+	       rgb = TUNNEL_BLUE; 
 		else if (right_shield && right_shield_fill)
-					rgb = PINK;
+		   rgb = PINK;
+		else if (right_shield && RS_mask_fill) 
+		   rgb = TUNNEL_BLUE; 
 		else if (TM_display_fill)
           begin
                 if (TM_black_fill)
@@ -241,10 +248,17 @@ module block_controller (
 		(hCount>=(144+227)&&hCount<=(144+227+10)&&vCount>=(35+205)&&vCount<=(35+205+105)) // left outer shield 
 		|| (hCount>=(144+237)&&hCount<=(144+237+11)&&vCount>=(35+200)&&vCount<=(35+200+115));// left inner shield
 	
+	assign LS_mask_fill = 
+	    (hCount>=(144+248)&&hCount<=(144+248+25)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top left mask shield 
+		|| (hCount>=(144+248)&&hCount<=(144+248+25)&&vCount>=(35+291)&&vCount<=(35+291+4));// bottom left mask shield
+	
 	assign right_shield_fill = 
 		(hCount>=(144+402)&&hCount<=(144+402+10)&&vCount>=(35+205)&&vCount<=(35+205+105)) // right outer shield
 		|| (hCount>=(144+392)&&hCount<=(144+392+11)&&vCount>=(35+200)&&vCount<=(35+200+115)); // right inner shield
 	
+	assign RS_mask_fill = 
+		(hCount>=(144+367)&&hCount<=(144+367+25)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top right mask shield 
+		|| (hCount>=(144+367)&&hCount<=(144+367+25)&&vCount>=(35+291)&&vCount<=(35+291+4));// bottom right mask shield
 	// cannons
 	assign top_dark_gray_fill =
 		(hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+152)&&vCount<=(35+152+10)) // top cannon tip
@@ -283,9 +297,13 @@ module block_controller (
 		|| (hCount>=(144+319)&&hCount<=(144+319+3)&&vCount>=(35+208)&&vCount<=(35+208+5)) // mid hair strand  
 		|| (hCount>=(144+324)&&hCount<=(144+324+2)&&vCount>=(35+211)&&vCount<=(35+211+2)); // right hair strand  
 	
+	assign spaceship_mask_fill = 
+	    (hCount>=(144+289)&&hCount<=(144+289+20)&&vCount>=(35+291)&&vCount<=(35+291+4)) // left spaceship mask  
+		|| (hCount>=(144+331)&&hCount<=(144+331+20)&&vCount>=(35+291)&&vCount<=(35+291+4));// right spaceship mask 
+	
 	assign spaceship_display_fill = light_gray_fill || light_blue_fill || spaceship_black_fill 
 	                                   || head_fill || top_dark_gray_fill || top_medium_gray_fill
-	                                   || btm_dark_gray_fill || btm_medium_gray_fill;
+	                                   || btm_dark_gray_fill || btm_medium_gray_fill || spaceship_mask_fill;
 	
 	assign top_green_fill = 
 		(hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser-24)&&vCount<=(35+top_laser)) // top 3rd bullet 
@@ -971,7 +989,7 @@ module block_controller (
 			    left_laser<=left_laser+4; 
 			    if (left_shield && left_laser == 229)  
 			        left_laser<=-11; 
-			    else if(!left_shield && left_laser == 273)
+			    else if(left_laser == 273)
 			        left_laser<=-11; 
 			end
 			else begin
@@ -983,7 +1001,7 @@ module block_controller (
 			    right_laser<=right_laser-4; 
 			    if (right_shield && right_laser == 411)  
 			        right_laser<=651; 
-			    else if(!right_shield && right_laser == 367)
+			    else if(right_laser == 367)
 			        right_laser<=651; 
 			end
 			else begin
