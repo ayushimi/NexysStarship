@@ -16,6 +16,8 @@ module block_controller (
 	input play_flag, gameover_ctrl
    );
 	wire spaceship_black_fill;
+    wire sweat_drop_fill, sweaty_face_fill, rim_mask_fill;
+    wire sweat_fill;
 	wire left_stub_fill; 
 	wire right_stub_fill; 
 	wire tunnel_blue_fill;
@@ -38,11 +40,16 @@ module block_controller (
 	wire BA_fill, BB_fill, BC_fill, BD_fill, BE_fill, BF_fill; 
 	wire LA_fill, LB_fill, LC_fill, LD_fill, LE_fill, LF_fill; 
 	wire RA_fill, RB_fill, RC_fill, RD_fill, RE_fill, RF_fill; 
+	
+	wire multiple_broken;
 
 	reg signed [10:0] top_laser, btm_laser, left_laser, right_laser;
 	reg top_shooting, btm_shooting;
 	reg top_hex_fill, btm_hex_fill, left_hex_fill, right_hex_fill;
-
+	reg signed [10:0] sweat_pos;
+	reg sweating;
+	
+	wire [2:0] num_broken;
 	
 	parameter RED   = 12'b1111_0000_0000;
 	parameter BLACK = 12'b0000_0000_0000;
@@ -61,6 +68,7 @@ module block_controller (
 	parameter DISABLED_MEDIUM_SHADE = 12'b0010_0010_0010; 
     parameter TEXT_BABY_BLUE = 12'b1001_1100_1111;
     parameter BLUE = 12'b0011_1001_1111; //3399FF blue monster 
+    parameter SWEAT_BLUE = 12'b0101_1010_1110; // 55AAEE
     
     parameter TOP_H = 314, TOP_V = 130;
     parameter BTM_H = 314, BTM_V = 336; 
@@ -174,6 +182,15 @@ module block_controller (
 				else
 				    rgb = TUNNEL_BLUE;
 		  end
+	    else if (multiple_broken && sweat_fill)
+	      begin
+	            if (sweaty_face_fill)
+	               rgb = BLACK;
+	            else if (rim_mask_fill)
+	               rgb = GREY;
+	            else if (sweat_drop_fill)
+	               rgb = SWEAT_BLUE;
+	      end
         else if (top_broken && (top_medium_gray_fill || top_dark_gray_fill))
           begin 
                 if (top_medium_gray_fill)
@@ -207,11 +224,11 @@ module block_controller (
 			rgb = TEXT_BABY_BLUE;
 		else if (right_broken && right_hex_fill)
 			rgb = TEXT_BABY_BLUE;
+		else if (!multiple_broken && spaceship_black_fill)
+            rgb = BLACK;
 		else if (spaceship_display_fill)
 		  begin
-				if (spaceship_black_fill)
-					rgb = BLACK;
-				else if (head_fill)
+				if (head_fill)
 					rgb = TAN;
 				else if (light_blue_fill)
 					rgb = LIGHT_BLUE;
@@ -294,6 +311,9 @@ module block_controller (
 			rgb=BACKGROUND2;
 	end
 	
+    assign num_broken = top_broken + btm_broken + left_broken + right_broken;
+    assign multiple_broken = (num_broken >= 2);
+
 	assign tunnel_blue_fill = 
         (hCount>=(144+220)&&hCount<=(144+220+200)&&vCount>=(35)&&vCount<=(35+480)) // vertical tunnel 
         || (hCount>=(144)&&hCount<=(144+640)&&vCount>=(35+171)&&vCount<=(35+171+159)); // horizontal tunnel 
@@ -380,9 +400,28 @@ module block_controller (
 	assign right_stub_fill = 
 	    (hCount>=(144+377)&&hCount<=(144+377+15)&&vCount>=(35+248)&&vCount<=(35+248+20));
 	
-	assign spaceship_display_fill = light_gray_fill || light_blue_fill || spaceship_black_fill 
-	                                   || head_fill || top_dark_gray_fill || top_medium_gray_fill
-	                                   || btm_dark_gray_fill || btm_medium_gray_fill || spaceship_mask_fill;
+	assign spaceship_display_fill = light_gray_fill || light_blue_fill || head_fill || top_dark_gray_fill
+	                                   || top_medium_gray_fill || btm_dark_gray_fill
+	                                   || btm_medium_gray_fill || spaceship_mask_fill;
+	
+    assign sweaty_face_fill = 
+        (hCount>=(144+302)&&hCount<=(144+302+14)&&vCount>=(35+216)&&vCount<=(35+216+7)) // left brow / headband 
+        || (hCount>=(144+316)&&hCount<=(144+316+8)&&vCount>=(35+218)&&vCount<=(35+218+7)) // mid brow / headband 
+        || (hCount>=(144+324)&&hCount<=(144+324+14)&&vCount>=(35+216)&&vCount<=(35+216+7)) // right brow / headband 
+        || (hCount>=(144+309)&&hCount<=(144+309+5)&&vCount>=(35+224)&&vCount<=(35+224+4)) // left eye
+        || (hCount>=(144+326)&&hCount<=(144+326+5)&&vCount>=(35+224)&&vCount<=(35+224+4)) // right eye
+        || (hCount>=(144+311)&&hCount<=(144+311+19)&&vCount>=(35+239)&&vCount<=(35+239+3)) // mouth 
+        || (hCount>=(144+314)&&hCount<=(144+314+3)&&vCount>=(35+211)&&vCount<=(35+211+2)) // left hair strand  
+        || (hCount>=(144+319)&&hCount<=(144+319+3)&&vCount>=(35+208)&&vCount<=(35+208+5)) // mid hair strand  
+        || (hCount>=(144+324)&&hCount<=(144+324+2)&&vCount>=(35+211)&&vCount<=(35+211+2)); // right hair strand  
+
+    assign sweat_drop_fill =
+	    (hCount>=(144+304)&&hCount<=(144+304+2)&&vCount>=(35+sweat_pos)&&vCount<=(35+sweat_pos+3));
+	
+    assign rim_mask_fill = 
+        (hCount>=(144+304)&&hCount<=(144+304+2)&&vCount>=(35+248)&&vCount<=(35+248+3)); // mask fill for sweat on ship
+
+	assign sweat_fill = sweat_drop_fill || sweaty_face_fill || rim_mask_fill;
 	
 	assign top_green_fill = 
 		(hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser-24)&&vCount<=(35+top_laser)) // top 3rd bullet 
@@ -1032,8 +1071,6 @@ module block_controller (
 
 	always@(posedge Clk, posedge Reset) 
 	begin
-	    //top_monster_vga <= top_monster_ctrl;
-	    //btm_monster_vga <= btm_monster_ctrl; 
 		if(Reset)
 		begin 
 			top_laser<=256;
@@ -1044,8 +1081,7 @@ module block_controller (
 			btm_shooting<=0;
 			left_shield<=0; 
 			right_shield<=0; 
-			//top_monster_vga<=0; 
-			//btm_monster_vga<=0; 
+			sweat_pos <= 220;
 		end
 		else if (Clk) begin
 		
@@ -1111,6 +1147,22 @@ module block_controller (
 					btm_laser<=226;
 				end
 			end
+						
+            if (multiple_broken && !sweating)
+                sweating <= 1;
+            
+            if (sweating)
+            begin
+                sweat_pos <= sweat_pos + 1;
+                if (sweat_pos == 248)
+                    sweat_pos <= 220;
+                if (!multiple_broken)
+                begin
+                    sweat_pos <= 220;
+                sweating <= 0;
+            end
+        end
+    
 		end
 	end
 		
