@@ -12,7 +12,8 @@ module block_controller (
 	input left_monster, output reg left_shield, input left_broken,
 	input right_monster, output reg right_shield, input right_broken,
 	input sysClk,
-	input [3:0] TR_combo, BR_combo, LR_combo, RR_combo
+	input [3:0] TR_combo, BR_combo, LR_combo, RR_combo,
+	input gameover_ctrl
    );
 	wire spaceship_black_fill;
 	wire left_stub_fill; 
@@ -164,6 +165,12 @@ module block_controller (
 		
 		if(~bright )	//force black if not inside the display area
 			rgb = 12'b0000_0000_0000;
+		else if (gameover_ctrl && spaceship_display_fill)
+		  begin
+				rgb = BLACK;
+				if (spaceship_mask_fill)
+				    rgb = TUNNEL_BLUE; 
+		  end
         else if (top_broken && (top_medium_gray_fill || top_dark_gray_fill))
           begin 
                 if (top_medium_gray_fill)

@@ -280,7 +280,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	                       .left_broken(left_broken), .right_monster(right_monster),
 	                       .right_shield(right_shield), .right_broken(right_broken),
 	                       .sysClk(sys_clk), .TR_combo(TR_combo), .BR_combo(BR_combo),
-	                       .LR_combo(LR_combo), .RR_combo(RR_combo));
+	                       .LR_combo(LR_combo), .RR_combo(RR_combo), .gameover_ctrl(gameover_ctrl));
 //------------
 // SHARED REGISTERS 
 
