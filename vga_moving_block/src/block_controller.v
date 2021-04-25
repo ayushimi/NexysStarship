@@ -614,7 +614,7 @@ module block_controller (
         (hCount>=(144+TOP_H+2)&&hCount<=(144+TOP_H+2+3)&&vCount>=(35+TOP_V)&&vCount<=(35+TOP_V+16)) // left rectangle
         || (hCount>=(144+TOP_H+5)&&hCount<=(144+TOP_H+5+6)&&vCount>=(35+TOP_V)&&vCount<=(35+TOP_V+3)) // top right 
         || (hCount>=(144+TOP_H+5)&&hCount<=(144+TOP_H+5+3)&&vCount>=(35+TOP_V+6)&&vCount<=(35+TOP_V+6+3)) // middle right 
-        || (hCount>=(144+TOP_H+5)&&hCount<=(144+TOP_H+5+6)&&vCount>=(35+TOP_V+6)&&vCount<=(35+TOP_V+13+3)); // bottom right   
+         || (hCount>=(144+TOP_H+5)&&hCount<=(144+TOP_H+5+6)&&vCount>=(35+TOP_V+13)&&vCount<=(35+TOP_V+13+3)); // bottom right   
 	
 	assign TF_fill =
         // top terminal F
@@ -716,7 +716,7 @@ module block_controller (
         (hCount>=(144+BTM_H+2)&&hCount<=(144+BTM_H+2+3)&&vCount>=(35+BTM_V)&&vCount<=(35+BTM_V+16)) // left rectangle
         || (hCount>=(144+BTM_H+5)&&hCount<=(144+BTM_H+5+6)&&vCount>=(35+BTM_V)&&vCount<=(35+BTM_V+3)) // top right 
         || (hCount>=(144+BTM_H+5)&&hCount<=(144+BTM_H+5+3)&&vCount>=(35+BTM_V+6)&&vCount<=(35+BTM_V+6+3)) // middle right 
-        || (hCount>=(144+BTM_H+5)&&hCount<=(144+BTM_H+5+6)&&vCount>=(35+BTM_V+6)&&vCount<=(35+BTM_V+13+3)); // bottom right   
+        || (hCount>=(144+BTM_H+5)&&hCount<=(144+BTM_H+5+6)&&vCount>=(35+BTM_V+13)&&vCount<=(35+BTM_V+13+3)); // bottom right   
 	
 	assign BF_fill =
         // top terminal F
@@ -819,7 +819,7 @@ module block_controller (
         (hCount>=(144+LEFT_H+2)&&hCount<=(144+LEFT_H+2+3)&&vCount>=(35+LEFT_V)&&vCount<=(35+LEFT_V+16)) // left rectangle
         || (hCount>=(144+LEFT_H+5)&&hCount<=(144+LEFT_H+5+6)&&vCount>=(35+LEFT_V)&&vCount<=(35+LEFT_V+3)) // top right 
         || (hCount>=(144+LEFT_H+5)&&hCount<=(144+LEFT_H+5+3)&&vCount>=(35+LEFT_V+6)&&vCount<=(35+LEFT_V+6+3)) // middle right 
-        || (hCount>=(144+LEFT_H+5)&&hCount<=(144+LEFT_H+5+6)&&vCount>=(35+LEFT_V+6)&&vCount<=(35+LEFT_V+13+3)); // bottom right   
+        || (hCount>=(144+LEFT_H+5)&&hCount<=(144+LEFT_H+5+6)&&vCount>=(35+LEFT_V+13)&&vCount<=(35+LEFT_V+13+3)); // bottom right   
 	
 	assign LF_fill =
         // top terminal F
@@ -922,7 +922,7 @@ module block_controller (
         (hCount>=(144+RIGHT_H+2)&&hCount<=(144+RIGHT_H+2+3)&&vCount>=(35+RIGHT_V)&&vCount<=(35+RIGHT_V+16)) // left rectangle
         || (hCount>=(144+RIGHT_H+5)&&hCount<=(144+RIGHT_H+5+6)&&vCount>=(35+RIGHT_V)&&vCount<=(35+RIGHT_V+3)) // top right 
         || (hCount>=(144+RIGHT_H+5)&&hCount<=(144+RIGHT_H+5+3)&&vCount>=(35+RIGHT_V+6)&&vCount<=(35+RIGHT_V+6+3)) // middle right 
-        || (hCount>=(144+RIGHT_H+5)&&hCount<=(144+RIGHT_H+5+6)&&vCount>=(35+RIGHT_V+6)&&vCount<=(35+RIGHT_V+13+3)); // bottom right   
+        || (hCount>=(144+RIGHT_H+5)&&hCount<=(144+RIGHT_H+5+6)&&vCount>=(35+RIGHT_V+13)&&vCount<=(35+RIGHT_V+13+3)); // bottom right   
 	
 	assign RF_fill =
         // top terminal F
