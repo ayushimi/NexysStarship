@@ -12,7 +12,7 @@ module block_controller (
 	input left_monster, output reg left_shield, input left_broken,
 	input right_monster, output reg right_shield, input right_broken,
 	input sysClk,
-	input [3:0] TR_combo, BR_combo
+	input [3:0] TR_combo, BR_combo, LR_combo, RR_combo
    );
 	wire spaceship_black_fill;
 	wire left_stub_fill; 
@@ -40,7 +40,7 @@ module block_controller (
 
 	reg signed [10:0] top_laser, btm_laser, left_laser, right_laser;
 	reg top_shooting, btm_shooting;
-	reg top_hex_fill, btm_hex_fill;
+	reg top_hex_fill, btm_hex_fill, left_hex_fill, right_hex_fill;
 
 	
 	parameter RED   = 12'b1111_0000_0000;
@@ -130,7 +130,7 @@ module block_controller (
 				4'b1000: left_hex_fill = L8_fill; // 8
 				4'b1001: left_hex_fill = L9_fill; // 9
 				4'b1010: left_hex_fill = LA_fill; // A
-				4'b1011: left_hex_fill = LL_fill; // B
+				4'b1011: left_hex_fill = LB_fill; // B
 				4'b1100: left_hex_fill = LC_fill; // C
 				4'b1101: left_hex_fill = LD_fill; // D
 				4'b1110: left_hex_fill = LE_fill; // E
@@ -153,7 +153,7 @@ module block_controller (
 				4'b1000: right_hex_fill = R8_fill; // 8
 				4'b1001: right_hex_fill = R9_fill; // 9
 				4'b1010: right_hex_fill = RA_fill; // A
-				4'b1011: right_hex_fill = RR_fill; // B
+				4'b1011: right_hex_fill = RB_fill; // B
 				4'b1100: right_hex_fill = RC_fill; // C
 				4'b1101: right_hex_fill = RD_fill; // D
 				4'b1110: right_hex_fill = RE_fill; // E
@@ -178,9 +178,9 @@ module block_controller (
                 else if (btm_dark_gray_fill)
                     rgb = DISABLED_DARK_SHADE; 
           end 
-        else if (left_broken && left_stub_fill))
+        else if (left_broken && left_stub_fill)
                     rgb = DISABLED_DARK_SHADE; 
-        else if (right_broken && right_stub_fill))
+        else if (right_broken && right_stub_fill)
                     rgb = DISABLED_DARK_SHADE;                
         else if (btm_broken && (btm_medium_gray_fill || btm_dark_gray_fill))
           begin 

@@ -8,12 +8,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module nexys_starship_LR(Clk, Reset, q_LR_Init, q_LR_Working , q_LR_Repair, BtnD,
+module nexys_starship_LR(Clk, Reset, q_LR_Init, q_LR_Working , q_LR_Repair, BtnL,
                             play_flag, left_broken, hex_combo, random_hex, gameover_ctrl,
                             LR_random, BtnR, LR_combo);
 
 	/*  INPUTS */
-	input	Clk, Reset, BtnD, gameover_ctrl;	
+	input	Clk, Reset, BtnL, gameover_ctrl;	
 	input   play_flag;
 	input [3:0] hex_combo, random_hex;
 	input   LR_random;
@@ -46,7 +46,7 @@ module nexys_starship_LR(Clk, Reset, q_LR_Init, q_LR_Working , q_LR_Repair, BtnD
 						// state transfers
 						if (play_flag) state <= WORKING;
 						// data transfers
-						left_broken <= 0;
+						left_broken = 0;
 						LR_combo <= 0;
 					end		
 					WORKING: 
@@ -70,10 +70,10 @@ module nexys_starship_LR(Clk, Reset, q_LR_Init, q_LR_Working , q_LR_Repair, BtnD
 						if (BtnL)
 						begin
 							if (hex_combo == LR_combo)
-								left_broken <= 0;
+								left_broken = 0;
 						end
                         if (BtnR)
-                            left_broken <= 0;
+                            left_broken = 0;
 						end
 						
 					default:		

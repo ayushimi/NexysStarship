@@ -248,18 +248,17 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
                            .BR_combo(BR_combo));                      
                            
     nexys_starship_LR nexys_starship_LR_1(.Clk(sys_clk), .Reset(Reset), .q_LR_Init(q_LR_Init), 
-	                       .q_LR_Working(q_LR_Working), .q_LR_Repair(q_LR_Repair), .BtnD(Down_Pulse),
+	                       .q_LR_Working(q_LR_Working), .q_LR_Repair(q_LR_Repair), .BtnL(Left_Pulse),
                            .play_flag(play_flag), .left_broken(left_broken), .hex_combo(hex_combo), 
                            .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
                            .LR_random(LR_random), .BtnR(Right_Pulse),
                            .LR_combo(LR_combo)); 
     
     nexys_starship_RR nexys_starship_RR_1(.Clk(sys_clk), .Reset(Reset), .q_RR_Init(q_RR_Init), 
-	                       .q_RR_Working(q_RR_Working), .q_RR_Repair(q_RR_Repair), .BtnD(Down_Pulse),
+	                       .q_RR_Working(q_RR_Working), .q_RR_Repair(q_RR_Repair), .BtnR(Right_Pulse),
                            .play_flag(play_flag), .right_broken(right_broken), .hex_combo(hex_combo), 
                            .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
-                           .RR_random(RR_random), .BtnR(Right_Pulse),
-                           .RR_combo(RR_combo));        
+                           .RR_random(RR_random), .RR_combo(RR_combo));        
 				  
 	// random modules
 	nexys_starship_PRNG nexys_starship_PRNG_1(.Clk(random_clk), .Reset(Reset),
@@ -280,7 +279,8 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	                       .left_monster(left_monster), .left_shield(left_shield), 
 	                       .left_broken(left_broken), .right_monster(right_monster),
 	                       .right_shield(right_shield), .right_broken(right_broken),
-	                       .sysClk(sys_clk), .TR_combo(TR_combo), .BR_combo(BR_combo));
+	                       .sysClk(sys_clk), .TR_combo(TR_combo), .BR_combo(BR_combo),
+	                       .LR_combo(LR_combo), .RR_combo(RR_combo));
 //------------
 // SHARED REGISTERS 
 
@@ -326,7 +326,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 // SSD (Seven Segment Display)
 
 	assign SSD0 = {Sw3, Sw2, Sw1, Sw0};
-	assign SSD1 = TR_combo;
+	assign SSD1 = BR_combo;
 
 
 	// need a scan clk for the seven segment display 

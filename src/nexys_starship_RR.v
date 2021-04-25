@@ -8,16 +8,15 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnD,
+module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnR,
                             play_flag, right_broken, hex_combo, random_hex, gameover_ctrl,
-                            RR_random, BtnR, RR_combo);
+                            RR_random, RR_combo);
 
 	/*  INPUTS */
-	input	Clk, Reset, BtnD, gameover_ctrl;	
+	input	Clk, Reset, BtnR, gameover_ctrl;	
 	input   play_flag;
 	input [3:0] hex_combo, random_hex;
 	input   RR_random;
-	input   BtnR;
 
 	/*  OUTPUTS */
 	output reg right_broken;	
@@ -46,7 +45,7 @@ module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnD
 						// state transfers
 						if (play_flag) state <= WORKING;
 						// data transfers
-						right_broken <= 0;
+						right_broken = 0;
 						RR_combo <= 0;
 					end		
 					WORKING: 
@@ -70,10 +69,10 @@ module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnD
 						if (BtnR)
 						begin
 							if (hex_combo == RR_combo)
-								right_broken <= 0;
+								right_broken = 0;
 						end
                         if (BtnR)
-                            right_broken <= 0;
+                            right_broken = 0;
 						end
 						
 					default:		
