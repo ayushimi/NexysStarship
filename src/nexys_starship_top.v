@@ -221,10 +221,10 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
                           .btm_random(btm_random), .btm_gameover(btm_gameover), 
                           .gameover_ctrl(gameover_ctrl), .timer_clk(timer_clk));
     
-    nexys_starship_LM nexys_starship_LM_1(.Clk(sys_clk), .Reset(Reset), .q_LM_Init(q_TM_Init), 
+    nexys_starship_LM nexys_starship_LM_1(.Clk(sys_clk), .Reset(Reset), .q_LM_Init(q_LM_Init), 
 	                      .q_LM_Empty(q_LM_Empty), .q_LM_Full(q_LM_Full), .play_flag(play_flag), 
                           .left_monster(left_monster), .left_shield(left_shield),
-                          .left_random(top_random), .left_gameover(left_gameover), 
+                          .left_random(left_random), .left_gameover(left_gameover), 
                           .gameover_ctrl(gameover_ctrl), .timer_clk(timer_clk));
                           
     nexys_starship_RM nexys_starship_RM_1(.Clk(sys_clk), .Reset(Reset), .q_RM_Init(q_RM_Init), 

@@ -98,9 +98,9 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
         if (Reset)
         begin
             left0 <= 0;
-            left1 <= 230;
-            left2 <= 99;
-            left3 <= 180;
+            left1 <= 202;
+            left2 <= 33;
+            left3 <= 99;
             left_random_8 <= 0;
             LR_random_8 <= 175; 
             left_random <= 0;
@@ -131,9 +131,9 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
         if (Reset)
         begin
             right0 <= 0;
-            right1 <= 230;
-            right2 <= 99;
-            right3 <= 180;
+            right1 <= 48;
+            right2 <= 139;
+            right3 <= 243;
             right_random_8 <= 0;
             RR_random_8 <= 175; 
             right_random <= 0;

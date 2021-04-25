@@ -35,8 +35,7 @@ module block_controller (
 	wire LA_fill, LB_fill, LC_fill, LD_fill, LE_fill, LF_fill; 
 	wire RA_fill, RB_fill, RC_fill, RD_fill, RE_fill, RF_fill; 
 
-	//these two values dictate the center of the block, incrementing and decrementing them leads the block to move in certain directions
-	reg signed [10:0] top_laser, btm_laser;
+	reg signed [10:0] top_laser, btm_laser, left_laser, right_laser;
 	reg top_shooting, btm_shooting;
 	reg top_hex_fill, btm_hex_fill;
 
@@ -142,8 +141,8 @@ module block_controller (
 					rgb = TAN;
 				else if (light_blue_fill)
 					rgb = LIGHT_BLUE;
-				else if (pink_fill || left_shield_fill || right_shield_fill)
-					rgb = PINK;
+				else if (pink_fill)
+				    rgb = PINK; 
 				else if (light_gray_fill)
 					rgb = GREY;
 				else if (top_medium_gray_fill || btm_medium_gray_fill)
@@ -151,6 +150,10 @@ module block_controller (
 				else if (top_dark_gray_fill || btm_dark_gray_fill)
 					rgb = DARK_GREY;
 		  end
+		else if (left_shield && left_shield_fill) 
+				    rgb = PINK; 
+		else if (right_shield && right_shield_fill)
+					rgb = PINK;
 		else if (TM_display_fill)
           begin
                 if (TM_black_fill)
@@ -280,8 +283,8 @@ module block_controller (
 		|| (hCount>=(144+319)&&hCount<=(144+319+3)&&vCount>=(35+208)&&vCount<=(35+208+5)) // mid hair strand  
 		|| (hCount>=(144+324)&&hCount<=(144+324+2)&&vCount>=(35+211)&&vCount<=(35+211+2)); // right hair strand  
 	
-	assign spaceship_display_fill = light_gray_fill || light_blue_fill || left_shield_fill || right_shield_fill
-	                                   || spaceship_black_fill || head_fill || top_dark_gray_fill || top_medium_gray_fill
+	assign spaceship_display_fill = light_gray_fill || light_blue_fill || spaceship_black_fill 
+	                                   || head_fill || top_dark_gray_fill || top_medium_gray_fill
 	                                   || btm_dark_gray_fill || btm_medium_gray_fill;
 	
 	assign top_green_fill = 
@@ -386,6 +389,13 @@ module block_controller (
     
     assign BM_display_fill = btm_monster_vga && (BM_red_fill || BM_black_fill
 								|| BM_cream_fill || BM_mask_fill);
+	assign left_red_fill = 
+		(hCount>=(144+left_laser)&&hCount<=(144+left_laser+17)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top leftmost 1st bullet 
+		|| (hCount>=(144+left_laser+30)&&hCount<=(144+left_laser+30+17)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top 2nd bullet 
+		|| (hCount>=(144+left_laser+60)&&hCount<=(144+left_laser+60+17)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top 3rd bullet
+		|| (hCount>=(144+left_laser)&&hCount<=(144+left_laser+17)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom leftmost 1st bullet 
+		|| (hCount>=(144+left_laser+30)&&hCount<=(144+left_laser+30+17)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom 2nd bullet 
+		|| (hCount>=(144+left_laser+60)&&hCount<=(144+left_laser+60+17)&&vCount>=(35+291)&&vCount<=(35+291+4)); // bottom 3rd bullet
 	
 	assign LM_blue_fill = 
 	    (hCount>=(144+42)&&hCount<=(144+42+13)&&vCount>=(35+185)&&vCount<=(35+185+6)) // top #1 antenna 
@@ -428,6 +438,14 @@ module block_controller (
 	assign LM_display_fill = left_monster && (LM_blue_fill || LM_black_fill
                                 || LM_cream_fill || LM_red_fill || LM_mask_fill);
 
+    assign right_red_fill = 
+		(hCount>=(144+right_laser-17)&&hCount<=(144+right_laser-17)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top rightmost 1st bullet 
+		|| (hCount>=(144+right_laser-30-17)&&hCount<=(144+right_laser-30)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top 2nd bullet 
+		|| (hCount>=(144+right_laser-60-17)&&hCount<=(144+right_laser-60)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top 3rd bullet
+		|| (hCount>=(144+right_laser-17)&&hCount<=(144+right_laser-17)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom rightmost 1st bullet 
+		|| (hCount>=(144+right_laser-30-17)&&hCount<=(144+right_laser-30)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom 2nd bullet 
+		|| (hCount>=(144+right_laser-60-17)&&hCount<=(144+right_laser-60)&&vCount>=(35+291)&&vCount<=(35+291+4)); // bottom 3rd bullet
+		
 	assign RM_blue_fill =
         // top body
         (hCount>=(144+574)&&hCount<=(144+574+42)&&vCount>=(35+200)&&vCount<=(35+200+45))
@@ -927,6 +945,8 @@ module block_controller (
 			right_laser<=651;
 			top_shooting<=0;
 			btm_shooting<=0;
+			left_shield<=0; 
+			right_shield<=0; 
 			//top_monster_vga<=0; 
 			//btm_monster_vga<=0; 
 		end
@@ -942,9 +962,9 @@ module block_controller (
 				top_shooting<=1;
 			if(down && !btm_shooting && !btm_broken)
 				btm_shooting<=1;
-			if(left && left_monster && !left_broken)
+			if(left && left_monster) // && !left_broken)
 			    left_shield<=1; 
-            if(right && right_monster && !right_broken)
+            if(right && right_monster)// && !right_broken)
 			    right_shield<=1; 
 			    
 			if(left_monster) begin
@@ -953,19 +973,23 @@ module block_controller (
 			        left_laser<=-11; 
 			    else if(!left_shield && left_laser == 273)
 			        left_laser<=-11; 
-			else (!left_monster)
+			end
+			else begin
 			    left_laser<=-11; 
-			end    
+			    left_shield<=0; 
+			end
 			
 			if(right_monster) begin
 			    right_laser<=right_laser-4; 
 			    if (right_shield && right_laser == 411)  
 			        right_laser<=651; 
-			    else if(!right _shield && right_laser == 367)
+			    else if(!right_shield && right_laser == 367)
 			        right_laser<=651; 
-			else (!right_monster)
+			end
+			else begin
 			    right_laser<=651; 
-			end    
+			    right_shield<=0;   
+			end  
 
 			if(top_shooting) begin
 				top_laser<=top_laser-4;
