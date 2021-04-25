@@ -8,99 +8,73 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module nexys_starship_RR(Clk, CEN, Reset, Start, Ack, Ain, Bin, A, B, AB_GCD, i_count, q_I, q_Sub, q_Mult, q_Done);
-
+module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnD,
+                            play_flag, right_broken, hex_combo, random_hex, gameover_ctrl,
+                            RR_random, BtnR, RR_combo);
 
 	/*  INPUTS */
-	input	Clk, CEN, Reset, Start, Ack;
-	input [7:0] Ain;
-	input [7:0] Bin;
-	
-	// i_count is a count of number of factors of 2	. We do not need an 8-bit counter. 
-	// However, in-line with other variables, this has been made an 8-bit item.
+	input	Clk, Reset, BtnD, gameover_ctrl;	
+	input   play_flag;
+	input [3:0] hex_combo, random_hex;
+	input   RR_random;
+	input   BtnR;
+
 	/*  OUTPUTS */
-	// store the two inputs Ain and Bin in A and B . These (A, B) are also continuously output to the higher module. along with the AB_GCD
-	output reg [7:0] A, B, AB_GCD, i_count;		// the result of the operation: GCD of the two numbers
-	// store current state
-	output q_I, q_Sub, q_Mult, q_Done;
-	reg [3:0] state;
-	assign {q_Done, q_Mult, q_Sub, q_I} = state;
+	output reg right_broken;	
+	output q_RR_Init, q_RR_Working , q_RR_Repair;
+	output reg [3:0] RR_combo;
+	reg [2:0] state;
+	assign {q_RR_Repair, q_RR_Working , q_RR_Init} = state;
 		
 	localparam 	
-	I = 4'b0001, SUB = 4'b0010, MULT = 4'b0100, DONE = 4'b1000, UNK = 4'bXXXX;
-	
+	INIT = 3'b001, WORKING = 3'b010, REPAIR = 3'b100, UNK = 3'bXXX;
+    
+        
+
 	// NSL AND SM
 	always @ (posedge Clk, posedge Reset)
 	begin 
 		if(Reset) 
 		  begin
-			state <= I;
-			i_count <= 8'bx;  	// ****** TODO ******
-			A <= 8'bx;		  	// complete the 3 lines
-			B <= 8'bx;
-			AB_GCD <= 8'bx;			
+			right_broken <= 0; 
+			state <= INIT;
 		  end
-		else				// ****** TODO ****** complete several parts
+		else				
 				case(state)	
-					I:
+					INIT:
 					begin
 						// state transfers
-						if (Start) state <= SUB;
+						if (play_flag) state <= WORKING;
 						// data transfers
-						i_count <= 0;
-						A <= Ain;
-						B <= Bin;
-						AB_GCD <= 0;
+						right_broken <= 0;
+						RR_combo <= 0;
 					end		
-					SUB: 
-		               if (CEN) //  This causes single-stepping the SUB state
-						begin		
-							// state transfers
-							if (A == B) state <= (i_count == 0) ?   DONE : MULT  ;
-							// data transfers
-							if (A == B) AB_GCD <= A  ;		
-							else if (A < B)
-							  begin
-								// swap A and B
-								A <= B;
-								B <= A;
- 
-
-							  end
-							else						// if (A > B)
-							  begin	
-								if (A[0] & B[0]) A <= (A-B);
-								else if (!A[0] & !B[0])
-									begin
-										i_count <= i_count + 1;
-										A <= A/2;
-										B <= B/2;
-									end
-								else
-									begin
-										if (!A[0]) A <= A/2;
-										if (!B[0]) B <= B/2;
-									end
-							
-
-
-							  end
-						end
-					MULT:
-					  if (CEN) // This causes single-stepping the MULT state
+					WORKING: 
+					begin
+					    // state transfers
+					    if (right_broken) state <= REPAIR;
+						if (gameover_ctrl) state <= INIT;
+					    // data transfers 
+					    if (RR_random) 
+					    begin
+					        right_broken = 1; 
+							RR_combo <= random_hex;
+					    end
+					end
+					REPAIR:
+					begin
+						// state transfers
+						if (!right_broken) state <= WORKING;	
+						if (gameover_ctrl) state <= INIT;
+    					// data transfers
+						if (BtnR)
 						begin
-							// state transfers
-							if (i_count == 1) state <= DONE;
-							
-							// data transfers
-							AB_GCD <= AB_GCD * 2;
-							i_count <= i_count - 1;
-
-
+							if (hex_combo == RR_combo)
+								right_broken <= 0;
 						end
-					
-					DONE:
-						if (Ack)	state <= I;
+                        if (BtnR)
+                            right_broken <= 0;
+						end
 						
 					default:		
 						state <= UNK;

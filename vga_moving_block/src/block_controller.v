@@ -15,6 +15,8 @@ module block_controller (
 	input [3:0] TR_combo, BR_combo
    );
 	wire spaceship_black_fill;
+	wire left_stub_fill; 
+	wire right_stub_fill; 
 	wire tunnel_blue_fill;
 	wire light_gray_fill;
 	wire light_blue_fill;
@@ -90,6 +92,7 @@ module block_controller (
 				default: top_hex_fill = T0_fill;
 			endcase
 		end
+		
 		if (btm_broken)
 		begin
 			case (BR_combo)
@@ -112,7 +115,52 @@ module block_controller (
 				default: btm_hex_fill = B0_fill;
 			endcase
 		end
+		
+		if (left_broken)
+		begin
+			case (LR_combo)
+				4'b0000: left_hex_fill = L0_fill; // 0
+				4'b0001: left_hex_fill = L1_fill; // 1
+				4'b0010: left_hex_fill = L2_fill; // 2
+				4'b0011: left_hex_fill = L3_fill; // 3
+				4'b0100: left_hex_fill = L4_fill; // 4
+				4'b0101: left_hex_fill = L5_fill; // 5
+				4'b0110: left_hex_fill = L6_fill; // 6
+				4'b0111: left_hex_fill = L7_fill; // 7
+				4'b1000: left_hex_fill = L8_fill; // 8
+				4'b1001: left_hex_fill = L9_fill; // 9
+				4'b1010: left_hex_fill = LA_fill; // A
+				4'b1011: left_hex_fill = LL_fill; // B
+				4'b1100: left_hex_fill = LC_fill; // C
+				4'b1101: left_hex_fill = LD_fill; // D
+				4'b1110: left_hex_fill = LE_fill; // E
+				4'b1111: left_hex_fill = LF_fill; // F    
+				default: left_hex_fill = L0_fill;
+			endcase
+		end
 
+        if (right_broken)
+		begin
+			case (RR_combo)
+				4'b0000: right_hex_fill = R0_fill; // 0
+				4'b0001: right_hex_fill = R1_fill; // 1
+				4'b0010: right_hex_fill = R2_fill; // 2
+				4'b0011: right_hex_fill = R3_fill; // 3
+				4'b0100: right_hex_fill = R4_fill; // 4
+				4'b0101: right_hex_fill = R5_fill; // 5
+				4'b0110: right_hex_fill = R6_fill; // 6
+				4'b0111: right_hex_fill = R7_fill; // 7
+				4'b1000: right_hex_fill = R8_fill; // 8
+				4'b1001: right_hex_fill = R9_fill; // 9
+				4'b1010: right_hex_fill = RA_fill; // A
+				4'b1011: right_hex_fill = RR_fill; // B
+				4'b1100: right_hex_fill = RC_fill; // C
+				4'b1101: right_hex_fill = RD_fill; // D
+				4'b1110: right_hex_fill = RE_fill; // E
+				4'b1111: right_hex_fill = RF_fill; // F    
+				default: right_hex_fill = R0_fill;
+			endcase
+		end
 		
 		if(~bright )	//force black if not inside the display area
 			rgb = 12'b0000_0000_0000;
@@ -130,9 +178,24 @@ module block_controller (
                 else if (btm_dark_gray_fill)
                     rgb = DISABLED_DARK_SHADE; 
           end 
+        else if (left_broken && left_stub_fill))
+                    rgb = DISABLED_DARK_SHADE; 
+        else if (right_broken && right_stub_fill))
+                    rgb = DISABLED_DARK_SHADE;                
+        else if (btm_broken && (btm_medium_gray_fill || btm_dark_gray_fill))
+          begin 
+                if (btm_medium_gray_fill)
+                    rgb = DISABLED_MEDIUM_SHADE; 
+                else if (btm_dark_gray_fill)
+                    rgb = DISABLED_DARK_SHADE; 
+          end 
 		else if (top_broken && top_hex_fill)
 			rgb = TEXT_BABY_BLUE;
 		else if (btm_broken && btm_hex_fill)
+			rgb = TEXT_BABY_BLUE;
+		else if (left_broken && left_hex_fill)
+			rgb = TEXT_BABY_BLUE;
+		else if (right_broken && right_hex_fill)
 			rgb = TEXT_BABY_BLUE;
 		else if (spaceship_display_fill)
 		  begin
@@ -300,6 +363,12 @@ module block_controller (
 	assign spaceship_mask_fill = 
 	    (hCount>=(144+289)&&hCount<=(144+289+20)&&vCount>=(35+291)&&vCount<=(35+291+4)) // left spaceship mask  
 		|| (hCount>=(144+331)&&hCount<=(144+331+20)&&vCount>=(35+291)&&vCount<=(35+291+4));// right spaceship mask 
+	
+	assign left_stub_fill = 
+	    (hCount>=(144+248)&&hCount<=(144+248+15)&&vCount>=(35+248)&&vCount<=(35+248+20));
+	
+	assign right_stub_fill = 
+	    (hCount>=(144+377)&&hCount<=(144+377+15)&&vCount>=(35+248)&&vCount<=(35+248+20));
 	
 	assign spaceship_display_fill = light_gray_fill || light_blue_fill || spaceship_black_fill 
 	                                   || head_fill || top_dark_gray_fill || top_medium_gray_fill
@@ -980,9 +1049,9 @@ module block_controller (
 				top_shooting<=1;
 			if(down && !btm_shooting && !btm_broken)
 				btm_shooting<=1;
-			if(left && left_monster) // && !left_broken)
+			if(left && left_monster && !left_broken)
 			    left_shield<=1; 
-            if(right && right_monster)// && !right_broken)
+            if(right && right_monster && !right_broken)
 			    right_shield<=1; 
 			    
 			if(left_monster) begin
