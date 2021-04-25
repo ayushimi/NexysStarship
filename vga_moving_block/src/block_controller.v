@@ -432,17 +432,17 @@ module block_controller (
 	    || (hCount>=(144+57)&&hCount<=(144+57+4)&&vCount>=(35+291)&&vCount<=(35+291+4)); // bottom pupil 
 	
 	assign LM_mask_fill = 
-        (hCount>=(144+0)&&hCount<=(144+0+4)&&vCount>=(35+291)&&vCount<=(35+291+15)) // top mask 
-	    || (hCount>=(144+0)&&hCount<=(144+0+4)&&vCount>=(35+220)&&vCount<=(35+220+15)); // bottom mask 
+        (hCount>=(144+0)&&hCount<=(144+0+15)&&vCount>=(35+291)&&vCount<=(35+291+4)) // top mask 
+	    || (hCount>=(144+0)&&hCount<=(144+0+15)&&vCount>=(35+220)&&vCount<=(35+220+4)); // bottom mask 
 	
 	assign LM_display_fill = left_monster && (LM_blue_fill || LM_black_fill
                                 || LM_cream_fill || LM_red_fill || LM_mask_fill);
 
     assign right_red_fill = 
-		(hCount>=(144+right_laser-17)&&hCount<=(144+right_laser-17)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top rightmost 1st bullet 
+		(hCount>=(144+right_laser-17)&&hCount<=(144+right_laser)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top rightmost 1st bullet 
 		|| (hCount>=(144+right_laser-30-17)&&hCount<=(144+right_laser-30)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top 2nd bullet 
 		|| (hCount>=(144+right_laser-60-17)&&hCount<=(144+right_laser-60)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top 3rd bullet
-		|| (hCount>=(144+right_laser-17)&&hCount<=(144+right_laser-17)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom rightmost 1st bullet 
+		|| (hCount>=(144+right_laser-17)&&hCount<=(144+right_laser)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom rightmost 1st bullet 
 		|| (hCount>=(144+right_laser-30-17)&&hCount<=(144+right_laser-30)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom 2nd bullet 
 		|| (hCount>=(144+right_laser-60-17)&&hCount<=(144+right_laser-60)&&vCount>=(35+291)&&vCount<=(35+291+4)); // bottom 3rd bullet
 		
@@ -496,9 +496,9 @@ module block_controller (
     
     assign RM_mask_fill =
         // top mask
-        (hCount>=(144+625)&&hCount<=(144+625+4)&&vCount>=(35+220)&&vCount<=(35+220+15))
+        (hCount>=(144+625)&&hCount<=(144+625+15)&&vCount>=(35+220)&&vCount<=(35+220+4))
         // bottom mask
-        || (hCount>=(144+625)&&hCount<=(144+625+4)&&vCount>=(35+291)&&vCount<=(35+291+15));
+        || (hCount>=(144+625)&&hCount<=(144+625+15)&&vCount>=(35+291)&&vCount<=(35+291+4));
         
     assign RM_display_fill = right_monster && (RM_blue_fill || RM_black_fill
                                 || RM_cream_fill || RM_red_fill || RM_mask_fill);
