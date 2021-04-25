@@ -10,7 +10,7 @@
 
 module nexys_starship_TR(Clk, Reset, q_TR_Init, q_TR_Working , q_TR_Repair, BtnU,
                             play_flag, top_broken, hex_combo, random_hex, gameover_ctrl,
-                            TR_random, BtnR, TR_combo);
+                            TR_random, BtnR, TR_combo, timer_clk);
 
 	/*  INPUTS */
 	input	Clk, Reset, BtnU, gameover_ctrl;	
@@ -18,6 +18,7 @@ module nexys_starship_TR(Clk, Reset, q_TR_Init, q_TR_Working , q_TR_Repair, BtnU
 	input [3:0] hex_combo, random_hex;
 	input   TR_random;
 	input   BtnR;
+	input   timer_clk;
 
 	/*  OUTPUTS */
 	output reg top_broken;	
@@ -29,7 +30,15 @@ module nexys_starship_TR(Clk, Reset, q_TR_Init, q_TR_Working , q_TR_Repair, BtnU
 	localparam 	
 	INIT = 3'b001, WORKING = 3'b010, REPAIR = 3'b100, UNK = 3'bXXX;
     
-        
+    reg [7:0] top_delay;
+    reg break_shooter;
+    always @ (posedge timer_clk, posedge Reset)
+	begin
+	   if (Reset || state == INIT || state == REPAIR)
+	       top_delay <= 0;
+	   else if (state == WORKING)
+	       top_delay <= top_delay + 1;
+	end
 
 	// NSL AND SM
 	always @ (posedge Clk, posedge Reset)
@@ -55,7 +64,9 @@ module nexys_starship_TR(Clk, Reset, q_TR_Init, q_TR_Working , q_TR_Repair, BtnU
 					    if (top_broken) state <= REPAIR;
 						if (gameover_ctrl) state <= INIT;
 					    // data transfers 
-					    if (TR_random) 
+					    if (top_delay == 1)
+					       break_shooter <= 1;
+					    if (TR_random && break_shooter) 
 					    begin
 					        top_broken = 1; 
 							TR_combo <= random_hex;

@@ -63,7 +63,7 @@ module nexys_starship_top
 	wire [2:0] 	ssdscan_clk;
 	reg [26:0]	DIV_CLK;
 	wire move_clk; // slower vga
-	wire timer_clk;
+	wire timer_clk, game_timer_clk;
 	
 	// VGA wires
 	wire bright;
@@ -155,6 +155,7 @@ module nexys_starship_top
 	assign move_clk = DIV_CLK[19]; //slower clock to drive the movement of objects on the vga screen
 	assign random_clk = DIV_CLK[24];
 	assign timer_clk = DIV_CLK[24];
+	assign game_timer_clk = DIV_CLK[7];
 
 //------------
 // INPUT: SWITCHES & BUTTONS
@@ -238,27 +239,27 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
                            .play_flag(play_flag), .top_broken(top_broken), .hex_combo(hex_combo), 
                            .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
                            .TR_random(TR_random), .BtnR(Right_Pulse),
-                           .TR_combo(TR_combo));
+                           .TR_combo(TR_combo), .timer_clk(timer_clk));
                             
 	nexys_starship_BR nexys_starship_BR_1(.Clk(sys_clk), .Reset(Reset), .q_BR_Init(q_BR_Init), 
 	                       .q_BR_Working(q_BR_Working), .q_BR_Repair(q_BR_Repair), .BtnD(Down_Pulse),
                            .play_flag(play_flag), .btm_broken(btm_broken), .hex_combo(hex_combo), 
                            .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
                            .BR_random(BR_random), .BtnR(Right_Pulse),
-                           .BR_combo(BR_combo));                      
+                           .BR_combo(BR_combo), .timer_clk(timer_clk));                      
                            
     nexys_starship_LR nexys_starship_LR_1(.Clk(sys_clk), .Reset(Reset), .q_LR_Init(q_LR_Init), 
 	                       .q_LR_Working(q_LR_Working), .q_LR_Repair(q_LR_Repair), .BtnL(Left_Pulse),
                            .play_flag(play_flag), .left_broken(left_broken), .hex_combo(hex_combo), 
                            .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
                            .LR_random(LR_random), .BtnR(Right_Pulse),
-                           .LR_combo(LR_combo)); 
+                           .LR_combo(LR_combo), .timer_clk(timer_clk)); 
     
     nexys_starship_RR nexys_starship_RR_1(.Clk(sys_clk), .Reset(Reset), .q_RR_Init(q_RR_Init), 
 	                       .q_RR_Working(q_RR_Working), .q_RR_Repair(q_RR_Repair), .BtnR(Right_Pulse),
                            .play_flag(play_flag), .right_broken(right_broken), .hex_combo(hex_combo), 
                            .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
-                           .RR_random(RR_random), .RR_combo(RR_combo));        
+                           .RR_random(RR_random), .RR_combo(RR_combo), .timer_clk(timer_clk));        
 				  
 	// random modules
 	nexys_starship_PRNG nexys_starship_PRNG_1(.Clk(random_clk), .Reset(Reset),
@@ -280,7 +281,47 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	                       .left_broken(left_broken), .right_monster(right_monster),
 	                       .right_shield(right_shield), .right_broken(right_broken),
 	                       .sysClk(sys_clk), .TR_combo(TR_combo), .BR_combo(BR_combo),
-	                       .LR_combo(LR_combo), .RR_combo(RR_combo), .gameover_ctrl(gameover_ctrl));
+	                       .LR_combo(LR_combo), .RR_combo(RR_combo), .play_flag(play_flag),
+	                       .gameover_ctrl(gameover_ctrl));
+	                       
+	                       
+//------------
+// GAME TIMER
+reg [3:0] game_time_min;
+reg [5:0] game_time_sec_1s;
+reg [5:0] game_time_sec_10s;
+reg [18:0] clk_cycle_count;
+always @ (posedge game_timer_clk, posedge Reset)
+begin
+    if (Reset)
+    begin
+        game_time_min <= 0;
+        game_time_sec_1s <= 0;
+        game_time_sec_10s <= 0;
+        clk_cycle_count <= 0;
+    end
+    else if (play_flag)
+    begin
+        // game_timer <= game_timer + 1;
+        clk_cycle_count <= clk_cycle_count + 1;
+        if (clk_cycle_count == 390624)
+        begin
+            clk_cycle_count <= 0;
+            game_time_sec_1s <= game_time_sec_1s + 1;
+            if (game_time_sec_1s == 9)
+            begin
+                game_time_sec_1s <= 0;
+                game_time_sec_10s <= game_time_sec_10s + 1;
+            end
+            if (game_time_sec_10s == 5)
+            begin
+                game_time_sec_10s <= 0;
+                game_time_min <= game_time_min + 1;
+            end
+        end
+    end
+end
+
 //------------
 // SHARED REGISTERS 
 
@@ -304,8 +345,6 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
     begin 
         if (q_GameOver)
             gameover_ctrl <= 1; 
-  //      else if (q_Init || q_BM_Init || q_TM_Init)   
-   //         gameover_ctrl <= 0; 
         else
             gameover_ctrl <= top_gameover || btm_gameover || left_gameover || right_gameover; 
     end
@@ -327,6 +366,9 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 
 	assign SSD0 = {Sw3, Sw2, Sw1, Sw0};
 	assign SSD1 = BR_combo;
+	assign SSD4 = game_time_sec_1s;
+	assign SSD5 = game_time_sec_10s;
+	assign SSD6 = game_time_min;
 
 
 	// need a scan clk for the seven segment display 
