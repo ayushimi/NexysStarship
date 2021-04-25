@@ -9,8 +9,8 @@ module block_controller (
 	output reg [11:0] rgb,
 	input top_monster_ctrl, output reg top_monster_vga, input top_broken,
 	input btm_monster_ctrl, output reg btm_monster_vga, input btm_broken,
-	input left_monster,
-	input right_monster, 
+	input left_monster, output reg left_shield, input left_broken,
+	input right_monster, output reg right_shield, input right_broken,
 	input sysClk,
 	input [3:0] TR_combo, BR_combo
    );
@@ -201,8 +201,10 @@ module block_controller (
           end
         else if (top_green_fill || btm_green_fill)
             rgb = GREEN;
-        else if (left_red_fill || right_red_fill)
+        else if (left_red_fill && left_monster)
             rgb = RED;
+        else if (right_red_fill && right_monster)
+            rgb = RED; 
 		else if (tunnel_blue_fill)
 			rgb = TUNNEL_BLUE;
 		else	
@@ -423,7 +425,7 @@ module block_controller (
         (hCount>=(144+0)&&hCount<=(144+0+4)&&vCount>=(35+291)&&vCount<=(35+291+15)) // top mask 
 	    || (hCount>=(144+0)&&hCount<=(144+0+4)&&vCount>=(35+220)&&vCount<=(35+220+15)); // bottom mask 
 	
-	assign LM_display_fill = /*left_monster &&*/ (LM_blue_fill || LM_black_fill
+	assign LM_display_fill = left_monster && (LM_blue_fill || LM_black_fill
                                 || LM_cream_fill || LM_red_fill || LM_mask_fill);
 
 	assign RM_blue_fill =
@@ -480,7 +482,7 @@ module block_controller (
         // bottom mask
         || (hCount>=(144+625)&&hCount<=(144+625+4)&&vCount>=(35+291)&&vCount<=(35+291+15));
         
-    assign RM_display_fill = /* right_monster && */ (RM_blue_fill || RM_black_fill
+    assign RM_display_fill = right_monster && (RM_blue_fill || RM_black_fill
                                 || RM_cream_fill || RM_red_fill || RM_mask_fill);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	assign T0_fill = 
@@ -921,6 +923,8 @@ module block_controller (
 		begin 
 			top_laser<=256;
 			btm_laser<=226;
+			left_laser<=-11; 
+			right_laser<=651;
 			top_shooting<=0;
 			btm_shooting<=0;
 			//top_monster_vga<=0; 
@@ -938,6 +942,30 @@ module block_controller (
 				top_shooting<=1;
 			if(down && !btm_shooting && !btm_broken)
 				btm_shooting<=1;
+			if(left && left_monster && !left_broken)
+			    left_shield<=1; 
+            if(right && right_monster && !right_broken)
+			    right_shield<=1; 
+			    
+			if(left_monster) begin
+			    left_laser<=left_laser+4; 
+			    if (left_shield && left_laser == 229)  
+			        left_laser<=-11; 
+			    else if(!left_shield && left_laser == 273)
+			        left_laser<=-11; 
+			else (!left_monster)
+			    left_laser<=-11; 
+			end    
+			
+			if(right_monster) begin
+			    right_laser<=right_laser-4; 
+			    if (right_shield && right_laser == 411)  
+			        right_laser<=651; 
+			    else if(!right _shield && right_laser == 367)
+			        right_laser<=651; 
+			else (!right_monster)
+			    right_laser<=651; 
+			end    
 
 			if(top_shooting) begin
 				top_laser<=top_laser-4;

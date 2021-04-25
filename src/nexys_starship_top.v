@@ -84,8 +84,8 @@ module nexys_starship_top
 	wire q_RR_Init, q_RR_Working, q_RR_Repair;
 	wire q_TM_Init, q_TM_Empty, q_TM_Full;
 	wire q_BM_Init, q_BM_Empty, q_BM_Full;
-	wire q_LM_Init, q_LM_Empty, q_LM_Unshielded, q_LM_Shielded; 
-	wire q_RM_Init, q_RM_Empty, q_RM_Unshielded, q_RM_Shielded; 
+	wire q_LM_Init, q_LM_Empty, q_LM_Full; 
+	wire q_RM_Init, q_RM_Empty, q_RM_Full; 
 	
 	// TODO: add game_timer reg 
 	wire play_flag, game_over;
@@ -95,7 +95,7 @@ module nexys_starship_top
 	wire btm_monster_sm, btm_monster_vga;
 	reg btm_monster_ctrl;  
 	wire left_monster, right_monster; 
-	wire r_shield, l_shield; 
+	wire right_shield, left_shield; 
 	wire top_random, btm_random, left_random, right_random;
 	wire TR_random, BR_random, LR_random, RR_random;
 	wire [3:0] TR_combo, BR_combo, LR_combo, RR_combo;
@@ -208,32 +208,44 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 	                      .BtnU(Up_Pulse), .Reset(Reset), .q_Init(q_Init),
 	                      .q_Play(q_Play), .q_GameOver(q_GameOver), 
 						  .play_flag(play_flag), .gameover_ctrl(gameover_ctrl));
-						  
-	nexys_starship_BM nexys_starship_BM_1(.Clk(sys_clk), .Reset(Reset), .q_BM_Init(q_BM_Init), 
-	                      .q_BM_Empty(q_BM_Empty), .q_BM_Full(q_BM_Full), .play_flag(play_flag), 
-                          .btm_monster_sm(btm_monster_sm), .btm_monster_ctrl(btm_monster_ctrl),
-                          .btm_random(btm_random), .btm_gameover(btm_gameover), 
-                          .gameover_ctrl(gameover_ctrl), .timer_clk(timer_clk));
                            
 	nexys_starship_TM nexys_starship_TM_1(.Clk(sys_clk), .Reset(Reset), .q_TM_Init(q_TM_Init), 
 	                      .q_TM_Empty(q_TM_Empty), .q_TM_Full(q_TM_Full), .play_flag(play_flag), 
                           .top_monster_sm(top_monster_sm), .top_monster_ctrl(top_monster_ctrl),
                           .top_random(top_random), .top_gameover(top_gameover), 
                           .gameover_ctrl(gameover_ctrl), .timer_clk(timer_clk));
+                          
+    nexys_starship_BM nexys_starship_BM_1(.Clk(sys_clk), .Reset(Reset), .q_BM_Init(q_BM_Init), 
+	                      .q_BM_Empty(q_BM_Empty), .q_BM_Full(q_BM_Full), .play_flag(play_flag), 
+                          .btm_monster_sm(btm_monster_sm), .btm_monster_ctrl(btm_monster_ctrl),
+                          .btm_random(btm_random), .btm_gameover(btm_gameover), 
+                          .gameover_ctrl(gameover_ctrl), .timer_clk(timer_clk));
+    
+    nexys_starship_LM nexys_starship_LM_1(.Clk(sys_clk), .Reset(Reset), .q_LM_Init(q_TM_Init), 
+	                      .q_LM_Empty(q_LM_Empty), .q_LM_Full(q_LM_Full), .play_flag(play_flag), 
+                          .left_monster(left_monster), .left_shield(left_shield),
+                          .left_random(top_random), .left_gameover(left_gameover), 
+                          .gameover_ctrl(gameover_ctrl), .timer_clk(timer_clk));
+                          
+    nexys_starship_RM nexys_starship_RM_1(.Clk(sys_clk), .Reset(Reset), .q_RM_Init(q_RM_Init), 
+	                      .q_RM_Empty(q_RM_Empty), .q_RM_Full(q_RM_Full), .play_flag(play_flag), 
+                          .right_monster(right_monster), .right_shield(right_shield),
+                          .right_random(right_random), .right_gameover(right_gameover), 
+                          .gameover_ctrl(gameover_ctrl), .timer_clk(timer_clk));
 					  
 	nexys_starship_TR nexys_starship_TR_1(.Clk(sys_clk), .Reset(Reset), .q_TR_Init(q_TR_Init), 
 	                       .q_TR_Working(q_TR_Working), .q_TR_Repair(q_TR_Repair), .BtnU(Up_Pulse),
-                            .play_flag(play_flag), .top_broken(top_broken), .hex_combo(hex_combo), 
-                            .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
-                            .TR_random(TR_random), .BtnR(Right_Pulse),
-                            .TR_combo(TR_combo));
+                           .play_flag(play_flag), .top_broken(top_broken), .hex_combo(hex_combo), 
+                           .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
+                           .TR_random(TR_random), .BtnR(Right_Pulse),
+                           .TR_combo(TR_combo));
                             
 	nexys_starship_BR nexys_starship_BR_1(.Clk(sys_clk), .Reset(Reset), .q_BR_Init(q_BR_Init), 
 	                       .q_BR_Working(q_BR_Working), .q_BR_Repair(q_BR_Repair), .BtnD(Down_Pulse),
-                            .play_flag(play_flag), .btm_broken(btm_broken), .hex_combo(hex_combo), 
-                            .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
-                            .BR_random(BR_random), .BtnR(Right_Pulse),
-                            .BR_combo(BR_combo));                            
+                           .play_flag(play_flag), .btm_broken(btm_broken), .hex_combo(hex_combo), 
+                           .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
+                           .BR_random(BR_random), .BtnR(Right_Pulse),
+                           .BR_combo(BR_combo));                            
 				  
 	// random modules
 	nexys_starship_PRNG nexys_starship_PRNG_1(.Clk(random_clk), .Reset(Reset),
@@ -243,14 +255,17 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
                       
 	
 	// vga modules
-	display_controller dc(.Clk(sys_clk), .hSync(hSync), .vSync(vSync), .bright(bright), .hCount(hc), .vCount(vc));
+	display_controller dc(.Clk(sys_clk), .hSync(hSync), .vSync(vSync), .bright(bright), .hCount(hc), 
+	                    .vCount(vc));
 	
 	block_controller sc(.Clk(move_clk), .bright(bright), .Reset(Reset), .up(BtnU), .down(BtnD),
 	                       .left(BtnL), .right(BtnR), .hCount(hc), .vCount(vc), .rgb(rgb),
 	                       .top_monster_vga(top_monster_vga), .top_monster_ctrl(top_monster_ctrl), 
 	                       .top_broken(top_broken), .btm_monster_vga(btm_monster_vga), 
 	                       .btm_monster_ctrl(btm_monster_ctrl), .btm_broken(btm_broken),
-	                       .left_monster(left_monster), .right_monster(right_monster),
+	                       .left_monster(left_monster), .left_shield(left_shield), 
+	                       .left_broken(left_broken), .right_monster(right_monster),
+	                       .right_shield(right_shield), .right_broken(right_broken),
 	                       .sysClk(sys_clk), .TR_combo(TR_combo), .BR_combo(BR_combo));
 //------------
 // SHARED REGISTERS 
@@ -278,7 +293,7 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
   //      else if (q_Init || q_BM_Init || q_TM_Init)   
    //         gameover_ctrl <= 0; 
         else
-            gameover_ctrl <= top_gameover || btm_gameover; 
+            gameover_ctrl <= top_gameover || btm_gameover || left_gameover || right_gameover; 
     end
 
 //------------
@@ -290,8 +305,8 @@ ee354_debouncer #(.N_dc(28)) ee354_debouncer_4
 //------------
 // OUTPUT: LEDS
 	
-	assign {Ld7, Ld6, Ld5, Ld4} = {q_BM_Init, q_BM_Full, btm_monster_ctrl, btm_monster_sm};
-	assign {Ld3, Ld2, Ld1, Ld0} = {q_GameOver, top_gameover, btm_gameover, gameover_ctrl}; // Reset is driven by BtnC
+	assign {Ld7, Ld6, Ld5, Ld4} = {q_LM_Init, q_LM_Full, q_LM_Empty, left_monster};
+	assign {Ld3, Ld2, Ld1, Ld0} = {left_shield, q_GameOver, left_gameover, gameover_ctrl}; // Reset is driven by BtnC
 
 //------------
 // SSD (Seven Segment Display)
