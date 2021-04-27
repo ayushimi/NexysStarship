@@ -31,6 +31,7 @@ module nexys_starship_BR(Clk, Reset, q_BR_Init, q_BR_Working , q_BR_Repair, BtnD
 	reg [7:0] btm_delay;
     reg break_shooter;
 	
+	// Responsible for delay timer to create buffer between needed repairs 
     always @ (posedge timer_clk, posedge Reset)
 	begin
 	   if (Reset || state == INIT || state == REPAIR)
@@ -39,7 +40,7 @@ module nexys_starship_BR(Clk, Reset, q_BR_Init, q_BR_Working , q_BR_Repair, BtnD
 	       btm_delay <= btm_delay + 1;
 	end
 
-	// NSL AND SM
+	// NSL for State Machine 
 	always @ (posedge Clk, posedge Reset)
 	begin 
 		if(Reset) 
@@ -52,20 +53,21 @@ module nexys_starship_BR(Clk, Reset, q_BR_Init, q_BR_Working , q_BR_Repair, BtnD
 				case(state)	
 					INIT:
 					begin
-						// state transfers
+						/* STATE TRANSFERS */ 
 						if (play_flag) state <= WORKING;
 						
-						// data transfers
+						/* DATA TRANSFERS */
 						btm_broken <= 0;
 						BR_combo <= 0;
 					end		
 					WORKING: 
 					begin
-					    // state transfers
+					    /* STATE TRANSFERS */ 
 					    if (btm_broken) state <= REPAIR;
 						if (gameover_ctrl) state <= INIT;
 						
-					    // data transfers 
+					    /* DATA TRANSFERS */ 
+					    // Randomly breaks 
 					    if (btm_delay == 1)
 					       break_shooter <= 1;
 					    if (BR_random && break_shooter) 
@@ -77,11 +79,13 @@ module nexys_starship_BR(Clk, Reset, q_BR_Init, q_BR_Working , q_BR_Repair, BtnD
 					end
 					REPAIR:
 					begin
-						// state transfers
+						/* STATE TRANSFERS */ 
 						if (!btm_broken) state <= WORKING;	
 						if (gameover_ctrl) state <= INIT;
 						
-    					// data transfers
+    					//* DATA TRANSFERS */
+    					// If submit button pressed and correct switch input,
+    					// repair broken part
 						if (BtnD)
 						begin
 							if (hex_combo == BR_combo)
@@ -94,7 +98,4 @@ module nexys_starship_BR(Clk, Reset, q_BR_Init, q_BR_Working , q_BR_Repair, BtnD
 				endcase
 	end
 		
-	// OFL
-	// no combinational output signals
-	
 endmodule

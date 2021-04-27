@@ -1,19 +1,17 @@
 //////////////////////////////////////////////////////////////////////////////////
 // Author:			Ayushi Mittal, Kelly Chan
 // Create Date:   	04/10/21
-// File Name:		nexys_starship.v 
-// Description: 	Main file for Nexys Starship (EE 354 Final Project).
-//
-//
+// File Name:		nexys_starship_RR.v 
+// Description: 	Right Repair SM file for Nexys Starship (EE 354 Final Project).
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnR,
+module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnL,
                             play_flag, right_broken, hex_combo, random_hex, gameover_ctrl,
-							RR_random, RR_combo, timer_clk);
+                            RR_random, RR_combo, timer_clk);
 
 	/*  INPUTS */
-	input Clk, Reset, BtnR, timer_clk;
+	input Clk, Reset, BtnL, timer_clk;
 	input play_flag, gameover_ctrl;	
 	input [3:0] hex_combo, random_hex;
 	input RR_random;
@@ -32,8 +30,9 @@ module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnR
     // Delay
 	reg [7:0] right_delay;
     reg break_shield;
-    
-	always @ (posedge timer_clk, posedge Reset)
+	
+	// Responsible for delay timer to create buffer between needed repairs 
+    always @ (posedge timer_clk, posedge Reset)
 	begin
 	   if (Reset || state == INIT || state == REPAIR)
 	       right_delay <= 0;
@@ -41,7 +40,7 @@ module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnR
 	       right_delay <= right_delay + 1;
 	end
 
-	// NSL AND SM
+	// NSL for State Machine 
 	always @ (posedge Clk, posedge Reset)
 	begin 
 		if(Reset) 
@@ -54,20 +53,21 @@ module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnR
 				case(state)	
 					INIT:
 					begin
-						// state transfers
+						/* STATE RRANSFERS */ 
 						if (play_flag) state <= WORKING;
 						
-						// data transfers
+						/* DATA RRANSFERS */
 						right_broken <= 0;
 						RR_combo <= 0;
 					end		
 					WORKING: 
 					begin
-					    // state transfers
+					    /* STATE RRANSFERS */ 
 					    if (right_broken) state <= REPAIR;
 						if (gameover_ctrl) state <= INIT;
 						
-					    // data transfers 
+					    /* DATA RRANSFERS */ 
+					    // Randomly breaks 
 					    if (right_delay == 1)
 					       break_shield <= 1;
 					    if (RR_random && break_shield) 
@@ -79,24 +79,23 @@ module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnR
 					end
 					REPAIR:
 					begin
-						// state transfers
+						/* STATE RRANSFERS */ 
 						if (!right_broken) state <= WORKING;	
 						if (gameover_ctrl) state <= INIT;
 						
-    					// data transfers
-						if (BtnR)
+    					//* DATA RRANSFERS */
+    					// If submit button pressed and correct switch input,
+    					// repair broken part
+						if (BtnU)
 						begin
 							if (hex_combo == RR_combo)
-								right_broken = 0;
+								right_broken <= 0;
 						end
 					end
-						
+					
 					default:		
 						state <= UNK;
 				endcase
 	end
 		
-	// OFL
-	// no combinational output signals
-	
 endmodule
