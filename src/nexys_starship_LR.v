@@ -1,38 +1,37 @@
 //////////////////////////////////////////////////////////////////////////////////
 // Author:			Ayushi Mittal, Kelly Chan
 // Create Date:   	04/10/21
-// File Name:		nexys_starship.v 
-// Description: 	Main file for Nexys Starship (EE 354 Final Project).
-//
-//
+// File Name:		nexys_starship_LR.v 
+// Description: 	Left Repair SM file for Nexys Starship (EE 354 Final Project).
 //////////////////////////////////////////////////////////////////////////////////
 
 
 module nexys_starship_LR(Clk, Reset, q_LR_Init, q_LR_Working , q_LR_Repair, BtnL,
                             play_flag, left_broken, hex_combo, random_hex, gameover_ctrl,
-                            LR_random, BtnR, LR_combo, timer_clk);
+                            LR_random, LR_combo, timer_clk);
 
 	/*  INPUTS */
-	input	Clk, Reset, BtnL, gameover_ctrl;	
-	input   play_flag;
+	input Clk, Reset, BtnL, timer_clk;
+	input play_flag, gameover_ctrl;	
 	input [3:0] hex_combo, random_hex;
-	input   LR_random;
-	input   BtnR;
-	input   timer_clk;
+	input LR_random;
 
 	/*  OUTPUTS */
 	output reg left_broken;	
-	output q_LR_Init, q_LR_Working , q_LR_Repair;
 	output reg [3:0] LR_combo;
+	output q_LR_Init, q_LR_Working , q_LR_Repair;
+	
 	reg [2:0] state;
 	assign {q_LR_Repair, q_LR_Working , q_LR_Init} = state;
 		
 	localparam 	
 	INIT = 3'b001, WORKING = 3'b010, REPAIR = 3'b100, UNK = 3'bXXX;
     
-    reg [7:0] left_delay;
+    // Delay
+	reg [7:0] left_delay;
     reg break_shield;
-    always @ (posedge timer_clk, posedge Reset)
+    
+	always @ (posedge timer_clk, posedge Reset)
 	begin
 	   if (Reset || state == INIT || state == REPAIR)
 	       left_delay <= 0;
@@ -55,6 +54,7 @@ module nexys_starship_LR(Clk, Reset, q_LR_Init, q_LR_Working , q_LR_Repair, BtnL
 					begin
 						// state transfers
 						if (play_flag) state <= WORKING;
+						
 						// data transfers
 						left_broken <= 0;
 						LR_combo <= 0;
@@ -64,6 +64,7 @@ module nexys_starship_LR(Clk, Reset, q_LR_Init, q_LR_Working , q_LR_Repair, BtnL
 					    // state transfers
 					    if (left_broken) state <= REPAIR;
 						if (gameover_ctrl) state <= INIT;
+						
 					    // data transfers 
 					    if (left_delay == 1)
 					       break_shield <= 1;
@@ -79,15 +80,14 @@ module nexys_starship_LR(Clk, Reset, q_LR_Init, q_LR_Working , q_LR_Repair, BtnL
 						// state transfers
 						if (!left_broken) state <= WORKING;	
 						if (gameover_ctrl) state <= INIT;
+						
     					// data transfers
 						if (BtnL)
 						begin
 							if (hex_combo == LR_combo)
 								left_broken = 0;
 						end
-                        if (BtnR)
-                            left_broken = 0;
-						end
+					end
 						
 					default:		
 						state <= UNK;

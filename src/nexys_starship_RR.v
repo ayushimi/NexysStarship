@@ -10,28 +10,30 @@
 
 module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnR,
                             play_flag, right_broken, hex_combo, random_hex, gameover_ctrl,
-                            RR_random, RR_combo, timer_clk);
+							RR_random, RR_combo, timer_clk);
 
 	/*  INPUTS */
-	input	Clk, Reset, BtnR, gameover_ctrl;	
-	input   play_flag;
+	input Clk, Reset, BtnR, timer_clk;
+	input play_flag, gameover_ctrl;	
 	input [3:0] hex_combo, random_hex;
-	input   RR_random;
-	input   timer_clk;
+	input RR_random;
 
 	/*  OUTPUTS */
 	output reg right_broken;	
-	output q_RR_Init, q_RR_Working , q_RR_Repair;
 	output reg [3:0] RR_combo;
+	output q_RR_Init, q_RR_Working , q_RR_Repair;
+	
 	reg [2:0] state;
 	assign {q_RR_Repair, q_RR_Working , q_RR_Init} = state;
 		
 	localparam 	
 	INIT = 3'b001, WORKING = 3'b010, REPAIR = 3'b100, UNK = 3'bXXX;
     
-    reg [7:0] right_delay;
+    // Delay
+	reg [7:0] right_delay;
     reg break_shield;
-    always @ (posedge timer_clk, posedge Reset)
+    
+	always @ (posedge timer_clk, posedge Reset)
 	begin
 	   if (Reset || state == INIT || state == REPAIR)
 	       right_delay <= 0;
@@ -54,6 +56,7 @@ module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnR
 					begin
 						// state transfers
 						if (play_flag) state <= WORKING;
+						
 						// data transfers
 						right_broken <= 0;
 						RR_combo <= 0;
@@ -63,6 +66,7 @@ module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnR
 					    // state transfers
 					    if (right_broken) state <= REPAIR;
 						if (gameover_ctrl) state <= INIT;
+						
 					    // data transfers 
 					    if (right_delay == 1)
 					       break_shield <= 1;
@@ -78,15 +82,14 @@ module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnR
 						// state transfers
 						if (!right_broken) state <= WORKING;	
 						if (gameover_ctrl) state <= INIT;
+						
     					// data transfers
 						if (BtnR)
 						begin
 							if (hex_combo == RR_combo)
 								right_broken = 0;
 						end
-                        if (BtnR)
-                            right_broken = 0;
-						end
+					end
 						
 					default:		
 						state <= UNK;
