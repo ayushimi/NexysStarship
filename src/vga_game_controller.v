@@ -15,70 +15,92 @@ module vga_game_controller (
 	input [3:0] TR_combo, BR_combo, LR_combo, RR_combo,
 	input play_flag, gameover_ctrl
    );
-	wire spaceship_black_fill;
-    wire sweat_drop_fill, sweaty_face_fill, rim_mask_fill;
-    wire sweat_fill;
-	wire left_stub_fill; 
-	wire right_stub_fill; 
+   
+    // NOTE: Top left corner corresponds to (hcount,vcount)~(144,35)
+    
+	// Background tunnels
 	wire tunnel_blue_fill;
-	wire light_gray_fill;
-	wire light_blue_fill;
-	wire left_shield_fill, right_shield_fill;
-	wire LS_mask_fill, RS_mask_fill, spaceship_mask_fill; 
-	wire black_fill;
-	wire head_fill;
-	wire top_dark_gray_fill, btm_dark_gray_fill, top_medium_gray_fill, btm_medium_gray_fill;
-	wire TM_black_fill, TM_red_fill, TM_cream_fill, TM_mask_fill, top_green_fill;
-	wire BM_black_fill, BM_red_fill, BM_cream_fill, BM_mask_fill, btm_green_fill;
-	wire LM_black_fill, LM_blue_fill, LM_cream_fill, LM_mask_fill, LM_red_fill, left_red_fill; 
-	wire RM_black_fill, RM_blue_fill, RM_cream_fill, RM_mask_fill, RM_red_fill, right_red_fill; 
-	wire T0_fill, T1_fill, T2_fill, T3_fill, T4_fill, T5_fill, T6_fill, T7_fill, T8_fill, T9_fill;
-	wire B0_fill, B1_fill, B2_fill, B3_fill, B4_fill, B5_fill, B6_fill, B7_fill, B8_fill, B9_fill;
-	wire L0_fill, L1_fill, L2_fill, L3_fill, L4_fill, L5_fill, L6_fill, L7_fill, L8_fill, L9_fill;
-	wire R0_fill, R1_fill, R2_fill, R3_fill, R4_fill, R5_fill, R6_fill, R7_fill, R8_fill, R9_fill;
-	wire TA_fill, TB_fill, TC_fill, TD_fill, TE_fill, TF_fill; 
-	wire BA_fill, BB_fill, BC_fill, BD_fill, BE_fill, BF_fill; 
-	wire LA_fill, LB_fill, LC_fill, LD_fill, LE_fill, LF_fill; 
-	wire RA_fill, RB_fill, RC_fill, RD_fill, RE_fill, RF_fill; 
-	
-	wire multiple_broken;
 
+	// Spaceship
+	wire face_black_fill, head_fill;
+	wire light_gray_fill, light_blue_fill, pink_fill;
+	wire top_dark_gray_fill, btm_dark_gray_fill, top_medium_gray_fill, btm_medium_gray_fill;
+	wire left_stub_fill, right_stub_fill;
+	wire left_shield_fill, right_shield_fill;
+	// Masks for left and right monsters' lasers
+	wire LS_mask_fill, RS_mask_fill, spaceship_mask_fill; 
+	// Sweaty face
+	wire sweat_drop_fill, sweaty_face_fill, rim_mask_fill;
+	wire sweaty_fill;
+	wire spaceship_display_fill;
+	
+	// Top and bottom lasers
+	wire top_green_fill, btm_green_fill;
+
+	// Monsters
+	wire TM_red_fill, TM_black_fill, TM_cream_fill, TM_mask_fill;
+	wire TM_display_fill;
+	wire BM_red_fill, BM_black_fill, BM_cream_fill, BM_mask_fill;
+	wire BM_display_fill;
+	wire LM_blue_fill, LM_black_fill, LM_cream_fill, LM_mask_fill, LM_red_fill, left_red_fill; 
+	wire LM_display_fill;
+	wire RM_blue_fill, RM_black_fill, RM_cream_fill, RM_mask_fill, RM_red_fill, right_red_fill;
+	wire RM_display_fill;
+	
+	// Hex characters at each terminal
+	wire T0_fill, T1_fill, T2_fill, T3_fill, T4_fill, T5_fill, T6_fill, T7_fill, T8_fill, T9_fill;
+	wire TA_fill, TB_fill, TC_fill, TD_fill, TE_fill, TF_fill; 
+	wire B0_fill, B1_fill, B2_fill, B3_fill, B4_fill, B5_fill, B6_fill, B7_fill, B8_fill, B9_fill;
+	wire BA_fill, BB_fill, BC_fill, BD_fill, BE_fill, BF_fill; 
+	wire L0_fill, L1_fill, L2_fill, L3_fill, L4_fill, L5_fill, L6_fill, L7_fill, L8_fill, L9_fill;
+	wire LA_fill, LB_fill, LC_fill, LD_fill, LE_fill, LF_fill; 
+	wire R0_fill, R1_fill, R2_fill, R3_fill, R4_fill, R5_fill, R6_fill, R7_fill, R8_fill, R9_fill;
+	wire RA_fill, RB_fill, RC_fill, RD_fill, RE_fill, RF_fill; 
+	reg top_hex_fill, btm_hex_fill, left_hex_fill, right_hex_fill;
+
+	// For laser shooting animation
 	reg signed [10:0] top_laser, btm_laser, left_laser, right_laser;
 	reg top_shooting, btm_shooting;
-	reg top_hex_fill, btm_hex_fill, left_hex_fill, right_hex_fill;
+
+	// Used for determining if 2+ parts are broken
+	// Triggers sweaty face
+	wire [2:0] num_broken;
+	wire multiple_broken;
+	
+	// For sweat drop animation
 	reg signed [10:0] sweat_pos;
 	reg sweating;
+
 	
-	wire [2:0] num_broken;
-	
-	parameter RED   = 12'b1111_0000_0000;
-	parameter BLACK = 12'b0000_0000_0000;
-	parameter GREY = 12'b1100_1100_1100;
-	parameter LIGHT_BLUE = 12'b1001_1101_1111;
-	parameter PINK = 12'b1111_1000_1000;
-	parameter DARK_GREY = 12'b0110_0110_0110;
-	parameter MEDIUM_GREY = 12'b1001_1001_1001;
-	parameter BACKGROUND = 12'b0000_1000_1010; // sky blue
-	parameter BACKGROUND2 = 12'b0000_0001_0100; // dark blue
-	parameter TAN = 12'b1110_1011_1000; // EB8 
-	parameter GREEN = 12'b0001_1111_0000;
-	parameter CREAM = 12'b1111_1110_1011;
-	parameter TUNNEL_BLUE = 12'b0000_0001_0101;
-	parameter DISABLED_DARK_SHADE = 12'b0001_0001_0001; 
-	parameter DISABLED_MEDIUM_SHADE = 12'b0010_0010_0010; 
-    parameter TEXT_BABY_BLUE = 12'b1001_1100_1111;
-    parameter BLUE = 12'b0011_1001_1111; //3399FF blue monster 
-    parameter SWEAT_BLUE = 12'b0101_1010_1110; // 55AAEE
+	// Color parameters
+	parameter RED   = 12'b1111_0000_0000; // [F00] TM+BM, LM+RM lasers/eyes
+	parameter BLACK = 12'b0000_0000_0000; // [000] monster+face features, spaceship silhouette
+	parameter GREY = 12'b1100_1100_1100; // [CCC] spaceship body
+	parameter LIGHT_BLUE = 12'b1001_1101_1111; // [9DF] spaceship window
+	parameter PINK = 12'b1111_1000_1000; // [F88] shields, spaceship lights
+	parameter DARK_GREY = 12'b0110_0110_0110; // [666] shooters
+	parameter MEDIUM_GREY = 12'b1001_1001_1001; // [999] shooters
+	parameter BACKGROUND_BLUE = 12'b0000_0001_0100; // [014] background
+	parameter TAN = 12'b1110_1011_1000; // [EB8] head
+	parameter GREEN = 12'b0001_1111_0000; // [1F0] top+bottom lasers
+	parameter CREAM = 12'b1111_1110_1011; // [FEB] eyeballs
+	parameter TUNNEL_BLUE = 12'b0000_0001_0101; // [015] tunnels
+	parameter DISABLED_DARK_SHADE = 12'b0001_0001_0001; // [111] broken parts
+	parameter DISABLED_MEDIUM_SHADE = 12'b0010_0010_0010; // [222] broken parts 
+    parameter TEXT_BABY_BLUE = 12'b1001_1100_1111; // [9CF] hex text
+    parameter BLUE = 12'b0011_1001_1111; //[39F] LM+RM 
+    parameter SWEAT_BLUE = 12'b0101_1010_1110; // [5AE] sweat drop
     
-    parameter TOP_H = 314, TOP_V = 130;
+    // Hex terminal positions
+	parameter TOP_H = 314, TOP_V = 130;
     parameter BTM_H = 314, BTM_V = 336; 
     parameter LEFT_H = 230, LEFT_V = 250; 
     parameter RIGHT_H = 398, RIGHT_V = 250; 
     
     
-	/*when outputting the rgb value in an always block like this, make sure to include the if(~bright) statement, as this ensures the monitor 
-	will output some data to every pixel and not just the images you are trying to display*/
 	always@ (*) begin
+		
+		// Assign appropriate hex code fills according to repair combos
     	if (top_broken)
 		begin
 			case (TR_combo)
@@ -171,18 +193,19 @@ module vga_game_controller (
 			endcase
 		end
 		
-		if(~bright )	//force black if not inside the display area
-			rgb = 12'b0000_0000_0000;
-		else if (!play_flag && spaceship_display_fill)
+		// RGB assignment
+		if(~bright) // force black if not inside the display area
+			rgb = BLACK;
+		else if (!play_flag && spaceship_display_fill) // spaceship silhouette
 		  begin
 				if (!spaceship_mask_fill)
 				    rgb = BLACK;
 			    else if (gameover_ctrl)
-				    rgb = BACKGROUND2;
+				    rgb = BACKGROUND;
 				else
 				    rgb = TUNNEL_BLUE;
 		  end
-	    else if (multiple_broken && sweat_fill)
+	    else if (multiple_broken && sweaty_fill) // sweaty face
 	      begin
 	            if (sweaty_face_fill)
 	               rgb = BLACK;
@@ -191,31 +214,25 @@ module vga_game_controller (
 	            else if (sweat_drop_fill)
 	               rgb = SWEAT_BLUE;
 	      end
-        else if (top_broken && (top_medium_gray_fill || top_dark_gray_fill))
+        else if (top_broken && (top_medium_gray_fill || top_dark_gray_fill)) // disabled top shooter
           begin 
                 if (top_medium_gray_fill)
                     rgb = DISABLED_MEDIUM_SHADE; 
                 else if (top_dark_gray_fill)
                     rgb = DISABLED_DARK_SHADE; 
           end 
-        else if (btm_broken && (btm_medium_gray_fill || btm_dark_gray_fill))
+        else if (btm_broken && (btm_medium_gray_fill || btm_dark_gray_fill)) // disabled bottom shooter
           begin 
                 if (btm_medium_gray_fill)
                     rgb = DISABLED_MEDIUM_SHADE; 
                 else if (btm_dark_gray_fill)
                     rgb = DISABLED_DARK_SHADE; 
-          end 
-        else if (left_broken && left_stub_fill)
-                    rgb = DISABLED_DARK_SHADE; 
-        else if (right_broken && right_stub_fill)
-                    rgb = DISABLED_DARK_SHADE;                
-        else if (btm_broken && (btm_medium_gray_fill || btm_dark_gray_fill))
-          begin 
-                if (btm_medium_gray_fill)
-                    rgb = DISABLED_MEDIUM_SHADE; 
-                else if (btm_dark_gray_fill)
-                    rgb = DISABLED_DARK_SHADE; 
-          end 
+          end
+        else if (left_broken && left_stub_fill) // disabled left shield
+			rgb = DISABLED_DARK_SHADE; 
+        else if (right_broken && right_stub_fill) // disabled right shield
+			rgb = DISABLED_DARK_SHADE; 
+		// repair combo at each terminal if broken
 		else if (top_broken && top_hex_fill)
 			rgb = TEXT_BABY_BLUE;
 		else if (btm_broken && btm_hex_fill)
@@ -224,9 +241,9 @@ module vga_game_controller (
 			rgb = TEXT_BABY_BLUE;
 		else if (right_broken && right_hex_fill)
 			rgb = TEXT_BABY_BLUE;
-		else if (!multiple_broken && spaceship_black_fill)
+		else if (!multiple_broken && face_black_fill) // non-sweaty face
             rgb = BLACK;
-		else if (spaceship_display_fill)
+		else if (spaceship_display_fill) // rest of spaceship
 		  begin
 				if (head_fill)
 					rgb = TAN;
@@ -243,7 +260,8 @@ module vga_game_controller (
 				else if (spaceship_mask_fill)
 				    rgb = TUNNEL_BLUE; 
 		  end
-		else if (left_shield && left_shield_fill) 
+		// left and right shields + masks
+		else if (left_shield && left_shield_fill)
 	       rgb = PINK; 
 	    else if (left_shield && LS_mask_fill) 
 	       rgb = TUNNEL_BLUE; 
@@ -251,6 +269,7 @@ module vga_game_controller (
 		   rgb = PINK;
 		else if (right_shield && RS_mask_fill) 
 		   rgb = TUNNEL_BLUE; 
+		// monsters
 		else if (TM_display_fill)
           begin
                 if (TM_black_fill)
@@ -299,27 +318,47 @@ module vga_game_controller (
                 else if (RM_mask_fill)
                     rgb = TUNNEL_BLUE;
           end
-        else if (top_green_fill || btm_green_fill)
+        else if (top_green_fill || btm_green_fill) // top and bottom lasers
             rgb = GREEN;
-        else if (left_red_fill && left_monster)
+        else if (left_red_fill && left_monster) // left monster laser
             rgb = RED;
-        else if (right_red_fill && right_monster)
+        else if (right_red_fill && right_monster) // right monster laser
             rgb = RED; 
-		else if (!gameover_ctrl && tunnel_blue_fill)
+		else if (!gameover_ctrl && tunnel_blue_fill) // tunnels
 			rgb = TUNNEL_BLUE;
-		else	
-			rgb=BACKGROUND2;
+		else // background
+			rgb=BACKGROUND;
 	end
 	
-    assign num_broken = top_broken + btm_broken + left_broken + right_broken;
+    // Determining if multiple (2+) parts broken
+	assign num_broken = top_broken + btm_broken + left_broken + right_broken;
     assign multiple_broken = (num_broken >= 2);
-
+	
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BACKGROUND TUNNELS
 	assign tunnel_blue_fill = 
         (hCount>=(144+220)&&hCount<=(144+220+200)&&vCount>=(35)&&vCount<=(35+480)) // vertical tunnel 
         || (hCount>=(144)&&hCount<=(144+640)&&vCount>=(35+171)&&vCount<=(35+171+159)); // horizontal tunnel 
-
+		
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// SPACESHIP
+	// Black facial features
+	assign face_black_fill = 
+	    (hCount>=(144+302)&&hCount<=(144+302+36)&&vCount>=(35+217)&&vCount<=(35+217+7)) // eyebrows / headband 
+		|| (hCount>=(144+309)&&hCount<=(144+309+5)&&vCount>=(35+224)&&vCount<=(35+224+3)) // left eye
+		|| (hCount>=(144+326)&&hCount<=(144+326+5)&&vCount>=(35+224)&&vCount<=(35+224+3)) // right eye
+		|| (hCount>=(144+310)&&hCount<=(144+310+5)&&vCount>=(35+236)&&vCount<=(35+236+3)) // left mouth 
+		|| (hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+238)&&vCount<=(35+238+3)) // mid mouth
+		|| (hCount>=(144+325)&&hCount<=(144+325+5)&&vCount>=(35+236)&&vCount<=(35+236+3)) // right mouth  
+		|| (hCount>=(144+314)&&hCount<=(144+314+3)&&vCount>=(35+211)&&vCount<=(35+211+2)) // left hair strand  
+		|| (hCount>=(144+319)&&hCount<=(144+319+3)&&vCount>=(35+208)&&vCount<=(35+208+5)) // mid hair strand  
+		|| (hCount>=(144+324)&&hCount<=(144+324+2)&&vCount>=(35+211)&&vCount<=(35+211+2)); // right hair strand  
 	
-	// gray spaceship body
+	// Spaceship dude head
+	assign head_fill = 
+	    (hCount>=(144+303)&&hCount<=(144+303+34)&&vCount>=(35+214)&&vCount<=(35+214+34)); // head
+	
+	// Gray spaceship body
 	assign light_gray_fill = 
 		(hCount>=(144+248)&&hCount<=(144+248+144)&&vCount>=(35+248)&&vCount<=(35+248+20)) // middle
 		|| (hCount>=(144+263)&&hCount<=(144+263+114)&&vCount>=(35+225)&&vCount<=(35+225+23)) // top
@@ -327,7 +366,7 @@ module vga_game_controller (
 		|| (hCount>=(144+273)&&hCount<=(144+273+16)&&vCount>=(35+288)&&vCount<=(35+288+20)) // left leg
 		|| (hCount>=(144+351)&&hCount<=(144+351+16)&&vCount>=(35+288)&&vCount<=(35+288+20)); // right leg
 	
-	// light blue window
+	// Light blue window
 	assign light_blue_fill = 
 		(hCount>=(144+281)&&hCount<=(144+281+78)&&vCount>=(35+207)&&vCount<=(35+207+7)) // second strip
 		|| (hCount>=(144+289)&&hCount<=(144+289+62)&&vCount>=(35+199)&&vCount<=(35+199+8)) // third strip
@@ -336,23 +375,13 @@ module vga_game_controller (
 		|| (hCount>=(144+289)&&hCount<=(144+289+62)&&vCount>=(35+235)&&vCount<=(35+235+13)) // lower bottom strip
 		|| (hCount>=(144+297)&&hCount<=(144+297+46)&&vCount>=(35+194)&&vCount<=(35+194+5)); // top window
 	
-	// shields - move to other always block for inputs?	
-	assign left_shield_fill =
-		(hCount>=(144+227)&&hCount<=(144+227+10)&&vCount>=(35+205)&&vCount<=(35+205+105)) // left outer shield 
-		|| (hCount>=(144+237)&&hCount<=(144+237+11)&&vCount>=(35+200)&&vCount<=(35+200+115));// left inner shield
+	// Pink lights
+	assign pink_fill =
+		(hCount>=(144+271)&&hCount<=(144+271+14)&&vCount>=(35+250)&&vCount<=(35+250+14)) // left light
+		|| (hCount>=(144+313)&&hCount<=(144+313+14)&&vCount>=(35+258)&&vCount<=(35+258+14)) // middle light
+		|| (hCount>=(144+354)&&hCount<=(144+354+14)&&vCount>=(35+250)&&vCount<=(35+250+14)); // right light
 	
-	assign LS_mask_fill = 
-	    (hCount>=(144+248)&&hCount<=(144+248+25)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top left mask shield 
-		|| (hCount>=(144+248)&&hCount<=(144+248+25)&&vCount>=(35+291)&&vCount<=(35+291+4));// bottom left mask shield
-	
-	assign right_shield_fill = 
-		(hCount>=(144+402)&&hCount<=(144+402+10)&&vCount>=(35+205)&&vCount<=(35+205+105)) // right outer shield
-		|| (hCount>=(144+392)&&hCount<=(144+392+11)&&vCount>=(35+200)&&vCount<=(35+200+115)); // right inner shield
-	
-	assign RS_mask_fill = 
-		(hCount>=(144+367)&&hCount<=(144+367+25)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top right mask shield 
-		|| (hCount>=(144+367)&&hCount<=(144+367+25)&&vCount>=(35+291)&&vCount<=(35+291+4));// bottom right mask shield
-	// cannons
+	// Shooters
 	assign top_dark_gray_fill =
 		(hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+152)&&vCount<=(35+152+10)) // top cannon tip
 		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+162)&&vCount<=(35+162+30)); // top cannon body
@@ -369,42 +398,36 @@ module vga_game_controller (
 		(hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+288)&&vCount<=(35+288+2)) // bottom cannon base
 		|| (hCount>=(144+309)&&hCount<=(144+309+22)&&vCount>=(35+312)&&vCount<=(35+312+4)); // bottom cannon strip
 	
-	// lights
-	assign pink_fill =
-		(hCount>=(144+271)&&hCount<=(144+271+14)&&vCount>=(35+250)&&vCount<=(35+250+14)) // left light
-		|| (hCount>=(144+313)&&hCount<=(144+313+14)&&vCount>=(35+258)&&vCount<=(35+258+14)) // middle light
-		|| (hCount>=(144+354)&&hCount<=(144+354+14)&&vCount>=(35+250)&&vCount<=(35+250+14)); // right light
-	
-	// 
-	assign head_fill = 
-	    (hCount>=(144+303)&&hCount<=(144+303+34)&&vCount>=(35+214)&&vCount<=(35+214+34)); // head
-	    
-	assign spaceship_black_fill = 
-	    (hCount>=(144+302)&&hCount<=(144+302+36)&&vCount>=(35+217)&&vCount<=(35+217+7)) // eyebrows / headband 
-		|| (hCount>=(144+309)&&hCount<=(144+309+5)&&vCount>=(35+224)&&vCount<=(35+224+3)) // left eye
-		|| (hCount>=(144+326)&&hCount<=(144+326+5)&&vCount>=(35+224)&&vCount<=(35+224+3)) // right eye
-		|| (hCount>=(144+310)&&hCount<=(144+310+5)&&vCount>=(35+236)&&vCount<=(35+236+3)) // left mouth 
-		|| (hCount>=(144+314)&&hCount<=(144+314+12)&&vCount>=(35+238)&&vCount<=(35+238+3)) // mid mouth
-		|| (hCount>=(144+325)&&hCount<=(144+325+5)&&vCount>=(35+236)&&vCount<=(35+236+3)) // right mouth  
-		|| (hCount>=(144+314)&&hCount<=(144+314+3)&&vCount>=(35+211)&&vCount<=(35+211+2)) // left hair strand  
-		|| (hCount>=(144+319)&&hCount<=(144+319+3)&&vCount>=(35+208)&&vCount<=(35+208+5)) // mid hair strand  
-		|| (hCount>=(144+324)&&hCount<=(144+324+2)&&vCount>=(35+211)&&vCount<=(35+211+2)); // right hair strand  
-	
-	assign spaceship_mask_fill = 
-	    (hCount>=(144+289)&&hCount<=(144+289+20)&&vCount>=(35+291)&&vCount<=(35+291+4)) // left spaceship mask  
-		|| (hCount>=(144+331)&&hCount<=(144+331+20)&&vCount>=(35+291)&&vCount<=(35+291+4));// right spaceship mask 
-	
+	// Shield stubs (for repairs)
 	assign left_stub_fill = 
 	    (hCount>=(144+248)&&hCount<=(144+248+15)&&vCount>=(35+248)&&vCount<=(35+248+20));
-	
+
 	assign right_stub_fill = 
 	    (hCount>=(144+377)&&hCount<=(144+377+15)&&vCount>=(35+248)&&vCount<=(35+248+20));
 	
-	assign spaceship_display_fill = light_gray_fill || light_blue_fill || head_fill || top_dark_gray_fill
-	                                   || top_medium_gray_fill || btm_dark_gray_fill
-	                                   || btm_medium_gray_fill || spaceship_mask_fill;
+	// Shields and masks for LM+RM lasers
+	assign left_shield_fill =
+		(hCount>=(144+227)&&hCount<=(144+227+10)&&vCount>=(35+205)&&vCount<=(35+205+105)) // left outer shield 
+		|| (hCount>=(144+237)&&hCount<=(144+237+11)&&vCount>=(35+200)&&vCount<=(35+200+115)); // left inner shield
 	
-    assign sweaty_face_fill = 
+	assign right_shield_fill = 
+		(hCount>=(144+402)&&hCount<=(144+402+10)&&vCount>=(35+205)&&vCount<=(35+205+105)) // right outer shield
+		|| (hCount>=(144+392)&&hCount<=(144+392+11)&&vCount>=(35+200)&&vCount<=(35+200+115)); // right inner shield
+	
+	assign LS_mask_fill = 
+	    (hCount>=(144+248)&&hCount<=(144+248+25)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top left mask shield 
+		|| (hCount>=(144+248)&&hCount<=(144+248+25)&&vCount>=(35+291)&&vCount<=(35+291+4)); // bottom left mask shield
+	
+	assign RS_mask_fill = 
+		(hCount>=(144+367)&&hCount<=(144+367+25)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top right mask shield 
+		|| (hCount>=(144+367)&&hCount<=(144+367+25)&&vCount>=(35+291)&&vCount<=(35+291+4)); // bottom right mask shield
+
+	assign spaceship_mask_fill = 
+	    (hCount>=(144+289)&&hCount<=(144+289+20)&&vCount>=(35+291)&&vCount<=(35+291+4)) // left spaceship mask  
+		|| (hCount>=(144+331)&&hCount<=(144+331+20)&&vCount>=(35+291)&&vCount<=(35+291+4)); // right spaceship mask 
+	
+	// Black sweaty facial features
+	assign sweaty_face_fill = 
         (hCount>=(144+302)&&hCount<=(144+302+14)&&vCount>=(35+216)&&vCount<=(35+216+7)) // left brow / headband 
         || (hCount>=(144+316)&&hCount<=(144+316+8)&&vCount>=(35+218)&&vCount<=(35+218+7)) // mid brow / headband 
         || (hCount>=(144+324)&&hCount<=(144+324+14)&&vCount>=(35+216)&&vCount<=(35+216+7)) // right brow / headband 
@@ -415,19 +438,38 @@ module vga_game_controller (
         || (hCount>=(144+319)&&hCount<=(144+319+3)&&vCount>=(35+208)&&vCount<=(35+208+5)) // mid hair strand  
         || (hCount>=(144+324)&&hCount<=(144+324+2)&&vCount>=(35+211)&&vCount<=(35+211+2)); // right hair strand  
 
-    assign sweat_drop_fill =
+    // Blue sweat drop
+	assign sweat_drop_fill =
 	    (hCount>=(144+304)&&hCount<=(144+304+2)&&vCount>=(35+sweat_pos)&&vCount<=(35+sweat_pos+3));
 	
-    assign rim_mask_fill = 
+    // Light gray spaceship rim mask for sweat drop to disappear
+	assign rim_mask_fill = 
         (hCount>=(144+304)&&hCount<=(144+304+2)&&vCount>=(35+248)&&vCount<=(35+248+3)); // mask fill for sweat on ship
 
-	assign sweat_fill = sweat_drop_fill || sweaty_face_fill || rim_mask_fill;
+	// Grouping fill for sweaty face components
+	assign sweaty_fill = sweat_drop_fill || sweaty_face_fill || rim_mask_fill;
 	
+	// Grouping fill for spaceship components
+	assign spaceship_display_fill = light_gray_fill || light_blue_fill || head_fill || top_dark_gray_fill
+	                                   || top_medium_gray_fill || btm_dark_gray_fill
+	                                   || btm_medium_gray_fill || spaceship_mask_fill;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TOP AND BOTTOM LASERS
+	// Green top lasers
 	assign top_green_fill = 
 		(hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser-24)&&vCount<=(35+top_laser)) // top 3rd bullet 
 		|| (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser-24-40)&&vCount<=(35+top_laser-40)) // top 2nd bullet 
 		|| (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+top_laser-24-80)&&vCount<=(35+top_laser-80)); // top 1st bullet 
-		
+	
+	// Green bottom lasers
+	assign btm_green_fill = 
+		(hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+btm_laser)&&vCount<=(35+btm_laser+24)) // bottom 1st bullet 
+		|| (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+btm_laser+40)&&vCount<=(35+btm_laser+40+24)) // bottom 2nd bullet 
+		|| (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+btm_laser+80)&&vCount<=(35+btm_laser+80+24)); // bottom 3rd bullet
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TOP MONSTER
+	// Red body
 	assign TM_red_fill =
 		// left antenna
 		(hCount>=(144+304)&&hCount<=(144+304+8)&&vCount>=(35+7)&&vCount<=(35+7+8))
@@ -448,7 +490,7 @@ module vga_game_controller (
         || (hCount>=(144+364)&&hCount<=(144+364+5)&&vCount>=(35+74)&&vCount<=(35+74+7)) // right fourth leg block
         || (hCount>=(144+369)&&hCount<=(144+369+5)&&vCount>=(35+71)&&vCount<=(35+71+7)); // right outermost leg block 
 
-		
+	// Black features
 	assign TM_black_fill =
 		// eyebrow
 		(hCount>=(144+298)&&hCount<=(144+298+9)&&vCount>=(35+29)&&vCount<=(35+29+5))
@@ -465,21 +507,22 @@ module vga_game_controller (
 		|| (hCount>=(144+315)&&hCount<=(144+315+10)&&vCount>=(35+67)&&vCount<=(35+67+6))
 		|| (hCount>=(144+322)&&hCount<=(144+322+9)&&vCount>=(35+65)&&vCount<=(35+65+5));
 		
+	// Cream eyeball
 	assign TM_cream_fill =
 		// white of eyeball
 		(hCount>=(144+306)&&hCount<=(144+306+28)&&vCount>=(35+37)&&vCount<=(35+37+26));
 	
+	// Mask to cover laser
 	assign TM_mask_fill =
 		(hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35)&&vCount<=(35+24));
 
+	// Grouping fill for top monster components
 	assign TM_display_fill = top_monster_vga && (TM_red_fill || TM_black_fill
 								|| TM_cream_fill || TM_mask_fill);
 	
-	assign btm_green_fill = 
-		(hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+btm_laser)&&vCount<=(35+btm_laser+24)) // bottom 1st bullet 
-		|| (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+btm_laser+40)&&vCount<=(35+btm_laser+40+24)) // bottom 2nd bullet 
-		|| (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+btm_laser+80)&&vCount<=(35+btm_laser+80+24)); // bottom 3rd bullet
-		
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BOTTOM MONSTER
+	// Red body
 	assign BM_red_fill =
 		// left antenna
 		(hCount>=(144+304)&&hCount<=(144+304+8)&&vCount>=(35+389)&&vCount<=(35+389+8))
@@ -500,8 +543,8 @@ module vga_game_controller (
         || (hCount>=(144+364)&&hCount<=(144+364+5)&&vCount>=(35+456)&&vCount<=(35+456+7)) // right fourth leg block
         || (hCount>=(144+369)&&hCount<=(144+369+5)&&vCount>=(35+453)&&vCount<=(35+453+7)); // right outermost leg block 
         
-    
-   assign BM_black_fill =
+    // Black features
+	assign BM_black_fill =
         // eyebrow
         (hCount>=(144+298)&&hCount<=(144+298+9)&&vCount>=(35+411)&&vCount<=(35+411+5))
         || (hCount>=(144+303)&&hCount<=(144+303+9)&&vCount>=(35+414)&&vCount<=(35+414+5))
@@ -516,23 +559,21 @@ module vga_game_controller (
         || (hCount>=(144+315)&&hCount<=(144+315+10)&&vCount>=(35+449)&&vCount<=(35+449+6))
         || (hCount>=(144+322)&&hCount<=(144+322+9)&&vCount>=(35+447)&&vCount<=(35+447+5));
         
-    assign BM_cream_fill =
+    // Cream eyeball
+	assign BM_cream_fill =
         // white of eyeball
         (hCount>=(144+306)&&hCount<=(144+306+28)&&vCount>=(35+419)&&vCount<=(35+419+26));
     
-    assign BM_mask_fill =
+    // Mask to cover laser
+	assign BM_mask_fill =
         (hCount>=(144+318)&&hCount<=(144+318+4)&&vCount>=(35+458)&&vCount<=(35+458+24));    
     
-    assign BM_display_fill = btm_monster_vga && (BM_red_fill || BM_black_fill
+    // Grouping fill for bottom monster components
+	assign BM_display_fill = btm_monster_vga && (BM_red_fill || BM_black_fill
 								|| BM_cream_fill || BM_mask_fill);
-	assign left_red_fill = 
-		(hCount>=(144+left_laser)&&hCount<=(144+left_laser+17)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top leftmost 1st bullet 
-		|| (hCount>=(144+left_laser+30)&&hCount<=(144+left_laser+30+17)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top 2nd bullet 
-		|| (hCount>=(144+left_laser+60)&&hCount<=(144+left_laser+60+17)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top 3rd bullet
-		|| (hCount>=(144+left_laser)&&hCount<=(144+left_laser+17)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom leftmost 1st bullet 
-		|| (hCount>=(144+left_laser+30)&&hCount<=(144+left_laser+30+17)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom 2nd bullet 
-		|| (hCount>=(144+left_laser+60)&&hCount<=(144+left_laser+60+17)&&vCount>=(35+291)&&vCount<=(35+291+4)); // bottom 3rd bullet
-	
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// LEFT MONSTER
+	// Blue bodies
 	assign LM_blue_fill = 
 	    (hCount>=(144+42)&&hCount<=(144+42+13)&&vCount>=(35+185)&&vCount<=(35+185+6)) // top #1 antenna 
 	    || (hCount>=(144+43)&&hCount<=(144+43+7)&&vCount>=(35+191)&&vCount<=(35+191+9)) // top #2 antenna
@@ -545,6 +586,7 @@ module vga_game_controller (
 	    || (hCount>=(144+19)&&hCount<=(144+19+5)&&vCount>=(35+275)&&vCount<=(35+275+36)) // bottom #2 body  
 	    || (hCount>=(144+24)&&hCount<=(144+24+42)&&vCount>=(35+271)&&vCount<=(35+271+45)); // bottom #3 body
 	
+	// Black features
 	assign LM_black_fill = 
 	    (hCount>=(144+43)&&hCount<=(144+43+6)&&vCount>=(35+205)&&vCount<=(35+205+4)) // top #1 brow
 	    || (hCount>=(144+46)&&hCount<=(144+46+6)&&vCount>=(35+207)&&vCount<=(35+207+4)) // top #2 brow 
@@ -559,29 +601,37 @@ module vga_game_controller (
 	    || (hCount>=(144+53)&&hCount<=(144+53+8)&&vCount>=(35+288)&&vCount<=(35+288+9)) // bottom pupil
 	    || (hCount>=(144+51)&&hCount<=(144+51+11)&&vCount>=(35+303)&&vCount<=(35+303+7)); // bottom mouth 
 	    
+	// Cream eyeballs
 	assign LM_cream_fill = 
 	    (hCount>=(144+42)&&hCount<=(144+42+20)&&vCount>=(35+212)&&vCount<=(35+212+18)) // top eyeball
 	    || (hCount>=(144+42)&&hCount<=(144+42+20)&&vCount>=(35+283)&&vCount<=(35+283+18)); // bottom eyeball 
 	
+	// Red pupils
 	assign LM_red_fill = 
 	    (hCount>=(144+57)&&hCount<=(144+57+4)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top pupil
 	    || (hCount>=(144+57)&&hCount<=(144+57+4)&&vCount>=(35+291)&&vCount<=(35+291+4)); // bottom pupil 
 	
+	// Masks to cover lasers
 	assign LM_mask_fill = 
         (hCount>=(144+0)&&hCount<=(144+0+15)&&vCount>=(35+291)&&vCount<=(35+291+4)) // top mask 
 	    || (hCount>=(144+0)&&hCount<=(144+0+15)&&vCount>=(35+220)&&vCount<=(35+220+4)); // bottom mask 
 	
+	// Red left lasers
+	assign left_red_fill = 
+		(hCount>=(144+left_laser)&&hCount<=(144+left_laser+17)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top leftmost 1st bullet 
+		|| (hCount>=(144+left_laser+30)&&hCount<=(144+left_laser+30+17)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top 2nd bullet 
+		|| (hCount>=(144+left_laser+60)&&hCount<=(144+left_laser+60+17)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top 3rd bullet
+		|| (hCount>=(144+left_laser)&&hCount<=(144+left_laser+17)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom leftmost 1st bullet 
+		|| (hCount>=(144+left_laser+30)&&hCount<=(144+left_laser+30+17)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom 2nd bullet 
+		|| (hCount>=(144+left_laser+60)&&hCount<=(144+left_laser+60+17)&&vCount>=(35+291)&&vCount<=(35+291+4)); // bottom 3rd bullet
+
+	// Grouping fill for left monster components
 	assign LM_display_fill = left_monster && (LM_blue_fill || LM_black_fill
                                 || LM_cream_fill || LM_red_fill || LM_mask_fill);
 
-    assign right_red_fill = 
-		(hCount>=(144+right_laser-17)&&hCount<=(144+right_laser)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top rightmost 1st bullet 
-		|| (hCount>=(144+right_laser-30-17)&&hCount<=(144+right_laser-30)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top 2nd bullet 
-		|| (hCount>=(144+right_laser-60-17)&&hCount<=(144+right_laser-60)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top 3rd bullet
-		|| (hCount>=(144+right_laser-17)&&hCount<=(144+right_laser)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom rightmost 1st bullet 
-		|| (hCount>=(144+right_laser-30-17)&&hCount<=(144+right_laser-30)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom 2nd bullet 
-		|| (hCount>=(144+right_laser-60-17)&&hCount<=(144+right_laser-60)&&vCount>=(35+291)&&vCount<=(35+291+4)); // bottom 3rd bullet
-		
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// RIGHT MONSTER
+	// Blue bodies
 	assign RM_blue_fill =
         // top body
         (hCount>=(144+574)&&hCount<=(144+574+42)&&vCount>=(35+200)&&vCount<=(35+200+45))
@@ -598,6 +648,7 @@ module vga_game_controller (
         || (hCount>=(144+585)&&hCount<=(144+585+13)&&vCount>=(35+256)&&vCount<=(35+256+6))
         || (hCount>=(144+590)&&hCount<=(144+590+7)&&vCount>=(35+262)&&vCount<=(35+262+9));
 	
+	// Black features
 	assign RM_black_fill =
         // top eyebrow
         (hCount>=(144+591)&&hCount<=(144+591+6)&&vCount>=(35+205)&&vCount<=(35+205+4))
@@ -618,27 +669,42 @@ module vga_game_controller (
         // bottom mouth
         || (hCount>=(144+578)&&hCount<=(144+578+11)&&vCount>=(35+303)&&vCount<=(35+303+7));
         
-    assign RM_cream_fill =
+    // Cream eyeballs
+	assign RM_cream_fill =
         // top eyeball
         (hCount>=(144+578)&&hCount<=(144+578+20)&&vCount>=(35+212)&&vCount<=(35+212+18))
         // bottom eyeball
         || (hCount>=(144+578)&&hCount<=(144+578+20)&&vCount>=(35+283)&&vCount<=(35+283+18));
     
-    assign RM_red_fill =
+    // Red pupils
+	assign RM_red_fill =
         // top pupil
         (hCount>=(144+579)&&hCount<=(144+579+4)&&vCount>=(35+220)&&vCount<=(35+220+4))
         // bottom pupil
         || (hCount>=(144+579)&&hCount<=(144+579+4)&&vCount>=(35+291)&&vCount<=(35+291+4));
     
+	// Masks to cover lasers
     assign RM_mask_fill =
         // top mask
         (hCount>=(144+625)&&hCount<=(144+625+15)&&vCount>=(35+220)&&vCount<=(35+220+4))
         // bottom mask
         || (hCount>=(144+625)&&hCount<=(144+625+15)&&vCount>=(35+291)&&vCount<=(35+291+4));
-        
-    assign RM_display_fill = right_monster && (RM_blue_fill || RM_black_fill
+    
+	// Red right lasers
+	assign right_red_fill = 
+		(hCount>=(144+right_laser-17)&&hCount<=(144+right_laser)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top rightmost 1st bullet 
+		|| (hCount>=(144+right_laser-30-17)&&hCount<=(144+right_laser-30)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top 2nd bullet 
+		|| (hCount>=(144+right_laser-60-17)&&hCount<=(144+right_laser-60)&&vCount>=(35+220)&&vCount<=(35+220+4)) // top 3rd bullet
+		|| (hCount>=(144+right_laser-17)&&hCount<=(144+right_laser)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom rightmost 1st bullet 
+		|| (hCount>=(144+right_laser-30-17)&&hCount<=(144+right_laser-30)&&vCount>=(35+291)&&vCount<=(35+291+4)) // bottom 2nd bullet 
+		|| (hCount>=(144+right_laser-60-17)&&hCount<=(144+right_laser-60)&&vCount>=(35+291)&&vCount<=(35+291+4)); // bottom 3rd bullet
+
+    // Grouping fill for right monster components
+	assign RM_display_fill = right_monster && (RM_blue_fill || RM_black_fill
                                 || RM_cream_fill || RM_red_fill || RM_mask_fill);
+								
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TOP TERMINAL HEX
 	assign T0_fill = 
 		(hCount>=(144+TOP_H+2)&&hCount<=(144+TOP_H+2+3)&&vCount>=(35+TOP_V)&&vCount<=(35+TOP_V+16))
 		|| (hCount>=(144+TOP_H+5)&&hCount<=(144+TOP_H+5+3)&&vCount>=(35+TOP_V)&&vCount<=(35+TOP_V+3))
@@ -741,6 +807,7 @@ module vga_game_controller (
         || (hCount>=(144+TOP_H+5)&&hCount<=(144+TOP_H+5+6)&&vCount>=(35+TOP_V+6)&&vCount<=(35+TOP_V+6+3)); // middle right 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// BOTTOM TERMINAL HEX
 	assign B0_fill = 
 		(hCount>=(144+BTM_H+2)&&hCount<=(144+BTM_H+2+3)&&vCount>=(35+BTM_V)&&vCount<=(35+BTM_V+16))
 		|| (hCount>=(144+BTM_H+5)&&hCount<=(144+BTM_H+5+3)&&vCount>=(35+BTM_V)&&vCount<=(35+BTM_V+3))
@@ -843,7 +910,7 @@ module vga_game_controller (
         || (hCount>=(144+BTM_H+5)&&hCount<=(144+BTM_H+5+6)&&vCount>=(35+BTM_V+6)&&vCount<=(35+BTM_V+6+3)); // middle right 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// LEFT TERMINAL HEX
 	assign L0_fill = 
 		(hCount>=(144+LEFT_H+2)&&hCount<=(144+LEFT_H+2+3)&&vCount>=(35+LEFT_V)&&vCount<=(35+LEFT_V+16))
 		|| (hCount>=(144+LEFT_H+5)&&hCount<=(144+LEFT_H+5+3)&&vCount>=(35+LEFT_V)&&vCount<=(35+LEFT_V+3))
@@ -946,7 +1013,7 @@ module vga_game_controller (
         || (hCount>=(144+LEFT_H+5)&&hCount<=(144+LEFT_H+5+6)&&vCount>=(35+LEFT_V+6)&&vCount<=(35+LEFT_V+6+3)); // middle right 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+// RIGHT TERMINAL HEX
 	assign R0_fill = 
 		(hCount>=(144+RIGHT_H+2)&&hCount<=(144+RIGHT_H+2+3)&&vCount>=(35+RIGHT_V)&&vCount<=(35+RIGHT_V+16))
 		|| (hCount>=(144+RIGHT_H+5)&&hCount<=(144+RIGHT_H+5+3)&&vCount>=(35+RIGHT_V)&&vCount<=(35+RIGHT_V+3))
@@ -1048,8 +1115,11 @@ module vga_game_controller (
         || (hCount>=(144+RIGHT_H+5)&&hCount<=(144+RIGHT_H+5+6)&&vCount>=(35+RIGHT_V)&&vCount<=(35+RIGHT_V+3)) // top right 
         || (hCount>=(144+RIGHT_H+5)&&hCount<=(144+RIGHT_H+5+6)&&vCount>=(35+RIGHT_V+6)&&vCount<=(35+RIGHT_V+6+3)); // middle right 
 	
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// LOGIC
+	// Updating TM and BM when laser hits monster
 	always@(posedge sysClk, posedge Reset) begin
+		// Syncing shared registers
 	    top_monster_vga <= top_monster_ctrl;
 	    btm_monster_vga <= btm_monster_ctrl;
 	   	if(Reset)
@@ -1068,29 +1138,26 @@ module vga_game_controller (
         end
 	end
 	
-
 	always@(posedge Clk, posedge Reset) 
 	begin
 		if(Reset)
-		begin 
+		begin
+			// Initial positions of lasers and sweat
 			top_laser<=256;
 			btm_laser<=226;
 			left_laser<=-11; 
 			right_laser<=651;
 			top_shooting<=0;
 			btm_shooting<=0;
+			sweat_pos <= 220;
+			
+			// Initializing shield flags
 			left_shield<=0; 
 			right_shield<=0; 
-			sweat_pos <= 220;
 		end
 		else if (Clk) begin
 		
-		/* Note that the top left of the screen does NOT correlate to vCount=0 and hCount=0. The display_controller.v file has the 
-			synchronizing pulses for both the horizontal sync and the vertical sync begin at vcount=0 and hcount=0. Recall that after 
-			the length of the pulse, there is also a short period called the back porch before the display area begins. So effectively, 
-			the top left corner corresponds to (hcount,vcount)~(144,35). Which means with a 640x480 resolution, the bottom right corner 
-			corresponds to ~(783,515).  
-		*/
+			// On button press, activate shooter or shield
 			if(up && !top_shooting && !top_broken)
 				top_shooting<=1;
 			if(down && !btm_shooting && !btm_broken)
@@ -1099,69 +1166,94 @@ module vga_game_controller (
 			    left_shield<=1; 
             if(right && right_monster && !right_broken)
 			    right_shield<=1; 
-			    
-			if(left_monster) begin
-			    left_laser<=left_laser+4; 
+			
+			// Shooting and resetting top laser
+			if(top_shooting)
+			begin
+				top_laser<=top_laser-4;
+				// If monster present, laser stops at monster
+				if (top_monster_vga && top_laser == 76)
+				begin
+					top_shooting<=0;
+					top_laser<=256;
+				end
+				// Else, goes to end of screen
+				else if (top_laser == 0) //
+				begin
+					top_shooting<=0;
+					top_laser<=256;
+				end
+			end
+			
+			// Shooting and resetting tbottomop laser
+			if(btm_shooting)
+			begin
+				btm_laser<=btm_laser+4;
+				// If monster present, laser stops at monster
+				if (btm_monster_vga && btm_laser == 406)
+				begin
+					btm_shooting<=0;
+					btm_laser<=226;
+				end
+				// Else, goes to end of screen
+				else if (btm_laser == 478)
+				begin
+					btm_shooting<=0;
+					btm_laser<=226;
+				end
+			end
+			
+			// Shooting and looping left monster laser
+			if(left_monster)
+			begin
+			    left_laser<=left_laser+4;
+				// If shield activated, laser stops at shield
 			    if (left_shield && left_laser == 229)  
 			        left_laser<=-11; 
-			    else if(left_laser == 273)
+				// Else, goes to spaceship
+			    else if (left_laser == 273)
 			        left_laser<=-11; 
 			end
-			else begin
+			else
+			begin
 			    left_laser<=-11; 
 			    left_shield<=0; 
 			end
 			
-			if(right_monster) begin
+			// Shooting and looping right monster laser
+			if(right_monster)
+			begin
 			    right_laser<=right_laser-4; 
+				// If shield activated, laser stops at shield
 			    if (right_shield && right_laser == 411)  
 			        right_laser<=651; 
-			    else if(right_laser == 367)
+				// Else, goes to spaceship
+			    else if (right_laser == 367)
 			        right_laser<=651; 
 			end
-			else begin
+			else
+			begin
 			    right_laser<=651; 
 			    right_shield<=0;   
 			end  
 
-			if(top_shooting) begin
-				top_laser<=top_laser-4;
-				if (top_monster_vga && top_laser == 76) begin
-					top_shooting<=0;
-					top_laser<=256;
-				end
-				else if(top_laser == 0) begin
-					top_shooting<=0;
-					top_laser<=256;
-				end
-			end
-			
-			if(btm_shooting) begin
-				btm_laser<=btm_laser+4;
-				if (btm_monster_vga && btm_laser == 406) begin
-					btm_shooting<=0;
-					btm_laser<=226;
-				end
-				else if(btm_laser == 478) begin
-					btm_shooting<=0;
-					btm_laser<=226;
-				end
-			end
-						
-            if (multiple_broken && !sweating)
+            // Activating sweaty face
+			if (multiple_broken && !sweating)
                 sweating <= 1;
             
-            if (sweating)
+            // Rolling sweat drops down face
+			if (sweating)
             begin
                 sweat_pos <= sweat_pos + 1;
+				// Restart sweat drop
                 if (sweat_pos == 248)
                     sweat_pos <= 220;
                 if (!multiple_broken)
                 begin
                     sweat_pos <= 220;
-                sweating <= 0;
-            end
-        end
+					sweating <= 0;
+				end
+			end
     
 		end
 	end
