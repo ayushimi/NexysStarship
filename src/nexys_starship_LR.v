@@ -53,10 +53,10 @@ module nexys_starship_LR(Clk, Reset, q_LR_Init, q_LR_Working , q_LR_Repair, BtnL
 				case(state)	
 					INIT:
 					begin
-						/* STATE LRANSFERS */ 
+						/* STATE TRANSFERS */ 
 						if (play_flag) state <= WORKING;
 						
-						/* DATA LRANSFERS */
+						/* DATA TRANSFERS */
 						left_broken <= 0;
 						LR_combo <= 0;
 					end		
@@ -66,7 +66,7 @@ module nexys_starship_LR(Clk, Reset, q_LR_Init, q_LR_Working , q_LR_Repair, BtnL
 					    if (left_broken) state <= REPAIR;
 						if (gameover_ctrl) state <= INIT;
 						
-					    /* DATA LRANSFERS */ 
+					    /* DATA TRANSFERS */ 
 					    // Randomly breaks 
 					    if (left_delay >= 1)
 					       break_shield <= 1;
@@ -79,11 +79,11 @@ module nexys_starship_LR(Clk, Reset, q_LR_Init, q_LR_Working , q_LR_Repair, BtnL
 					end
 					REPAIR:
 					begin
-						/* STATE LRANSFERS */ 
+						/* STATE TRANSFERS */ 
 						if (!left_broken) state <= WORKING;	
 						if (gameover_ctrl) state <= INIT;
 						
-    					//* DATA LRANSFERS */
+    					//* DATA TRANSFERS */
     					// If submit button pressed and correct switch input,
     					// repair broken part
 						if (BtnL)

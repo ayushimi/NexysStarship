@@ -6,11 +6,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module nexys_starship_game(Clk, BtnC, BtnU, Reset, q_Init, q_Play, q_GameOver, 
+module nexys_starship_game(Clk, BtnU, Reset, q_Init, q_Play, q_GameOver, 
                             play_flag, gameover_ctrl);
 
 	/*  INPUTS */
-	input	Clk, BtnC, BtnU, Reset, gameover_ctrl;
+	input	Clk, BtnU, Reset, gameover_ctrl;
 
 	/*  OUTPUTS */
 	output reg play_flag;
@@ -38,18 +38,13 @@ module nexys_starship_game(Clk, BtnC, BtnU, Reset, q_Init, q_Play, q_GameOver,
 						if (play_flag) state <= PLAY;
 						
 						/* DATA TRANSFERS */
-						// BtnU starts game 
-						play_flag = 0;
 						if (BtnU)
 						    play_flag = 1; 
 					end		
 					PLAY: 
 					begin
-					    /* STATE TRANSFERS */ 
+					    /* STATE TRANSFERS */  
 					    if (gameover_ctrl) state <= GAMEOVER;
-						
-					    /* DATA TRANSFERS */
-					    play_flag = 1;
 					end
 					GAMEOVER:
 					begin

@@ -182,10 +182,10 @@ module nexys_starship_top
 // DESIGN
 
 	// State machine modules
-	nexys_starship_game nexys_starship_game_1(.Clk(sys_clk), .BtnC(Center_Pulse),
-	                      .BtnU(Up_Pulse), .Reset(Reset), .q_Init(q_Init),
-	                      .q_Play(q_Play), .q_GameOver(q_GameOver), 
-						  .play_flag(play_flag), .gameover_ctrl(gameover_ctrl));
+	nexys_starship_game nexys_starship_game_1(.Clk(sys_clk), .BtnU(Up_Pulse), 
+	                      .Reset(Reset), .q_Init(q_Init), .q_Play(q_Play), 
+	                      .q_GameOver(q_GameOver), .play_flag(play_flag), 
+	                      .gameover_ctrl(gameover_ctrl));
                            
 	nexys_starship_TM nexys_starship_TM_1(.Clk(sys_clk), .Reset(Reset), .q_TM_Init(q_TM_Init), 
 	                      .q_TM_Empty(q_TM_Empty), .q_TM_Full(q_TM_Full), .play_flag(play_flag), 

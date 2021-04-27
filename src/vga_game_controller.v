@@ -1185,7 +1185,7 @@ module vga_game_controller (
 				end
 			end
 			
-			// Shooting and resetting tbottomop laser
+			// Shooting and resetting bottom laser
 			if(btm_shooting)
 			begin
 				btm_laser<=btm_laser+4;
