@@ -86,7 +86,7 @@ module nexys_starship_LR(Clk, Reset, q_LR_Init, q_LR_Working , q_LR_Repair, BtnL
     					//* DATA LRANSFERS */
     					// If submit button pressed and correct switch input,
     					// repair broken part
-						if (BtnU)
+						if (BtnL)
 						begin
 							if (hex_combo == LR_combo)
 								left_broken <= 0;

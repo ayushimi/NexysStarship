@@ -6,12 +6,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnL,
+module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtrnR,
                             play_flag, right_broken, hex_combo, random_hex, gameover_ctrl,
                             RR_random, RR_combo, timer_clk);
 
 	/*  INPUTS */
-	input Clk, Reset, BtnL, timer_clk;
+	input Clk, Reset, BtrnR, timer_clk;
 	input play_flag, gameover_ctrl;	
 	input [3:0] hex_combo, random_hex;
 	input RR_random;
