@@ -1,10 +1,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 // Author:			Ayushi Mittal, Kelly Chan
 // Create Date:   	04/10/21
-// File Name:		nexys_starship.v 
-// Description: 	Main file for Nexys Starship (EE 354 Final Project).
-//
-//
+// File Name:		nexys_starship_game.v 
+// Description: 	Game SM file for Nexys Starship (EE 354 Final Project).
 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -15,10 +13,9 @@ module nexys_starship_game(Clk, BtnC, BtnU, Reset, q_Init, q_Play, q_GameOver,
 	input	Clk, BtnC, BtnU, Reset, gameover_ctrl;
 
 	/*  OUTPUTS */
-	// store the two flags 
 	output reg play_flag;
-	// store current state
 	output q_Init, q_Play, q_GameOver;
+	
 	reg [2:0] state;
 	assign {q_GameOver, q_Play, q_Init} = state;
 		
@@ -31,18 +28,16 @@ module nexys_starship_game(Clk, BtnC, BtnU, Reset, q_Init, q_Play, q_GameOver,
 		if(Reset) 
 		  begin
 		    play_flag <= 0;
-			//game_over <= 0;
 			state <= INIT;
 		  end
-		else				// ****** TODO ****** complete several parts
+		else
 				case(state)	
 					INIT:
 					begin
 						// state transfers
 						if (play_flag) state <= PLAY;
+						
 						// data transfers
-						// DISPLAY HOMESCREEN
-						// game_timer <= 0;
 						play_flag = 0;
 						if (BtnU)
 						    play_flag = 1; 
@@ -51,19 +46,18 @@ module nexys_starship_game(Clk, BtnC, BtnU, Reset, q_Init, q_Play, q_GameOver,
 					begin
 					    // state transfers
 					    if (gameover_ctrl) state <= GAMEOVER;
+						
 					    // data transfers 
-					    // DISPLAY SPACESHIP AND TERMINALS 
 					    play_flag = 1;
 					end
 					GAMEOVER:
 					begin
 						// state transfers
-						//if (BtnC) state <= INIT;
-						play_flag = 0; 	
-    					// data transfers
-						// DISPLAY END SCREEN AND GAME TIMER
-						end
 						
+    					// data transfers
+						play_flag = 0; 	
+					end
+	
 					default:		
 						state <= UNK;
 				endcase

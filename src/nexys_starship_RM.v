@@ -1,10 +1,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 // Author:			Ayushi Mittal, Kelly Chan
 // Create Date:   	04/10/21
-// File Name:		nexys_starship.v 
-// Description: 	Main file for Nexys Starship (EE 354 Final Project).
-//
-//
+// File Name:		nexys_starship_RM.v 
+// Description: 	Right Monster file for Nexys Starship (EE 354 Final Project).
 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -13,19 +11,21 @@ module nexys_starship_RM(Clk, Reset, q_RM_Init, q_RM_Empty, q_RM_Full,
                             right_gameover, gameover_ctrl, timer_clk);
 
 	/*  INPUTS */
-	input	Clk, Reset, timer_clk;	
-	input right_random, right_shield;
+	input Clk, Reset, timer_clk;	
+	input right_shield, right_random;
+	input play_flag, gameover_ctrl;
 
 	/*  OUTPUTS */
-	input play_flag, gameover_ctrl;
 	output reg right_gameover, right_monster;
 	output q_RM_Init, q_RM_Empty, q_RM_Full;
+	
 	reg [2:0] state;
 	assign {q_RM_Full, q_RM_Empty, q_RM_Init} = state;
 		
 	localparam 	
 	INIT = 3'b001, EMPTY = 3'b010, FULL = 3'b100, UNK = 3'bXXX;     
 	
+	// Timer and Delay
 	reg [7:0] right_timer;
 	reg [7:0] right_delay;
 	reg generate_monster;
@@ -54,8 +54,8 @@ module nexys_starship_RM(Clk, Reset, q_RM_Init, q_RM_Empty, q_RM_Full,
 		  begin
 			right_gameover <=0; 
 			right_monster <=0; 
-			state <= INIT;
 			generate_monster <= 0;
+			state <= INIT;
 		  end
 		else				
 				case(state)	
@@ -63,9 +63,8 @@ module nexys_starship_RM(Clk, Reset, q_RM_Init, q_RM_Empty, q_RM_Full,
 					begin
 						// state transfers
 						if (play_flag) state <= EMPTY;
+
 						// data transfers
-						// DISPLAY HOMESCREEN
-						// game_timer <= 0;
 						right_gameover <= 0; 
 						right_monster <= 0;
 						generate_monster <= 0;
@@ -75,8 +74,8 @@ module nexys_starship_RM(Clk, Reset, q_RM_Init, q_RM_Empty, q_RM_Full,
 					    // state transfers
 					    if (right_monster) state <= FULL;
 					    if (right_gameover) state <= INIT;
+
 					    // data transfers 
-					    // CLEAR DISPLAY  
 					    if (right_delay == 1)
 					       generate_monster <= 1;
 					    if (right_random && generate_monster)
@@ -90,8 +89,8 @@ module nexys_starship_RM(Clk, Reset, q_RM_Init, q_RM_Empty, q_RM_Full,
 						// state transfers
 						if (!right_monster) state <= EMPTY;	
 						if (right_gameover) state <= INIT;
+
     					// data transfers
-						// DISPLAY MONSTER SHOOTING 
 						if (right_timer >= 12)
 						begin
 						   if (right_shield) 

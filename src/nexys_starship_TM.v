@@ -1,10 +1,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 // Author:			Ayushi Mittal, Kelly Chan
 // Create Date:   	04/10/21
-// File Name:		nexys_starship.v 
-// Description: 	Main file for Nexys Starship (EE 354 Final Project).
-//
-//
+// File Name:		nexys_starship_TM.v 
+// Description: 	Top Monster SM file for Nexys Starship (EE 354 Final Project).
 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -13,20 +11,22 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 							top_random, top_gameover, gameover_ctrl, timer_clk);
 
 	/*  INPUTS */
-	input	Clk, Reset, timer_clk;	
+	input Clk, Reset, timer_clk;	
 	input top_monster_ctrl, top_random;
+	input play_flag, gameover_ctrl;
 
 	/*  OUTPUTS */
-	input play_flag, gameover_ctrl;
 	output reg top_monster_sm;	
 	output reg top_gameover;
 	output q_TM_Init, q_TM_Empty, q_TM_Full;
+	
 	reg [2:0] state;
 	assign {q_TM_Full, q_TM_Empty, q_TM_Init} = state;
 		
 	localparam 	
 	INIT = 3'b001, EMPTY = 3'b010, FULL = 3'b100, UNK = 3'bXXX;     
 	
+	// Timer and delay
 	reg [7:0] top_timer;
 	reg [7:0] top_delay;
 	reg generate_monster;
@@ -56,8 +56,8 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 		  begin
 			top_monster_sm <= 0;
 			top_gameover <=0; 
-			state <= INIT;
 			generate_monster <= 0;
+			state <= INIT;
 		  end
 		else				
 				case(state)	
@@ -65,9 +65,8 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 					begin
 						// state transfers
 						if (play_flag) state <= EMPTY;
+						
 						// data transfers
-						// DISPLAY HOMESCREEN
-						// game_timer <= 0;
 						top_gameover <= 0; 
 						top_monster_sm <= 0;
 						generate_monster <= 0;
@@ -77,8 +76,8 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 					    // state transfers
 					    if (top_monster_sm) state <= FULL;
 					    if (top_gameover) state <= INIT;
+						
 					    // data transfers 
-					    // CLEAR DISPLAY  
 					    if (top_delay == 1)
 					       generate_monster <= 1;
 					    if (top_random && generate_monster)
@@ -92,8 +91,8 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 						// state transfers
 						if (!top_monster_sm) state <= EMPTY;	
 						if (top_gameover) state <= INIT;
+
     					// data transfers
-						// DISPLAY MONSTER SHOOTING 
 						if (top_timer >= 12) 
 						begin
 						  top_gameover <= 1; 

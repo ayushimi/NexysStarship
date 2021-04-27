@@ -12,7 +12,7 @@ module nexys_starship_top
 
         ClkPort,                           // the 100 MHz incoming clock signal
 		
-		BtnL, BtnU, BtnD, BtnR,            // the Left, Up, Down, and the Right buttons BtnL, BtnR,
+		BtnL, BtnU, BtnD, BtnR,            // the Left, Up, Down, and the Right buttons
 		BtnC,                              // the center button (this is our reset in most of our designs)
 		Sw3, Sw2, Sw1, Sw0, // 8 switches
 		Ld7, Ld6, Ld5, Ld4, Ld3, Ld2, Ld1, Ld0, // 8 LEDs

@@ -1,10 +1,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 // Author:			Ayushi Mittal, Kelly Chan
 // Create Date:   	04/10/21
-// File Name:		nexys_starship.v 
-// Description: 	Main file for Nexys Starship (EE 354 Final Project).
-//
-//
+// File Name:		nexys_starship_LM.v 
+// Description: 	Left Monster file for Nexys Starship (EE 354 Final Project).
 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -13,19 +11,21 @@ module nexys_starship_LM(Clk, Reset, q_LM_Init, q_LM_Empty, q_LM_Full,
                             left_gameover, gameover_ctrl, timer_clk);
 
 	/*  INPUTS */
-	input	Clk, Reset, timer_clk;	
-	input left_random, left_shield;
+	input Clk, Reset, timer_clk;	
+	input left_shield, left_random;
+	input play_flag, gameover_ctrl;
 
 	/*  OUTPUTS */
-	input play_flag, gameover_ctrl;
 	output reg left_gameover, left_monster;
 	output q_LM_Init, q_LM_Empty, q_LM_Full;
+	
 	reg [2:0] state;
 	assign {q_LM_Full, q_LM_Empty, q_LM_Init} = state;
 		
 	localparam 	
 	INIT = 3'b001, EMPTY = 3'b010, FULL = 3'b100, UNK = 3'bXXX;     
 	
+	// Timer and Delay
 	reg [7:0] left_timer;
 	reg [7:0] left_delay;
 	reg generate_monster;
@@ -54,8 +54,8 @@ module nexys_starship_LM(Clk, Reset, q_LM_Init, q_LM_Empty, q_LM_Full,
 		  begin
 			left_gameover <=0; 
 			left_monster <=0; 
-			state <= INIT;
 			generate_monster <= 0;
+			state <= INIT;
 		  end
 		else				
 				case(state)	
@@ -63,9 +63,8 @@ module nexys_starship_LM(Clk, Reset, q_LM_Init, q_LM_Empty, q_LM_Full,
 					begin
 						// state transfers
 						if (play_flag) state <= EMPTY;
+
 						// data transfers
-						// DISPLAY HOMESCREEN
-						// game_timer <= 0;
 						left_gameover <= 0; 
 						left_monster <= 0;
 						generate_monster <= 0;
@@ -75,8 +74,8 @@ module nexys_starship_LM(Clk, Reset, q_LM_Init, q_LM_Empty, q_LM_Full,
 					    // state transfers
 					    if (left_monster) state <= FULL;
 					    if (left_gameover) state <= INIT;
+
 					    // data transfers 
-					    // CLEAR DISPLAY  
 					    if (left_delay == 1)
 					       generate_monster <= 1;
 					    if (left_random && generate_monster)
@@ -90,8 +89,8 @@ module nexys_starship_LM(Clk, Reset, q_LM_Init, q_LM_Empty, q_LM_Full,
 						// state transfers
 						if (!left_monster) state <= EMPTY;	
 						if (left_gameover) state <= INIT;
+
     					// data transfers
-						// DISPLAY MONSTER SHOOTING 
 						if (left_timer >= 12)
 						begin
 						   if (left_shield) 
