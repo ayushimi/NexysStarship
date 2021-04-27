@@ -34,27 +34,26 @@ module nexys_starship_game(Clk, BtnC, BtnU, Reset, q_Init, q_Play, q_GameOver,
 				case(state)	
 					INIT:
 					begin
-						// state transfers
+						/* STATE TRANSFERS */ 
 						if (play_flag) state <= PLAY;
 						
-						// data transfers
+						/* DATA TRANSFERS */
+						// BtnU starts game 
 						play_flag = 0;
 						if (BtnU)
 						    play_flag = 1; 
 					end		
 					PLAY: 
 					begin
-					    // state transfers
+					    /* STATE TRANSFERS */ 
 					    if (gameover_ctrl) state <= GAMEOVER;
 						
-					    // data transfers 
+					    /* DATA TRANSFERS */
 					    play_flag = 1;
 					end
 					GAMEOVER:
 					begin
-						// state transfers
-						
-    					// data transfers
+    					/* DATA TRANSFERS */
 						play_flag = 0; 	
 					end
 	
@@ -62,8 +61,5 @@ module nexys_starship_game(Clk, BtnC, BtnU, Reset, q_Init, q_Play, q_GameOver,
 						state <= UNK;
 				endcase
 	end
-		
-	// OFL
-	// no combinational output signals
 	
 endmodule

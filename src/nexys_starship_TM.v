@@ -31,6 +31,8 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 	reg [7:0] top_delay;
 	reg generate_monster;
 	
+	// Responsible for top monster timer
+	// Expires when terminal is empty, increments when terminal is full  
 	always @ (posedge timer_clk, posedge Reset)
 	begin
 	   if (Reset || state == INIT || state == EMPTY)
@@ -39,6 +41,7 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
            top_timer <= top_timer + 1;
 	end
 	
+	// Responsible for delay timer to create buffer between monster generation 
 	always @ (posedge timer_clk, posedge Reset)
 	begin
 	   if (Reset || state == INIT || state == FULL)
@@ -47,9 +50,10 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 	       top_delay <= top_delay + 1;
 	end
 
-	// NSL AND SM
+	// NSL for State Machine 
 	always @ (posedge Clk, posedge Reset)
 	begin 
+	    // Syncing shared registers 
 	    top_monster_sm <= top_monster_ctrl;
 	    top_gameover <= gameover_ctrl; 
 		if(Reset) 
@@ -63,21 +67,22 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 				case(state)	
 					INIT:
 					begin
-						// state transfers
+						/* STATE TRANSFERS */ 
 						if (play_flag) state <= EMPTY;
 						
-						// data transfers
+						/* DATA TRANSFERS */
 						top_gameover <= 0; 
 						top_monster_sm <= 0;
 						generate_monster <= 0;
 					end		
 					EMPTY: 
 					begin
-					    // state transfers
+					    /* STATE TRANSFERS */ 
 					    if (top_monster_sm) state <= FULL;
 					    if (top_gameover) state <= INIT;
 						
-					    // data transfers 
+					    /* DATA TRANSFERS */
+					    // Randomly generates monster 
 					    if (top_delay == 1)
 					       generate_monster <= 1;
 					    if (top_random && generate_monster)
@@ -88,11 +93,12 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 					end
 					FULL:
 					begin
-						// state transfers
+						/* STATE TRANSFERS */ 
 						if (!top_monster_sm) state <= EMPTY;	
 						if (top_gameover) state <= INIT;
 
-    					// data transfers
+    					/* DATA TRANSFERS */
+    					// When monster timer expires, gameover 
 						if (top_timer >= 12) 
 						begin
 						  top_gameover <= 1; 
@@ -103,8 +109,5 @@ module nexys_starship_TM(Clk, Reset, q_TM_Init, q_TM_Empty, q_TM_Full,
 						state <= UNK;
 				endcase
 	end
-		
-	// OFL
-	// no combinational output signals
 	
 endmodule
