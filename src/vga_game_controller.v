@@ -201,7 +201,7 @@ module vga_game_controller (
 				if (!spaceship_mask_fill)
 				    rgb = BLACK;
 			    else if (gameover_ctrl)
-				    rgb = BACKGROUND;
+				    rgb = BACKGROUND_BLUE;
 				else
 				    rgb = TUNNEL_BLUE;
 		  end
@@ -327,7 +327,7 @@ module vga_game_controller (
 		else if (!gameover_ctrl && tunnel_blue_fill) // tunnels
 			rgb = TUNNEL_BLUE;
 		else // background
-			rgb=BACKGROUND;
+			rgb=BACKGROUND_BLUE;
 	end
 	
     // Determining if multiple (2+) parts broken

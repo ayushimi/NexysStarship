@@ -7,14 +7,14 @@
 
 
 module nexys_starship_LR(Clk, Reset, q_LR_Init, q_LR_Working , q_LR_Repair, BtnL,
-                            play_flag, left_broken, hex_combo, random_hex, gameover_ctrl,
-                            LR_random, LR_combo, timer_clk);
+                            play_flag, left_broken, left_shield, hex_combo, random_hex, 
+                            gameover_ctrl, LR_random, LR_combo, timer_clk);
 
 	/*  INPUTS */
 	input Clk, Reset, BtnL, timer_clk;
 	input play_flag, gameover_ctrl;	
 	input [3:0] hex_combo, random_hex;
-	input LR_random;
+	input LR_random, left_shield;
 
 	/*  OUTPUTS */
 	output reg left_broken;	
@@ -68,9 +68,9 @@ module nexys_starship_LR(Clk, Reset, q_LR_Init, q_LR_Working , q_LR_Repair, BtnL
 						
 					    /* DATA LRANSFERS */ 
 					    // Randomly breaks 
-					    if (left_delay == 1)
+					    if (left_delay >= 1)
 					       break_shield <= 1;
-					    if (LR_random && break_shield) 
+					    if (LR_random && break_shield && !left_shield) 
 					    begin
 					        left_broken = 1; 
 							LR_combo <= random_hex;

@@ -225,14 +225,14 @@ module nexys_starship_top
                            
     nexys_starship_LR nexys_starship_LR_1(.Clk(sys_clk), .Reset(Reset), .q_LR_Init(q_LR_Init), 
 	                      .q_LR_Working(q_LR_Working), .q_LR_Repair(q_LR_Repair), .BtnL(Left_Pulse),
-                          .play_flag(play_flag), .left_broken(left_broken), .hex_combo(hex_combo), 
-                          .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
+                          .play_flag(play_flag), .left_broken(left_broken), .left_shield(left_shield), 
+                          .hex_combo(hex_combo), .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
                           .LR_random(LR_random), .LR_combo(LR_combo), .timer_clk(timer_clk)); 
     
     nexys_starship_RR nexys_starship_RR_1(.Clk(sys_clk), .Reset(Reset), .q_RR_Init(q_RR_Init), 
 	                      .q_RR_Working(q_RR_Working), .q_RR_Repair(q_RR_Repair), .BtnR(Right_Pulse),
-                          .play_flag(play_flag), .right_broken(right_broken), .hex_combo(hex_combo), 
-                          .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
+                          .play_flag(play_flag), .right_broken(right_broken), .right_shield(right_shield),
+                          .hex_combo(hex_combo), .random_hex(random_hex), .gameover_ctrl(gameover_ctrl),
                           .RR_random(RR_random), .RR_combo(RR_combo), .timer_clk(timer_clk));        
 				  
 	// Pseudo-random number generator module
@@ -291,15 +291,16 @@ module nexys_starship_top
 			begin
 				clk_cycle_count <= 0;
 				game_time_sec_1s <= game_time_sec_1s + 1;
-				if (game_time_sec_1s == 9)
+				if (game_time_sec_10s == 5 && game_time_sec_1s == 9)
+				begin
+					game_time_sec_10s <= 0;
+					game_time_sec_1s <=0;
+					game_time_min <= game_time_min + 1;
+				end
+				else if (game_time_sec_1s == 9)
 				begin
 					game_time_sec_1s <= 0;
 					game_time_sec_10s <= game_time_sec_10s + 1;
-				end
-				if (game_time_sec_10s == 5)
-				begin
-					game_time_sec_10s <= 0;
-					game_time_min <= game_time_min + 1;
 				end
 			end
 		end

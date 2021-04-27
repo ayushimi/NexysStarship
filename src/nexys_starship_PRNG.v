@@ -58,7 +58,7 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
 				top_random <= 1;
 			else
 				top_random <= 0;
-		    if (TR_random_8 <= 4)
+		    if (TR_random_8 <= 2)
                 TR_random <= 1;
             else
                 TR_random <= 0;
@@ -99,7 +99,7 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
 				btm_random <= 1;
 			else
 				btm_random <= 0;
-			if (BR_random_8 <= 4)
+			if (BR_random_8 <= 2)
                 BR_random <= 1;
             else
                 BR_random <= 0;
@@ -125,10 +125,10 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
         else
         begin
             // Increment, then randomly combine/XOR regs to produce pseudo random number. 
-            left0 <= left0 + 3;
+            left0 <= left0 + 7;
             left1 <= left1 + 9;
             left2 <= left2 + 5;
-            left3 <= left3 + 7;
+            left3 <= left3 + 3;
             left_random_8 <= {left3[7:5], left2[4:2] ^ left1[4:2], left0[1:0]};
             LR_random_8 <= {left0[7:5], left3[4:2] ^ left1[4:2], left2[1:0]};
             
@@ -137,7 +137,7 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
 				left_random <= 1;
 			else
 				left_random <= 0;
-			if (LR_random_8 <= 4)
+			if (LR_random_8 <= 2)
                 LR_random <= 1;
             else
                 LR_random <= 0;
@@ -165,8 +165,8 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
             // Increment, then randomly combine/XOR regs to produce pseudo random number. 
             right0 <= right0 + 3;
             right1 <= right1 + 9;
-            right2 <= right2 + 5;
-            right3 <= right3 + 7;
+            right2 <= right2 + 7;
+            right3 <= right3 + 5;
             right_random_8 <= {right3[7:5], right2[4:2] ^ right1[4:2], right0[1:0]};
             RR_random_8 <= {right0[7:5], right3[4:2] ^ right1[4:2], right2[1:0]};
             
@@ -175,7 +175,7 @@ module nexys_starship_PRNG(Clk, Reset, top_random, btm_random,
 				right_random <= 1;
 			else
 				right_random <= 0;
-			if (RR_random_8 <= 4)
+			if (RR_random_8 <= 2)
                 RR_random <= 1;
             else
                 RR_random <= 0;

@@ -99,7 +99,7 @@ module nexys_starship_BM(Clk, Reset, q_BM_Init, q_BM_Empty, q_BM_Full,
 
     					/* DATA TRANSFERS */
     					// When monster timer expires, gameover 
-						if (btm_timer >= 12) 
+						if (btm_timer >= 15) 
 						begin
 						  btm_gameover <= 1; 
 						end

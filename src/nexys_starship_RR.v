@@ -6,15 +6,15 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtrnR,
-                            play_flag, right_broken, hex_combo, random_hex, gameover_ctrl,
-                            RR_random, RR_combo, timer_clk);
+module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, BtnR,
+                            play_flag, right_broken, right_shield, hex_combo, random_hex, 
+                            gameover_ctrl, RR_random, RR_combo, timer_clk);
 
 	/*  INPUTS */
-	input Clk, Reset, BtrnR, timer_clk;
+	input Clk, Reset, BtnR, timer_clk;
 	input play_flag, gameover_ctrl;	
 	input [3:0] hex_combo, random_hex;
-	input RR_random;
+	input RR_random, right_shield; 
 
 	/*  OUTPUTS */
 	output reg right_broken;	
@@ -70,7 +70,7 @@ module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, Btrn
 					    // Randomly breaks 
 					    if (right_delay == 1)
 					       break_shield <= 1;
-					    if (RR_random && break_shield) 
+					    if (RR_random && break_shield && !right_shield) 
 					    begin
 					        right_broken = 1; 
 							RR_combo <= random_hex;
@@ -86,7 +86,7 @@ module nexys_starship_RR(Clk, Reset, q_RR_Init, q_RR_Working , q_RR_Repair, Btrn
     					//* DATA RRANSFERS */
     					// If submit button pressed and correct switch input,
     					// repair broken part
-						if (BtnU)
+						if (BtnR)
 						begin
 							if (hex_combo == RR_combo)
 								right_broken <= 0;

@@ -98,7 +98,7 @@ module nexys_starship_LM(Clk, Reset, q_LM_Init, q_LM_Empty, q_LM_Full,
     					/* DATA TRANSFERS */
     					// When monster timer expires... 
     					// If shield activated, remove monster. Else gameover 
-						if (left_timer >= 12)
+						if (left_timer >= 15)
 						begin
 						   if (left_shield) 
 						        left_monster <= 0;
