@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module block_controller (
+module vga_game_controller (
 	input Clk, //this clock must be a slow enough clock to view the changing positions of the objects
 	input bright,
 	input Reset,

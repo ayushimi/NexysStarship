@@ -245,7 +245,7 @@ module nexys_starship_top
 	display_controller dc(.Clk(sys_clk), .hSync(hSync), .vSync(vSync), .bright(bright), .hCount(hc), 
 	                     .vCount(vc));
 	
-	block_controller sc(.Clk(move_clk), .bright(bright), .Reset(Reset), .up(BtnU), .down(BtnD),
+	vga_game_controller sc(.Clk(move_clk), .bright(bright), .Reset(Reset), .up(BtnU), .down(BtnD),
 						 .left(BtnL), .right(BtnR), .hCount(hc), .vCount(vc), .rgb(rgb),
 						 .top_monster_vga(top_monster_vga), .top_monster_ctrl(top_monster_ctrl), 
 						 .top_broken(top_broken), .btm_monster_vga(btm_monster_vga), 
